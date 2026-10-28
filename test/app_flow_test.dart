@@ -7,6 +7,7 @@ import 'package:g_primary_math/app/app.dart';
 import 'package:g_primary_math/app/services.dart';
 import 'package:g_primary_math/audio/audio_service.dart';
 import 'package:g_primary_math/content/curriculum.dart';
+import 'package:g_primary_math/game/session.dart';
 import 'package:g_primary_math/progress/play_settings.dart';
 import 'package:g_primary_math/progress/progress_store.dart';
 import 'package:g_primary_math/screens/play/play_widgets.dart';
@@ -93,5 +94,50 @@ void main() {
     expect(rec, isNotNull);
     expect(rec!.plays, 1);
     expect((await store.recentAnswers(profile.id, limit: 100)).length, 10);
+  });
+
+  testWidgets('hết giới hạn chơi trong ngày thì không vào level mới', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    mockNoCamera();
+
+    final g1 = loadGrade(1);
+    final store = MemoryProgressStore();
+    final p = await store.createProfile(name: 'Bình', grade: 1);
+    // Hôm nay đã chơi 31 phút (giới hạn mặc định 30 phút).
+    await store.saveSession(
+      p.id,
+      SessionResult(
+        grade: 1,
+        topicId: g1.topics.first.id,
+        level: 1,
+        total: 10,
+        correct: 0,
+        score: 0,
+        maxStreak: 0,
+        answers: const [],
+        startedAt: DateTime.now(),
+        playTime: const Duration(minutes: 31),
+        practice: false,
+      ),
+    );
+    final services = AppServices(
+      store: store,
+      audio: AudioService.silent(),
+      curriculum: CurriculumLibrary({1: g1, 2: loadGrade(2)}),
+      settings: const PlaySettings(),
+    );
+
+    await tester.pumpWidget(ToanVanDongApp(services: services));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bình'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(g1.topics.first.title));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Level 1 ·'));
+    await tester.pumpAndSettle();
+    expect(find.text('Hôm nay con chơi đủ rồi!'), findsOneWidget);
+    expect(find.byType(TvStage), findsNothing, reason: 'không mở màn chơi');
   });
 }
