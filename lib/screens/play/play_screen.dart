@@ -640,20 +640,30 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
       widgets.add(_centeredTop(Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const TinTin(state: TinTinState.wait, size: 300),
+          const TinTin(state: TinTinState.wait, size: 260),
           Text('Hôm nay con chơi đủ rồi!', style: TvText.question),
           Text('Mai mình chơi tiếp nhé.', style: TvText.prompt),
         ],
       )));
     } else if (r != null) {
       final msg = SessionFeedback.forResult(r);
-      widgets.add(_centeredTop(Column(
+      final mood = r.stars >= 3 ? TinTinState.happy : (r.stars > 0 ? TinTinState.praise : TinTinState.encourage);
+      widgets.add(_centeredTop(Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TinTin(state: r.stars >= 3 ? TinTinState.happy : (r.stars > 0 ? TinTinState.praise : TinTinState.encourage), size: 220),
-          StarRow(stars: r.stars),
-          Text(msg.title, style: TvText.question),
-          Text(msg.body, style: TvText.prompt, textAlign: TextAlign.center),
+          TinTin(state: mood, size: 280),
+          const SizedBox(width: TvdSpace.s7),
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StarRow(stars: r.stars, size: 120),
+                Text(msg.title, style: TvText.question),
+                Text(msg.body, style: TvText.prompt, maxLines: 3, overflow: TextOverflow.ellipsis),
+              ],
+            ),
+          ),
         ],
       )));
     }
