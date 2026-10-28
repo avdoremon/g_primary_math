@@ -21,6 +21,9 @@ jobs:
       - name: Phiên bản Flutter
         run: flutter --version
 
+      - name: Thư viện SQLite cho test
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libsqlite3-0 libsqlite3-dev
+
       - name: Lấy package
         run: flutter pub get
 

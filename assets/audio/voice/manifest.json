@@ -1,0 +1,5 @@
+{
+  "note": "Danh sách đoạn ghi âm giọng đọc có sẵn. Mỗi cụm trong 'clips' là một file <tên Telex>.m4a cùng thư mục, vd. 'bảy' -> bayr.m4a, 'bằng mấy' -> bawngf_maays.m4a. Câu nào thiếu đoạn thì app đọc bằng TTS tiếng Việt của máy.",
+  "format": "m4a",
+  "clips": []
+}
