@@ -29,7 +29,23 @@ jobs:
         run: dart format --output=none --set-exit-if-changed lib test
 
       - name: Phân tích tĩnh
-        run: flutter analyze --no-fatal-infos
+        shell: bash
+        run: |
+          set +e
+          dart analyze --format=machine > analyze.txt 2>&1
+          code=$?
+          # Mỗi lỗi/cảnh báo thành một annotation để đọc được qua GitHub API
+          python3 - <<'PY'
+          for line in open('analyze.txt', encoding='utf-8'):
+              p = line.rstrip('\n').split('|')
+              if len(p) < 8 or p[0] not in ('ERROR', 'WARNING', 'INFO'):
+                  continue
+              level = {'ERROR': 'error', 'WARNING': 'warning', 'INFO': 'notice'}[p[0]]
+              path = p[3].split('/g_primary_math/')[-1]
+              msg = '|'.join(p[7:]).replace('%', '%25').replace('\r', '').replace('\n', ' ')
+              print(f'::{level} file={path},line={p[4]},col={p[5]},title={p[2]}::{msg}')
+          PY
+          exit $code
 
       - name: Unit test
         run: flutter test --reporter github
