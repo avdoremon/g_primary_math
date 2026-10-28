@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  dart:
+    name: Phân tích và test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Phiên bản Flutter
+        run: flutter --version
+
+      - name: Lấy package
+        run: flutter pub get
+
+      - name: Kiểm tra định dạng (chỉ cảnh báo)
+        continue-on-error: true
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Phân tích tĩnh
+        run: flutter analyze --no-fatal-infos
+
+      - name: Unit test
+        run: flutter test --reporter expanded
