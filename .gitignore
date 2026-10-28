@@ -1,0 +1,33 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.idea/
+.vscode/
+.DS_Store
+
+# Android (thư mục android/ được tạo bằng setup; các file sinh ra khi build)
+android/.gradle/
+android/captures/
+android/local.properties
+android/gradlew
+android/gradlew.bat
+android/gradle/wrapper/gradle-wrapper.jar
+android/**/GeneratedPluginRegistrant.java
+android/app/debug
+android/app/profile
+android/app/release
+android/key.properties
+*.jks
+*.keystore
+
+# Mô hình MediaPipe tải bằng setup (khoảng 15 MB), không đưa lên git
+android/app/src/main/assets/*.task
+
+# Thư mục tạm của setup
+_gen/
