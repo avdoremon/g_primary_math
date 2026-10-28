@@ -61,7 +61,7 @@ jobs:
           # Mỗi test thất bại thành một annotation có tên test và nội dung lỗi
           python3 - <<'PY'
           import json
-          names, errors = {}, {}
+          names, errors, prints = {}, {}, {}
           for line in open('test-results.json', encoding='utf-8'):
               try:
                   e = json.loads(line)
@@ -71,8 +71,14 @@ jobs:
                   names[e['test']['id']] = e['test']['name']
               elif e.get('type') == 'error':
                   errors.setdefault(e['testID'], []).append(e.get('error', ''))
+              elif e.get('type') == 'print':
+                  prints.setdefault(e['testID'], []).append(e.get('message', ''))
           for tid, errs in errors.items():
-              msg = ' / '.join(errs)[:900].replace('%', '%25').replace('\r', '').replace('\n', ' ')
+              # Lỗi widget test (FlutterError) nằm trong phần in ra: lấy đoạn từ "EXCEPTION CAUGHT".
+              log = '\n'.join(prints.get(tid, []))
+              i = log.find('EXCEPTION CAUGHT')
+              detail = log[i:i + 2500] if i >= 0 else ''
+              msg = (' / '.join(errs)[:900] + ' || ' + detail).replace('%', '%25').replace('\r', '').replace('\n', ' ¶ ')
               print(f'::error title=TEST {names.get(tid, tid)}::{msg}')
           PY
           exit $code
