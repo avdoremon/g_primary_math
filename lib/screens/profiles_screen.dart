@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../app/services.dart';
-import '../content/curriculum.dart';
 import '../progress/models.dart';
 import '../progress/progress_rules.dart';
 import '../ui/theme/theme.dart';

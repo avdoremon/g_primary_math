@@ -51,6 +51,8 @@ jobs:
           exit $code
 
       - name: Unit test
+        # Vẫn chạy test khi phân tích tĩnh báo lỗi, để thấy hết vấn đề trong một lần.
+        if: success() || failure()
         shell: bash
         run: |
           set +e
