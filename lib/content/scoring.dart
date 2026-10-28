@@ -18,8 +18,9 @@ abstract class Scoring {
   /// [remainingFraction]: phần thời gian còn lại (0..1); null khi không đếm giờ (chế độ luyện tập).
   /// [streak]: số câu đúng liên tiếp tính cả câu này (≥ 1).
   static int forCorrect({double? remainingFraction, required int streak}) {
-    final speed = remainingFraction == null ? 0 : (maxSpeedBonus * remainingFraction.clamp(0.0, 1.0)).round();
-    final chain = math.min(maxStreakBonus, streakStep * math.max(0, streak - 1));
+    final int speed =
+        remainingFraction == null ? 0 : (maxSpeedBonus * remainingFraction.clamp(0.0, 1.0).toDouble()).round();
+    final int chain = math.min<int>(maxStreakBonus, streakStep * math.max<int>(0, streak - 1));
     return base + speed + chain;
   }
 

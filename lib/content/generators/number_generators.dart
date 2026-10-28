@@ -115,7 +115,7 @@ class CompareGenerator extends QuestionGenerator {
   Question generate(GenParams p, math.Random r) {
     final max = p.intOf('max', 10);
     final format = p.strOf('format', 'side');
-    var a = between(r, 0, max);
+    final a = between(r, 0, max);
     var b = between(r, 0, max);
 
     if (format == 'sign') {
