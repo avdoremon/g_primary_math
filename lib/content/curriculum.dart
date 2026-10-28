@@ -15,6 +15,17 @@ abstract class MiniGames {
   static const simonSays = 'simon_says'; // Con nói, con làm (T, C, B)
 
   static const all = {balloon, sides, jumpCount, humanClock, shapeHunt, simonSays};
+
+  static const titles = {
+    balloon: 'Bóng bay phép tính',
+    sides: 'Bên nào lớn hơn',
+    jumpCount: 'Nhảy đếm',
+    humanClock: 'Đồng hồ người',
+    shapeHunt: 'Săn hình',
+    simonSays: 'Con nói, con làm',
+  };
+
+  static String title(String id) => titles[id] ?? id;
 }
 
 /// Mức gợi ý (design G7): level 1–3 dùng mức dễ (nhãn TRÁI/PHẢI, linh vật làm mẫu, tô từ khóa),

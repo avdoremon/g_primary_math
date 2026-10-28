@@ -104,6 +104,10 @@ abstract class AnswerMechanic {
   /// Lời nhắc ngắn cho bé (vd. "Về giữa trước nhé!"), null nếu không cần.
   String? get hint => null;
 
+  /// Ô đáp án đang được nhắm (để phóng to / vẽ vòng nạp) và bàn tay đang nạp.
+  int? get aimed => null;
+  Offset? get activePoint => null;
+
   MechanicSignal? update(MechanicInput input);
 
   /// Chọn cơ chế theo mini game của level và dữ liệu câu hỏi.
@@ -153,6 +157,12 @@ class TouchMechanic extends AnswerMechanic {
   double get progress => dwell.progress;
 
   @override
+  int? get aimed => dwell.candidate;
+
+  @override
+  Offset? get activePoint => dwell.activePoint;
+
+  @override
   MechanicSignal? update(MechanicInput input) {
     if (input.targets.isEmpty) return null;
     final hit = dwell.update(input.hands, input.targets, input.dt);
@@ -184,6 +194,12 @@ class StepMechanic extends AnswerMechanic {
 
   @override
   double get progress => _dwell.progress;
+
+  @override
+  int? get aimed => _dwell.candidate;
+
+  @override
+  Offset? get activePoint => _dwell.activePoint;
 
   @override
   String? get hint => armed || !_seen ? null : 'Con về giữa trước nhé!';
@@ -235,14 +251,21 @@ class CountMechanic extends AnswerMechanic {
   @override
   MechanicSignal? update(MechanicInput input) {
     final cal = input.calibration;
-    if (cal == null) return null;
+    if (cal == null || _done) return null;
     if (counter.update(input.body, cal)) _settled = 0;
-    if (count > target) return const ReportResult(false);
+    if (count > target) return _finish(false);
     if (count == target) {
       _settled += input.dt;
-      if (_settled >= settleSeconds) return const ReportResult(true);
+      if (_settled >= settleSeconds) return _finish(true);
     }
     return null;
+  }
+
+  bool _done = false;
+
+  MechanicSignal _finish(bool correct) {
+    _done = true;
+    return ReportResult(correct);
   }
 }
 
@@ -330,6 +353,7 @@ class CompoundMechanic extends AnswerMechanic {
   final ArmPoseMatcher arms;
   final StepDetector step;
   double _held = 0;
+  bool _done = false;
   ArmPoseResult? lastArms;
 
   @override
@@ -359,12 +383,15 @@ class CompoundMechanic extends AnswerMechanic {
   @override
   MechanicSignal? update(MechanicInput input) {
     final cal = input.calibration;
-    if (cal == null) return null;
+    if (cal == null || _done) return null;
     step.update(input.body, cal);
     lastArms = arms.update(input.body);
     if (armsOk && sideOk) {
       _held += input.dt;
-      if (_held >= holdSeconds) return const ReportResult(true);
+      if (_held >= holdSeconds) {
+        _done = true;
+        return const ReportResult(true);
+      }
     } else {
       _held = 0;
     }
