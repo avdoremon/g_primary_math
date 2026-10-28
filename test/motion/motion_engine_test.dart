@@ -107,7 +107,7 @@ void main() {
     test('vỗ tay 4 lần đếm đúng 4', () {
       final n = countReps(
         RepKind.clap,
-        (t) => (t % 0.5) < 0.25 && t < 2.0 ? SimPose(leftArm: 140, rightArm: 220) : SimPose(leftArm: 120, rightArm: 240),
+        (t) => (t % 0.5) < 0.25 && t < 2.0 ? SimPose(leftArm: 140, rightArm: 220) : SimPose(leftArm: 240, rightArm: 120),
         2.5,
       );
       expect(n, 4);
