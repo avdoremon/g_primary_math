@@ -13,9 +13,22 @@ Giai đoạn 1 – Nền tảng. Đã có:
 | --- | --- |
 | F1 | Cấu trúc dự án, lint, script dựng project Android |
 | F2 | Lớp nhận diện Kotlin (CameraX + MediaPipe Pose), cầu nối Flutter, bộ lọc One Euro, cơ chế chạm đáp án; chế độ TV tự xoay ngang |
+| F3–F5 | Motion Engine: hiệu chỉnh theo từng bé (giơ hai tay 1 giây), bước trái/phải (B), đếm nhảy / ngồi xổm / vỗ tay (Đ), tạo dáng tay và Đồng hồ người (T); theo dõi mất hình > 2 giây |
+| F6 | Bộ giả lập khung xương (`PoseSimulator`) và ghi/phát lại (`PoseRecording`, JSON Lines) để test không cần camera |
+| F7–F8 | Content Engine: chương trình lớp 1 (8 chủ đề) và lớp 2 (12 chủ đề), mỗi chủ đề 5 level; 18 dạng bài có lời giải thích khi sai; luật tính điểm |
 | F12 (một phần) | Token màu, kiểu chữ, khoảng cách theo design system; font Baloo 2 + Nunito; khung TV 1920×1080; linh vật Tin Tin và asset G7 dạng SVG |
 
 Màn hình chính hiện là menu phát triển: khung xương, bóng bay PoC, đo độ trễ TV, xem design system.
+
+CI (GitHub Actions) chạy `dart analyze` và `flutter test` mỗi lần push; lỗi hiện thành annotation trên GitHub.
+
+## Nội dung học
+
+- Chương trình nằm trong `assets/content/grade1.json`, `grade2.json`, sinh từ `tool/build_content.py` (sửa file Python rồi chạy `python3 tool/build_content.py`).
+- Mỗi level chọn một dạng bài (`generator`), tham số (`params`), số đáp án, thời gian mỗi câu và mini game.
+- Level 1–3 dùng gợi ý dễ (nhãn TRÁI/PHẢI, linh vật làm mẫu, tô từ khoá), level 4–5 gợi ý khó.
+- Điểm: 100 mỗi câu đúng + thưởng tốc độ (tối đa 50) + thưởng chuỗi (20 mỗi câu liên tiếp, tối đa 100). Câu sai không trừ điểm: báo "Chưa đúng", giải thích đáp án đúng bằng chữ và giọng đọc rồi sang câu sau. Sao: 6/10 câu = 1 sao (mở level sau), 8/10 = 2 sao, 10/10 = 3 sao.
+- Thứ tự chủ đề theo SGK Toán Kết nối tri thức với cuộc sống; cần đối chiếu lại với mục lục bản 2026–2027.
 
 ## Cài đặt
 
@@ -45,7 +58,13 @@ assets/fonts/      Baloo 2, Nunito (OFL), đã cắt còn Latin + tiếng Việt
 assets/svg/        mascot/ (Tin Tin 10 trạng thái), g7/ (đồ vật, bàn tay, bàn chân)
 lib/app/           app, chế độ TV (xoay ngang, ẩn thanh hệ thống, giữ màn hình sáng)
 lib/pose/          cầu nối native, PoseFrame (33 điểm, đã lật gương)
-lib/motion/        One Euro filter, HandTracker, DwellSelector (cơ chế C)
+lib/motion/        MotionEngine, BodySnapshot, Calibrator, One Euro, HandTracker, DwellSelector (C)
+lib/motion/detectors/  StepDetector (B), RepCounter (Đ), ArmPoseMatcher + HumanClock (T)
+lib/motion/sim/    PoseSimulator, PoseRecording
+lib/content/       Question, Curriculum (Grade/Topic/Level), Scoring, VietnameseNumber
+lib/content/generators/  18 dạng bài và registry
+assets/content/    grade1.json, grade2.json
+tool/              build_content.py
 lib/ui/theme/      TvdColors, TvText / PhoneText, TvdSpace, TvLayout
 lib/ui/widgets/    TvStage (khung 1920×1080), TinTin, TvdButton
 lib/dev/           công cụ phát triển: khung xương, đo độ trễ, bóng bay PoC, xem design system
