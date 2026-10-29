@@ -4,6 +4,7 @@ import '../app/services.dart';
 import '../progress/models.dart';
 import '../progress/progress_rules.dart';
 import '../ui/theme/theme.dart';
+import '../ui/widgets/app_logo.dart';
 import '../ui/widgets/tin_tin.dart';
 import '../ui/widgets/tvd_button.dart';
 import 'common.dart';
@@ -89,7 +90,7 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
                   ),
                   const Center(child: TinTin(state: TinTinState.hello, size: 150)),
                   const SizedBox(height: TvdSpace.s3),
-                  Text('Toán Vận Động', style: PhoneText.titleLarge, textAlign: TextAlign.center),
+                  const Center(child: AppLogo(height: 44)),
                   Text(
                     items.isEmpty ? 'Tạo hồ sơ cho bé để bắt đầu' : 'Ai đang chơi nào?',
                     style: PhoneText.body,

@@ -27,7 +27,7 @@ Game học Toán tiểu học (lớp 1–5) bằng chuyển động: điện tho
 | Lớp 3–5 | Toán 3 (16 chủ đề), Toán 4 (13), Toán 5 (12) theo SGK Kết nối tri thức: 20 dạng bài mới (số nhiều chữ số, làm tròn, số La Mã, tìm thành phần chưa biết, nhân chia có dư, biểu thức, bài toán nhiều bước, phân số, số thập phân, tỉ số phần trăm, tỉ lệ bản đồ, chu vi/diện tích/thể tích, góc, đổi đơn vị, nhiệt độ, tiền, thời gian, chuyển động đều, bảng và biểu đồ); hình minh hoạ vẽ bằng code, phân số viết chồng |
 | Mini game mới | Góc tay (lớp 4: hai tay tạo góc nhọn/vuông/tù/bẹt, giữ 0,8 giây) và Tia số (đáp án xếp tăng dần trên tia số; bé đi ngang tới ô đúng rồi giơ tay) |
 
-Ô đáp án và bóng bay theo design system: nền trắng, viền màu theo vị trí, chữ số màu mực, hình nhận dạng ở góc (cho trẻ mù màu). Lớp cảnh của từng mini game nằm trong `lib/screens/play/views/`.
+Logo: bạn nhỏ dang tay thành dấu cộng (`assets/svg/brand/`, bản 512 px trong `docs/brand/`); biểu tượng app nằm trong `android_overlay/app/src/main/res/` (có biểu tượng thích ứng cho Android 8+). Ô đáp án và bóng bay theo design system: nền trắng, viền màu theo vị trí, chữ số màu mực, hình nhận dạng ở góc (cho trẻ mù màu). Lớp cảnh của từng mini game nằm trong `lib/screens/play/views/`.
 
 CI (GitHub Actions) mỗi lần push: `dart analyze`, `flutter test` (gồm widget test chạy trọn luồng app không cần camera), và build APK release. Lỗi hiện thành annotation trên GitHub.
 

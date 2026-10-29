@@ -74,7 +74,7 @@ class AnswerCard extends StatelessWidget {
                     top: 0,
                     child: CustomPaint(
                       size: const Size(56, 56),
-                      painter: _ShapePainter(style.shape, (light ? style.color : fg).withAlpha(150)),
+                      painter: SlotShapePainter(style.shape, (light ? style.color : fg).withAlpha(150)),
                     ),
                   ),
                   Center(
@@ -107,8 +107,9 @@ class AnswerCard extends StatelessWidget {
   }
 }
 
-class _ShapePainter extends CustomPainter {
-  _ShapePainter(this.shape, this.color);
+/// Hình nhận dạng vị trí đáp án (tròn, vuông, tam giác, sao) – cho trẻ mù màu.
+class SlotShapePainter extends CustomPainter {
+  SlotShapePainter(this.shape, this.color);
 
   final AnswerShape shape;
   final Color color;
@@ -149,7 +150,7 @@ class _ShapePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ShapePainter old) => old.shape != shape || old.color != color;
+  bool shouldRepaint(SlotShapePainter old) => old.shape != shape || old.color != color;
 }
 
 class _RingPainter extends CustomPainter {

@@ -31,7 +31,7 @@ abstract class QuestionArt {
     }
   }
 
-  static const _countArt = {'apple': 'apple', 'ball': 'ball', 'fish': 'fish'};
+  static const _countArt = {'apple': 'apple', 'ball': 'ball', 'fish': 'fish', 'star': 'star', 'pencil': 'pencil'};
 
   static Widget? of(Question q) {
     if (heightFor(q) == 0) return null;
@@ -213,16 +213,10 @@ class _ClockPainter extends CustomPainter {
 
 // ------------------------------------------------------------------ biểu đồ tranh
 
-/// Đồ vật trong biểu đồ tranh: dùng SVG của bộ asset khi có, còn lại dùng biểu tượng cảm xúc của máy.
+/// Đồ vật trong biểu đồ tranh, vẽ bằng SVG cùng bộ asset.
 Widget itemIcon(String item, double size) {
-  const svg = {'apple', 'cat', 'fish', 'rabbit', 'ball'};
-  if (svg.contains(item)) return Art(item, width: size);
-  const emoji = {'orange': '🍊', 'banana': '🍌', 'mango': '🥭', 'dog': '🐶'};
-  return SizedBox(
-    width: size,
-    height: size,
-    child: FittedBox(child: Text(emoji[item] ?? '●', style: const TextStyle(fontSize: 64))),
-  );
+  if (Art.sizes.containsKey(item)) return Art(item, width: size);
+  return SizedBox(width: size, height: size, child: const Icon(Icons.circle, color: TvdColors.answerA));
 }
 
 class Pictograph extends StatelessWidget {

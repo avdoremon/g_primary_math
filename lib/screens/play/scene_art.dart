@@ -17,6 +17,12 @@ class Art extends StatelessWidget {
 
   static const sizes = <String, Size>{
     'apple': Size(120, 120),
+    'star': Size(120, 120),
+    'pencil': Size(170, 60),
+    'orange': Size(120, 120),
+    'banana': Size(120, 120),
+    'mango': Size(120, 120),
+    'dog': Size(120, 120),
     'ball': Size(120, 120),
     'box': Size(340, 260),
     'cat': Size(160, 170),

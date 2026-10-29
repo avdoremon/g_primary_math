@@ -77,8 +77,8 @@ abstract class MiniGameView {
   /// Từ khoá tô màu trong đề (chỉ ở mức gợi ý dễ).
   HudKeyword? keyword(PlayFrame f) => null;
 
-  /// Ô camera góc phải dưới (null = không hiện).
-  Widget? camTile(PlayFrame f) => Positioned(
+  /// Ô camera góc phải dưới (null = không hiện). Chỉ hiện khi camera đang chạy (chơi bằng chạm thì ẩn).
+  Widget? camTile(PlayFrame f) => !f.camera ? null : Positioned(
         right: TvLayout.safeX,
         bottom: 24,
         child: CamTile(frame: f.pose, seen: f.body != null, width: 150),
