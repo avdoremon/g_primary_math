@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 
 import '../../app/services.dart';
 import '../../audio/audio_service.dart';
@@ -505,7 +506,9 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
       status = 'Lần trước bật camera thì app bị dừng.\nBấm Thử lại camera, hoặc chạm màn hình để chơi bằng tay.';
       color = TvdColors.encourageDark;
     } else if (poseError != null) {
-      status = 'Không mở được camera: $poseError\nVẫn chơi được bằng cách chạm màn hình.';
+      // Lỗi từ lớp native có nhiều dòng (kèm stack): chỉ hiện hai dòng đầu, nút "Sao chép lỗi" lấy đủ.
+      final lines = poseError!.split('\n').where((l) => l.trim().isNotEmpty).take(2).map((l) => l.length > 110 ? '${l.substring(0, 110)}…' : l);
+      status = '${lines.join('\n')}\nVẫn chơi được bằng cách chạm màn hình.';
       color = TvdColors.encourageDark;
     } else if (!_camera) {
       status = 'Đang mở camera ${front ? 'trước' : 'sau'}…';
@@ -547,6 +550,15 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
                   Text(status, style: TvText.label.copyWith(fontSize: 30, height: 1.25, color: color)),
                   if (_camera) Text('${fps.round()} khung hình/giây', style: TvText.label.copyWith(fontSize: 24, color: TvdColors.inkSoft)),
                   const SizedBox(height: TvdSpace.s4),
+                  if (poseError != null) ...[
+                    TextButton.icon(
+                      key: const ValueKey('copy-camera-error'),
+                      onPressed: () => Clipboard.setData(ClipboardData(text: poseError!)),
+                      icon: const Icon(Icons.copy, size: 32),
+                      label: const Text('Sao chép lỗi', style: TextStyle(fontSize: 26)),
+                    ),
+                    const SizedBox(height: TvdSpace.s2),
+                  ],
                   if (_safeMode)
                     FilledButton.icon(
                       key: const ValueKey('retry-camera'),
