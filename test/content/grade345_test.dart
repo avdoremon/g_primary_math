@@ -9,10 +9,10 @@ import 'package:g_primary_math/content/question.dart';
 Question gen(String id, Map<String, Object?> params, math.Random r, {int answers = 4}) =>
     Generators.find(id)!.generate(GenParams(params, answers: answers), r);
 
-int n(String s) => int.parse(s.replaceAll(' ', ''));
+int n(String s) => int.parse(s.replaceAll(RegExp('[ \u00a0]'), ''));
 
 Dec dec(String s) {
-  final t = s.replaceAll(' ', '');
+  final t = s.replaceAll(RegExp('[ \u00a0]'), '');
   final i = t.indexOf(',');
   return i < 0 ? Dec(int.parse(t), 0) : Dec(int.parse(t.replaceAll(',', '')), t.length - i - 1);
 }
@@ -73,7 +73,7 @@ void main() {
   test('số thập phân: phép tính chính xác', () {
     for (var i = 0; i < 400; i++) {
       final q = gen('decimal', {'kinds': ['add', 'sub', 'mul', 'div']}, r);
-      final m = RegExp(r'^([\d ,]+) (.) ([\d ,]+) = \?$').firstMatch(q.prompt)!;
+      final m = RegExp('^([\\d\u00a0,]+) (.) ([\\d\u00a0,]+) = \\?\$').firstMatch(q.prompt)!;
       final a = dec(m.group(1)!), b = dec(m.group(3)!);
       final got = dec(q.correctOption);
       switch (m.group(2)) {
@@ -110,14 +110,14 @@ void main() {
       generator: 't',
       prompt: '?',
       speech: '?',
-      options: ['4 800', '4 700', '5 000', '4 600'],
+      options: ['4\u00a0800', '4\u00a0700', '5 000', '4 600'],
       answer: 1,
       explanation: '.',
       explanationSpeech: '.',
     );
     final s = q.sortedByValue();
-    expect(s.options, ['4 600', '4 700', '4 800', '5 000']);
-    expect(s.correctOption, '4 700');
+    expect(s.options, ['4 600', '4\u00a0700', '4\u00a0800', '5 000']);
+    expect(s.correctOption, '4\u00a0700');
     expect(Question.valueOf('3/4'), .75);
     expect(Question.valueOf('2,5 kg'), 2.5);
     expect(Question.valueOf('1250'), 1250);

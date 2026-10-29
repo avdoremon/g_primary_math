@@ -5,7 +5,7 @@ void main() {
   test('số thập phân: viết, đọc, tính chính xác', () {
     expect(const Dec(205, 2).text, '2,05');
     expect(const Dec(205, 2).speech, 'hai phẩy không năm');
-    expect(const Dec(12505, 1).text, '1 250,5');
+    expect(const Dec(12505, 1).text, '1\u00a0250,5');
     expect((const Dec(1, 1) + const Dec(2, 1)).text, '0,3');
     expect((const Dec(25, 1) * const Dec(4, 0)).text, '10');
     expect(const Dec(345, 2).shift(1).text, '34,5');
@@ -33,7 +33,7 @@ void main() {
     expect(speakMath('(12 + 8) : 4'), 'mở ngoặc mười hai cộng tám đóng ngoặc chia bốn');
     expect(speakMath('3 m = ? cm'), 'ba mét bằng mấy xăng-ti-mét');
     expect(speakMath('Diện tích là bao nhiêu?'), 'Diện tích là bao nhiêu?');
-    expect(speakMath('24 cm²'), 'hai mươi bốn xăng-ti-mét vuông');
+    expect(speakMath('24 cm²'), 'hai mươi tư xăng-ti-mét vuông');
     expect(speakMath('Số 3 405 gồm:'), 'Số ba nghìn bốn trăm linh năm gồm:');
     expect(speakMath('25% của 80 kg'), 'hai mươi lăm phần trăm của tám mươi ki-lô-gam');
   });

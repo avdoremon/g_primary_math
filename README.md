@@ -1,9 +1,9 @@
 # Toán Vận Động (g_primary_math)
 
-Game học Toán tiểu học (lớp 1–5) bằng chuyển động: điện thoại Android đặt cạnh TV làm "mắt" (camera + MediaPipe Pose), hình ảnh game phản chiếu lên TV qua Wifi hoặc HDMI. Bản đầu (MVP): Toán lớp 1–2, miễn phí, không đăng nhập, chạy offline.
+Game học Toán tiểu học (lớp 1–5) bằng chuyển động: điện thoại Android đặt cạnh TV làm "mắt" (camera + MediaPipe Pose), hình ảnh game phản chiếu lên TV qua Wifi hoặc HDMI. Có đủ chương trình Toán lớp 1–5, miễn phí, không đăng nhập, chạy offline.
 
 - Kế hoạch, đặc tả design system và bảng theo dõi hạng mục: [tài liệu kế hoạch](https://claude.ai/artifact/8GRLmbNDUrbsaY53Lda1pm)
-- Design: [design system đợt 1](https://claude.ai/artifact/5bj3W11TUcPUbcjaFfee4A) · [mini game G7](https://claude.ai/artifact/H5F5wgzw7AUvDQH5gHtzBY)
+- Design: [design system đợt 1](https://claude.ai/artifact/5bj3W11TUcPUbcjaFfee4A) · [mini game G7](https://claude.ai/artifact/H5F5wgzw7AUvDQH5gHtzBY) · [màn TV, điện thoại, Góc tay, Tia số](https://claude.ai/artifact/UpRDNXouS3FKFGk3cCiNva)
 
 ## Trạng thái
 
@@ -24,8 +24,10 @@ Game học Toán tiểu học (lớp 1–5) bằng chuyển động: điện tho
 | G2–G6 | Bóng bay phép tính, Bên nào lớn hơn / Đúng hay sai, Nhảy đếm, Đồng hồ người, Săn hình (hình phẳng, hình khối, tờ tiền) |
 | G7 | Con nói, con làm theo 10 màn design: tạo dáng dễ/khó, chạm đồ vật (kệ, cây, bàn, hộp), bước chân, lệnh ghép, phản hồi đúng/chưa đúng |
 | G11 | Chương trình theo đúng mục lục SGK: Toán 1 (10 chủ đề), Toán 2 (14 chủ đề), gồm cả các chủ đề ôn tập |
+| Lớp 3–5 | Toán 3 (16 chủ đề), Toán 4 (13), Toán 5 (12) theo SGK Kết nối tri thức: 20 dạng bài mới (số nhiều chữ số, làm tròn, số La Mã, tìm thành phần chưa biết, nhân chia có dư, biểu thức, bài toán nhiều bước, phân số, số thập phân, tỉ số phần trăm, tỉ lệ bản đồ, chu vi/diện tích/thể tích, góc, đổi đơn vị, nhiệt độ, tiền, thời gian, chuyển động đều, bảng và biểu đồ); hình minh hoạ vẽ bằng code, phân số viết chồng |
+| Mini game mới | Góc tay (lớp 4: hai tay tạo góc nhọn/vuông/tù/bẹt, giữ 0,8 giây) và Tia số (đáp án xếp tăng dần trên tia số; bé đi ngang tới ô đúng rồi giơ tay) |
 
-Mini game G2–G6 dựng theo design system (màu, chữ, nhãn TRÁI/PHẢI, bóng người) vì chưa có design riêng; khi có design đợt 2–3 chỉ cần sửa lớp cảnh trong `lib/screens/play/views/`.
+Ô đáp án và bóng bay theo design system: nền trắng, viền màu theo vị trí, chữ số màu mực, hình nhận dạng ở góc (cho trẻ mù màu). Lớp cảnh của từng mini game nằm trong `lib/screens/play/views/`.
 
 CI (GitHub Actions) mỗi lần push: `dart analyze`, `flutter test` (gồm widget test chạy trọn luồng app không cần camera), và build APK release. Lỗi hiện thành annotation trên GitHub.
 
@@ -33,11 +35,13 @@ CI (GitHub Actions) mỗi lần push: `dart analyze`, `flutter test` (gồm widg
 
 ## Nội dung học
 
-- Chương trình nằm trong `assets/content/grade1.json` (10 chủ đề), `grade2.json` (14 chủ đề), sinh từ `tool/build_content.py` (sửa file Python rồi chạy `python3 tool/build_content.py`).
+- Chương trình nằm trong `assets/content/grade1.json` … `grade5.json` (10, 14, 16, 13, 12 chủ đề; tổng 325 level), sinh từ `tool/build_content.py` (sửa file Python rồi chạy `python3 tool/build_content.py`).
 - Mỗi level chọn một dạng bài (`generator`), tham số (`params`), số đáp án, thời gian mỗi câu và mini game.
 - Level 1–3 dùng gợi ý dễ (nhãn TRÁI/PHẢI, linh vật làm mẫu, tô từ khoá), level 4–5 gợi ý khó.
 - Điểm: 100 mỗi câu đúng + thưởng tốc độ (tối đa 50) + thưởng chuỗi (20 mỗi câu liên tiếp, tối đa 100). Câu sai không trừ điểm: báo "Chưa đúng", giải thích đáp án đúng bằng chữ và giọng đọc rồi sang câu sau. Sao: 6/10 câu = 1 sao (mở level sau), 8/10 = 2 sao, 10/10 = 3 sao.
-- Tên và thứ tự chủ đề theo SGK Toán 1, Toán 2 Kết nối tri thức với cuộc sống (đã đối chiếu kế hoạch dạy học của bộ sách ngày 29/10/2026).
+- Tên và thứ tự chủ đề theo SGK Toán 1–5 Kết nối tri thức với cuộc sống (đã đối chiếu mục lục / kế hoạch dạy học của bộ sách ngày 29/10/2026).
+- Số viết như sách: dấu phẩy thập phân (2,05), nhóm nghìn bằng dấu cách (1 250 000). Phân số và số thập phân tính chính xác (`lib/content/numbers.dart`), không dùng số thực nên không có đáp án kiểu 0,30000000004.
+- Đề đọc thành tiếng tự đổi ký hiệu: "3 m = ? cm" → "ba mét bằng mấy xăng-ti-mét", "3/4" → "ba phần tư", "2,05" → "hai phẩy không năm".
 
 ## Luồng chơi và quy tắc
 

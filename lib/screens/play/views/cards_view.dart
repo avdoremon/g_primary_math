@@ -99,7 +99,6 @@ class CardsView extends MiniGameView {
                     child: optionArt(q, i),
                   )
                 : null,
-            light: drawn,
             mark: markFor(f, i),
             progress: f.answering && mech?.aimed == i ? mech!.progress : 0,
             caption: stepHints ? (i == 0 ? '◀ TRÁI' : 'PHẢI ▶') : null,

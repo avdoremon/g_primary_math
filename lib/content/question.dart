@@ -58,11 +58,12 @@ class Question {
 
   /// Giá trị số của một đáp án ("1 250", "2,5", "3/4", "25%", "12 cm"); null nếu không phải số.
   static double? valueOf(String option) {
-    final m = RegExp(r'^(\d+(?: \d{3})*)(?:,(\d+))?(?:/(\d+))?').firstMatch(option.trim());
+    final m = RegExp('^(\\d+(?:[ \u00a0]\\d{3})*)(?:,(\\d+))?(?:/(\\d+))?').firstMatch(option.trim());
     if (m == null) return null;
-    final whole = double.parse(m.group(1)!.replaceAll(' ', ''));
+    final digits = m.group(1)!.replaceAll(RegExp('[ \u00a0]'), '');
+    final whole = double.parse(digits);
     if (m.group(3) != null) return m.group(2) == null ? whole / double.parse(m.group(3)!) : null;
-    return m.group(2) == null ? whole : double.parse('${m.group(1)!.replaceAll(' ', '')}.${m.group(2)}');
+    return m.group(2) == null ? whole : double.parse('$digits.${m.group(2)}');
   }
 
   /// Bản sao với các đáp án xếp tăng dần theo giá trị (giữ nguyên nếu có đáp án không phải số).

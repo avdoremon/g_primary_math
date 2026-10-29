@@ -19,13 +19,13 @@ class AnswerCard extends StatelessWidget {
     this.progress = 0,
     this.caption,
     this.content,
-    this.light = false,
+    this.light = true,
   });
 
   /// Nội dung thay cho chữ (hình phẳng, tờ tiền…).
   final Widget? content;
 
-  /// Nền trắng, viền màu vị trí – dùng khi nội dung là hình có màu riêng.
+  /// Nền trắng, viền màu vị trí, chữ màu mực (mặc định theo design system); false = ô tô đặc màu vị trí.
   final bool light;
 
   final int slot;

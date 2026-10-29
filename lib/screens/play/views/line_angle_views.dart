@@ -174,13 +174,16 @@ class ArmAngleView extends MiniGameView {
             border: Border.all(color: border, width: 8),
             boxShadow: TvdShadow.tv(TvdColors.cardShadow),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(title, style: TvText.prompt.copyWith(fontSize: 44, color: TvdColors.inkSoft)),
-              const SizedBox(height: TvdSpace.s3),
-              child,
-            ],
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title, style: TvText.prompt.copyWith(fontSize: 44, color: TvdColors.inkSoft)),
+                const SizedBox(height: TvdSpace.s3),
+                child,
+              ],
+            ),
           ),
         );
 

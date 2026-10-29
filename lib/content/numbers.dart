@@ -54,7 +54,7 @@ class Dec implements Comparable<Dec> {
   }
 
   @override
-  bool operator ==(Object o) => o is Dec && compareTo(o) == 0;
+  bool operator ==(Object other) => other is Dec && compareTo(other) == 0;
 
   @override
   int get hashCode => normalized().units.hashCode ^ normalized().scale;
@@ -130,7 +130,7 @@ class Frac implements Comparable<Frac> {
   bool operator >(Frac o) => compareTo(o) > 0;
 
   @override
-  bool operator ==(Object o) => o is Frac && n * o.d == o.n * d;
+  bool operator ==(Object other) => other is Frac && n * other.d == other.n * d;
 
   @override
   int get hashCode => reduced().n.hashCode ^ reduced().d.hashCode;
@@ -151,13 +151,13 @@ class Frac implements Comparable<Frac> {
   String toString() => text();
 }
 
-/// Nhóm ba chữ số bằng dấu cách: 1250000 → "1 250 000".
+/// Nhóm ba chữ số bằng dấu cách không ngắt dòng (giống [fmt]): 1250000 → "1 250 000".
 String groupThousands(int n) {
   final s = n.abs().toString();
   if (s.length <= 3) return n < 0 ? '-$s' : s;
   final b = StringBuffer();
   for (var i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) b.write(' ');
+    if (i > 0 && (s.length - i) % 3 == 0) b.write('\u00a0');
     b.write(s[i]);
   }
   return n < 0 ? '-$b' : b.toString();
@@ -171,7 +171,7 @@ String speakMath(String expr) {
     final inner = m.group(1)!;
     return RegExp(r'^[\d\s,+−×:/\-]+$').hasMatch(inner) ? '($inner)' : ', $inner,';
   });
-  final number = RegExp(r'\d{1,3}(?: \d{3})+(?:,\d+)?|\d+(?:,\d+)?(?:/\d+)?');
+  final number = RegExp('\\d{1,3}(?:[ \u00a0]\\d{3})+(?:,\\d+)?|\\d+(?:,\\d+)?(?:/\\d+)?');
   final out = StringBuffer();
   var last = 0;
   for (final m in number.allMatches(expr)) {
@@ -181,7 +181,7 @@ String speakMath(String expr) {
       final parts = t.split('/');
       out.write(Frac(int.parse(parts[0]), int.parse(parts[1])).speech);
     } else {
-      final clean = t.replaceAll(' ', '');
+      final clean = t.replaceAll(RegExp('[ \u00a0]'), '');
       final comma = clean.indexOf(',');
       if (comma < 0) {
         out.write(VietnameseNumber.read(int.parse(clean)));

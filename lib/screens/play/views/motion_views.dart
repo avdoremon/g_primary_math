@@ -78,7 +78,19 @@ class BalloonView extends MiniGameView {
         CardMark.dimmed => TvdColors.line,
         _ => slot.color,
       };
-      final fg = mark == CardMark.dimmed ? TvdColors.inkSoft : (color == TvdColors.answerB ? TvdColors.ink : TvdColors.white);
+      // Design system: bóng trắng viền màu vị trí, chữ số màu mực; đúng thì tô xanh.
+      final fill = switch (mark) {
+        CardMark.correct => TvdColors.correct,
+        CardMark.wrongPick => TvdColors.encourageSoft,
+        CardMark.dimmed => const Color(0xFFF2F4F8),
+        _ => TvdColors.white,
+      };
+      final fg = switch (mark) {
+        CardMark.correct => TvdColors.white,
+        CardMark.dimmed => TvdColors.inkSoft,
+        CardMark.wrongPick => TvdColors.encourageDark,
+        _ => TvdColors.ink,
+      };
       final aimed = f.answering && f.mechanic?.aimed == i;
       out.add(Positioned(
         key: ValueKey('answer-$i'),
@@ -90,7 +102,7 @@ class BalloonView extends MiniGameView {
           scale: mark == CardMark.correct ? 1.1 : (aimed ? 1.06 : 1),
           duration: const Duration(milliseconds: 150),
           child: CustomPaint(
-            painter: _BalloonPainter(color: color, ring: aimed ? f.mechanic!.progress : 0, dashed: mark == CardMark.wrongPick),
+            painter: _BalloonPainter(color: color, fill: fill, ring: aimed ? f.mechanic!.progress : 0, dashed: mark == CardMark.wrongPick),
             child: Align(
               alignment: const Alignment(0, -.42),
               child: SizedBox(
@@ -114,9 +126,11 @@ class BalloonView extends MiniGameView {
 }
 
 class _BalloonPainter extends CustomPainter {
-  _BalloonPainter({required this.color, this.ring = 0, this.dashed = false});
+  _BalloonPainter({required this.color, this.fill = TvdColors.white, this.ring = 0, this.dashed = false});
 
+  /// Màu viền (màu vị trí đáp án) và màu thân bóng.
   final Color color;
+  final Color fill;
   final double ring;
   final bool dashed;
 
@@ -142,7 +156,14 @@ class _BalloonPainter extends CustomPainter {
       ..cubicTo(114, 160, 150, 124, 150, 80)
       ..cubicTo(150, 40, 124, 6, 80, 6)
       ..close();
-    canvas.drawPath(body, Paint()..color = color);
+    canvas.drawPath(body, Paint()..color = fill);
+    canvas.drawPath(
+      body,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 7
+        ..color = color,
+    );
     canvas.drawPath(
       Path()
         ..moveTo(72, 170)
@@ -155,7 +176,7 @@ class _BalloonPainter extends CustomPainter {
     canvas.save();
     canvas.translate(48, 58);
     canvas.rotate(25 * math.pi / 180);
-    canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: 24, height: 44), Paint()..color = TvdColors.white.withAlpha(90));
+    canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: 24, height: 44), Paint()..color = color.withAlpha(60));
     canvas.restore();
     if (dashed) {
       final p = Paint()
@@ -178,14 +199,15 @@ class _BalloonPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 8
           ..strokeCap = StrokeCap.round
-          ..color = TvdColors.white,
+          ..color = color,
       );
     }
     canvas.restore();
   }
 
   @override
-  bool shouldRepaint(_BalloonPainter old) => old.color != color || old.ring != ring || old.dashed != dashed;
+  bool shouldRepaint(_BalloonPainter old) =>
+      old.color != color || old.fill != fill || old.ring != ring || old.dashed != dashed;
 }
 
 // ====================================================================== G3 Bên nào lớn hơn / Đúng hay sai (B)
