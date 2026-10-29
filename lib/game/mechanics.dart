@@ -165,7 +165,7 @@ abstract class AnswerMechanic {
       case MiniGames.runRace when n == 2:
         return RunChooseMechanic();
       case MiniGames.clapCount when jumps is int:
-        return CountMechanic(target: jumps as int, kind: RepKind.clap);
+        return CountMechanic(target: jumps, kind: RepKind.clap);
       case MiniGames.squatGate when n == 2:
         return GateMechanic();
     }
