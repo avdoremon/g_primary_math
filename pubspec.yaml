@@ -27,6 +27,7 @@ flutter:
     - assets/content/
     - assets/svg/mascot/
     - assets/svg/g7/
+    - assets/svg/brand/
     - assets/audio/sfx/
     - assets/audio/voice/
 

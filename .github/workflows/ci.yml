@@ -122,6 +122,23 @@ jobs:
           fi
           exit $code
 
+      - name: Kiểm tra APK có đủ lớp nhận diện
+        shell: bash
+        run: |
+          apk=build/app/outputs/flutter-apk/app-release.apk
+          list=$(unzip -l "$apk")
+          missing=""
+          for f in assets/pose_landmarker_lite.task assets/pose_landmarker_full.task libmediapipe_tasks_vision_jni.so; do
+            echo "$list" | grep -q "$f" || missing="$missing $f"
+          done
+          echo "$list" | grep -E "pose_landmarker|mediapipe.*\.so" || true
+          grep -E "proguard|minify|R8" android/app/build.gradle* || true
+          if [ -n "$missing" ]; then
+            echo "::error title=APK thiếu lớp nhận diện::Không thấy:$missing"
+            exit 1
+          fi
+          echo "::notice title=APK::Có mô hình pose (lite, full) và thư viện MediaPipe"
+
       - name: Tải APK lên (Artifacts)
         uses: actions/upload-artifact@v4
         with:

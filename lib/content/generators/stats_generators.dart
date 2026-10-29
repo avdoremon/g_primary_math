@@ -10,14 +10,14 @@ class PictographGenerator extends QuestionGenerator {
   @override
   String get id => 'pictograph';
 
-  static const _themes = <String, Map<String, String>>{
+  static const themes = <String, Map<String, String>>{
     'fruit': {'apple': 'quả táo', 'orange': 'quả cam', 'banana': 'quả chuối', 'mango': 'quả xoài'},
     'pets': {'cat': 'con mèo', 'dog': 'con chó', 'fish': 'con cá', 'rabbit': 'con thỏ'},
   };
 
   @override
   Question generate(GenParams p, math.Random r) {
-    final theme = _themes[pick(_themes.keys.toList(), r)]!;
+    final theme = themes[pick(themes.keys.toList(), r)]!;
     final kinds = theme.keys.toList()..shuffle(r);
     final rows = kinds.take(p.intOf('rows', 3)).toList();
     final maxCount = p.intOf('maxCount', 6);

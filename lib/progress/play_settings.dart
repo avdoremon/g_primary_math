@@ -8,6 +8,7 @@ class PlaySettings {
     this.voice = true,
     this.soundEffects = true,
     this.practiceMode = false,
+    this.frontCamera = false,
   });
 
   /// Giới hạn chơi mỗi ngày của mỗi bé; 0 = không giới hạn.
@@ -23,6 +24,9 @@ class PlaySettings {
   /// Chế độ luyện tập: bỏ đếm giờ ở mọi level.
   final bool practiceMode;
 
+  /// Dùng camera trước (màn hình điện thoại quay về phía bé). Mặc định camera sau, góc rộng hơn.
+  final bool frontCamera;
+
   static const dailyLimitChoices = [0, 15, 20, 30, 45, 60];
   static const breakChoices = [0, 10, 15, 20, 30];
 
@@ -32,6 +36,7 @@ class PlaySettings {
     bool? voice,
     bool? soundEffects,
     bool? practiceMode,
+    bool? frontCamera,
   }) =>
       PlaySettings(
         dailyLimitMinutes: dailyLimitMinutes ?? this.dailyLimitMinutes,
@@ -39,6 +44,7 @@ class PlaySettings {
         voice: voice ?? this.voice,
         soundEffects: soundEffects ?? this.soundEffects,
         practiceMode: practiceMode ?? this.practiceMode,
+        frontCamera: frontCamera ?? this.frontCamera,
       );
 
   static const _kDaily = 'play.dailyLimitMinutes';
@@ -46,6 +52,7 @@ class PlaySettings {
   static const _kVoice = 'play.voice';
   static const _kSfx = 'play.soundEffects';
   static const _kPractice = 'play.practiceMode';
+  static const _kFront = 'play.frontCamera';
 
   static Future<PlaySettings> load(ProgressStore store) async {
     const d = PlaySettings();
@@ -57,6 +64,7 @@ class PlaySettings {
       voice: boolOf(await store.setting(_kVoice), d.voice),
       soundEffects: boolOf(await store.setting(_kSfx), d.soundEffects),
       practiceMode: boolOf(await store.setting(_kPractice), d.practiceMode),
+      frontCamera: boolOf(await store.setting(_kFront), d.frontCamera),
     );
   }
 
@@ -66,5 +74,6 @@ class PlaySettings {
     await store.setSetting(_kVoice, voice ? '1' : '0');
     await store.setSetting(_kSfx, soundEffects ? '1' : '0');
     await store.setSetting(_kPractice, practiceMode ? '1' : '0');
+    await store.setSetting(_kFront, frontCamera ? '1' : '0');
   }
 }

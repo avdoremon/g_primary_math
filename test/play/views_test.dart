@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:g_primary_math/content/curriculum.dart';
 import 'package:g_primary_math/content/generators/generator.dart';
+import 'package:g_primary_math/content/generators/number_generators.dart' show countObjects;
 import 'package:g_primary_math/content/generators/registry.dart';
+import 'package:g_primary_math/content/generators/stats_generators.dart' show PictographGenerator;
 import 'package:g_primary_math/content/question.dart';
 import 'package:g_primary_math/game/mechanics.dart';
 import 'package:g_primary_math/game/session.dart';
 import 'package:g_primary_math/screens/play/hud.dart';
 import 'package:g_primary_math/screens/play/mini_game_view.dart';
+import 'package:g_primary_math/screens/play/scene_art.dart';
 import 'package:g_primary_math/screens/play/views/simon_says_view.dart';
 import 'package:g_primary_math/ui/theme/theme.dart';
 import 'package:g_primary_math/ui/widgets/tv_stage.dart';
@@ -210,6 +213,19 @@ void main() {
     expect(shape.label(shape.answer), startsWith('hình'));
     final money = Generators.find('money_identify')!.generate(GenParams({'notes': [2000]}, answers: 1), r);
     expect(money.correctLabel, '2 000 đồng');
+  });
+
+  test('mọi đồ vật để đếm và trong biểu đồ tranh đều có hình vẽ (không thiếu ảnh, không dùng emoji)', () {
+    for (final o in countObjects.keys) {
+      expect(Art.sizes.containsKey(o), isTrue, reason: 'thiếu hình $o');
+      expect(File('assets/svg/g7/$o.svg').existsSync(), isTrue, reason: 'thiếu file $o.svg');
+    }
+    for (final theme in PictographGenerator.themes.values) {
+      for (final item in theme.keys) {
+        expect(Art.sizes.containsKey(item), isTrue, reason: 'thiếu hình $item');
+        expect(File('assets/svg/g7/$item.svg').existsSync(), isTrue, reason: 'thiếu file $item.svg');
+      }
+    }
   });
 
   test('dạng bài sinh đề có tham số hợp lệ cho Con nói, con làm', () {

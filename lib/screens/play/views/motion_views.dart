@@ -45,9 +45,6 @@ class BalloonView extends MiniGameView {
   List<Rect> tapTargets(PlayFrame f) => f.question.options.length > 1 ? _bodies(f) : const [];
 
   @override
-  Widget? camTile(PlayFrame f) => null;
-
-  @override
   List<Widget> scene(BuildContext context, PlayFrame f) {
     final q = f.question;
     final out = <Widget>[
@@ -103,7 +100,17 @@ class BalloonView extends MiniGameView {
           duration: const Duration(milliseconds: 150),
           child: CustomPaint(
             painter: _BalloonPainter(color: color, fill: fill, ring: aimed ? f.mechanic!.progress : 0, dashed: mark == CardMark.wrongPick),
-            child: Align(
+            child: Stack(
+              children: [
+                // Hình nhận dạng vị trí dưới con số (design system: cho trẻ mù màu).
+                Align(
+                  alignment: const Alignment(0, .2),
+                  child: CustomPaint(
+                    size: Size.square(b.width * .13),
+                    painter: SlotShapePainter(slot.shape, mark == CardMark.correct ? TvdColors.white : color),
+                  ),
+                ),
+                Align(
               alignment: const Alignment(0, -.42),
               child: SizedBox(
                 width: b.width * .78,
@@ -116,6 +123,8 @@ class BalloonView extends MiniGameView {
                   ),
                 ),
               ),
+            ),
+              ],
             ),
           ),
         ),

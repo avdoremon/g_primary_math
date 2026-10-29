@@ -17,6 +17,7 @@ import '../../game/session.dart';
 import '../../motion/hand_tracker.dart';
 import '../../motion/motion_engine.dart';
 import '../../pose/pose_frame.dart';
+import '../../pose/pose_service.dart';
 import '../../progress/models.dart';
 import '../../progress/progress_rules.dart';
 import '../../ui/theme/theme.dart';
@@ -76,6 +77,30 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   double _restLeft = 0;
   Duration _lastTick = Duration.zero;
 
+  /// Giây camera đã chạy / giây liên tục chưa thấy bé (màn bắt đầu).
+  double _cameraOn = 0;
+  double _unseen = 0;
+  bool _switching = false;
+
+  /// Đổi camera trước ↔ sau ngay ở màn bắt đầu, lưu lại cho lần sau.
+  Future<void> _switchCamera() async {
+    if (_switching) return;
+    _switching = true;
+    final front = !_app.settings.frontCamera;
+    stopPose();
+    setState(() {
+      startInfo = null;
+      poseError = null;
+      _motion = null;
+      _cameraOn = 0;
+      _unseen = 0;
+    });
+    await _app.updateSettings(_app.settings.copyWith(frontCamera: front));
+    PoseService.instance.settings.frontCamera = front;
+    await startPose();
+    _switching = false;
+  }
+
   bool get _camera => startInfo != null && poseError == null;
 
   @override
@@ -84,6 +109,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
     _app = AppScope.of(context);
     _levelIndex = widget.levelIndex;
     _ticker = createTicker(_tick)..start();
+    PoseService.instance.settings.frontCamera = _app.settings.frontCamera;
     startPose();
     unawaited(_app.audio.say('Con đứng vào giữa khung hình, giơ hai tay lên để bắt đầu nhé!'));
   }
@@ -121,7 +147,9 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
 
     switch (_phase) {
       case _Stage.intro:
-        break;
+        // Đếm thời gian camera chạy mà chưa thấy bé, để hiện hướng dẫn đặt máy / đổi camera.
+        _unseen = _camera && _motion?.body == null ? _unseen + dtSec : 0;
+        if (_camera) _cameraOn += dtSec;
       case _Stage.playing:
         final s = _session!;
         final lost = _camera && _engine.tracking == TrackingState.lost;
@@ -417,6 +445,71 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
 
   Widget _centered(Widget child) => Positioned.fill(child: Center(child: child));
 
+  /// Trạng thái camera ở màn bắt đầu: bé và phụ huynh biết camera có chạy và đang nhìn thấy gì.
+  Widget _cameraPanel() {
+    final front = _app.settings.frontCamera;
+    final fps = PoseService.instance.fps;
+    final String status;
+    final Color color;
+    if (poseError != null) {
+      status = 'Không mở được camera: $poseError\nVẫn chơi được bằng cách chạm màn hình.';
+      color = TvdColors.encourageDark;
+    } else if (!_camera) {
+      status = 'Đang mở camera ${front ? 'trước' : 'sau'}…';
+      color = TvdColors.inkSoft;
+    } else if (_cameraOn > 3 && fps < 1) {
+      status = 'Camera ${front ? 'trước' : 'sau'} đã mở nhưng chưa có hình. Thử đổi camera.';
+      color = TvdColors.encourageDark;
+    } else if (_motion?.body != null) {
+      status = 'Camera ${front ? 'trước' : 'sau'} · thấy con rồi';
+      color = TvdColors.correctDark;
+    } else if (_unseen > 3) {
+      status = 'Camera ${front ? 'trước' : 'sau'} chưa thấy con.\n'
+          '${front ? 'Màn hình điện thoại' : 'Mặt lưng điện thoại'} phải quay về phía con, đặt máy cách 2–3 m, thấy cả người.';
+      color = TvdColors.encourageDark;
+    } else {
+      status = 'Camera ${front ? 'trước' : 'sau'} đang tìm con…';
+      color = TvdColors.inkSoft;
+    }
+    return Positioned(
+      right: TvLayout.safeX,
+      top: 40,
+      width: 640,
+      child: Container(
+        padding: const EdgeInsets.all(TvdSpace.s5),
+        decoration: BoxDecoration(
+          color: TvdColors.white,
+          borderRadius: BorderRadius.circular(TvdRadius.lg),
+          boxShadow: TvdShadow.tv(TvdColors.cardShadow),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CamTile(frame: lastFrame, seen: _motion?.body != null, width: 180),
+            const SizedBox(width: TvdSpace.s5),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(status, style: TvText.label.copyWith(fontSize: 30, height: 1.25, color: color)),
+                  if (_camera) Text('${fps.round()} khung hình/giây', style: TvText.label.copyWith(fontSize: 24, color: TvdColors.inkSoft)),
+                  const SizedBox(height: TvdSpace.s4),
+                  FilledButton.icon(
+                    key: const ValueKey('switch-camera'),
+                    onPressed: _switching ? null : _switchCamera,
+                    icon: const Icon(Icons.cameraswitch, size: 40),
+                    label: Text('Đổi sang camera ${front ? 'sau' : 'trước'}', style: const TextStyle(fontSize: 28)),
+                    style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String get _startText {
     if (!_camera) return poseError != null ? 'Chạm màn hình để bắt đầu' : 'Đang mở camera…';
     return _motion?.body != null ? 'Giơ hai tay lên để bắt đầu' : 'Con đứng vào giữa khung hình nhé!';
@@ -428,6 +521,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
     if (custom != null) {
       return [
         ...custom,
+        _cameraPanel(),
         Positioned(
           left: 0,
           right: 0,
@@ -484,6 +578,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
           ],
         ],
       )),
+      _cameraPanel(),
     ];
   }
 

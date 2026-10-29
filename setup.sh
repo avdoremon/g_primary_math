@@ -75,6 +75,35 @@ else
   echo "Khong tim thay android/app/build.gradle(.kts)"; exit 1
 fi
 
+# 3b. Giu lop MediaPipe khi build release (R8), them mot lan
+if [ -f "$KTS" ] && ! grep -q "proguard-rules.pro" "$KTS"; then
+  cat >> "$KTS" <<'EOF2'
+
+// --- Toan Van Dong: giu lop MediaPipe khi build release ---
+android {
+    buildTypes {
+        getByName("release") {
+            proguardFiles("proguard-rules.pro")
+        }
+    }
+}
+EOF2
+  echo ">> Da them proguard-rules.pro vao $KTS"
+elif [ -f "$GROOVY" ] && ! grep -q "proguard-rules.pro" "$GROOVY"; then
+  cat >> "$GROOVY" <<'EOF2'
+
+// --- Toan Van Dong: giu lop MediaPipe khi build release ---
+android {
+    buildTypes {
+        release {
+            proguardFiles 'proguard-rules.pro'
+        }
+    }
+}
+EOF2
+  echo ">> Da them proguard-rules.pro vao $GROOVY"
+fi
+
 # 4. Tai mo hinh MediaPipe Pose
 ASSETS=android/app/src/main/assets
 mkdir -p "$ASSETS"

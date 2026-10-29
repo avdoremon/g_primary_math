@@ -104,6 +104,13 @@ class _ParentScreenState extends State<ParentScreen> {
             value: _s.practiceMode,
             onChanged: (v) => _update(_s.copyWith(practiceMode: v)),
           ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Dùng camera trước'),
+            subtitle: const Text('Bật khi màn hình điện thoại quay về phía bé. Tắt: camera sau (góc rộng, nét hơn)'),
+            value: _s.frontCamera,
+            onChanged: (v) => _update(_s.copyWith(frontCamera: v)),
+          ),
           const Divider(height: TvdSpace.s7),
           Text('Tiến độ của bé', style: PhoneText.title),
           const SizedBox(height: TvdSpace.s2),
