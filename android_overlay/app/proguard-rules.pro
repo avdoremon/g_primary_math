@@ -10,3 +10,10 @@
 -dontwarn javax.lang.model.**
 -dontwarn com.google.auto.value.**
 -dontwarn org.checkerframework.**
+
+# Flogger (MediaPipe dùng để ghi log) nạp backend bằng reflection; bị cắt sẽ gây
+# "NoClassDefFoundError: Could not initialize class ...FluentLogger" khi tạo PoseLandmarker.
+-keep class com.google.common.flogger.** { *; }
+-dontwarn com.google.common.flogger.**
+-keep class com.google.android.odml.** { *; }
+-dontwarn com.google.android.odml.**

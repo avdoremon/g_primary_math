@@ -83,7 +83,7 @@ class PoseEngine(
                 createLandmarker(cfg)
             } catch (e: Throwable) {
                 Log.e(TAG, "Không tạo được PoseLandmarker", e)
-                main.post { onFailed("model", "Không tải được mô hình nhận diện: ${e.javaClass.simpleName}: ${e.message}") }
+                main.post { onFailed("model", "Không tải được mô hình nhận diện.\n${describe(e)}") }
                 return@execute
             }
             if (stopped) {
@@ -233,7 +233,7 @@ class PoseEngine(
                 )
             } catch (e: Throwable) {
                 Log.e(TAG, "Không mở được camera", e)
-                onFailed("camera", "Không mở được camera: ${e.javaClass.simpleName}: ${e.message}")
+                onFailed("camera", "Không mở được camera.\n${describe(e)}")
             }
         }, ContextCompat.getMainExecutor(context))
     }
@@ -247,7 +247,7 @@ class PoseEngine(
                 image.close()
             } catch (_: Throwable) {
             }
-            main.post { listener.onError("frame", "Lỗi xử lý khung hình: ${e.javaClass.simpleName}: ${e.message}") }
+            main.post { listener.onError("frame", "Lỗi xử lý khung hình.\n${describe(e)}") }
         }
     }
 
@@ -316,5 +316,21 @@ class PoseEngine(
 
     companion object {
         private const val TAG = "PoseEngine"
+
+        /** Lỗi đầy đủ để gửi đội phát triển: chuỗi nguyên nhân (cause) và vài dòng stack đầu của mỗi lỗi. */
+        fun describe(e: Throwable): String {
+            val out = StringBuilder()
+            var cur: Throwable? = e
+            var depth = 0
+            while (cur != null && depth < 4) {
+                if (depth > 0) out.append("Nguyên nhân: ")
+                out.append(cur.javaClass.name).append(": ").append(cur.message ?: "").append('\n')
+                for (f in cur.stackTrace.take(6)) out.append("  at ").append(f.toString()).append('\n')
+                val next = cur.cause
+                cur = if (next === cur) null else next
+                depth++
+            }
+            return out.toString().take(4000)
+        }
     }
 }

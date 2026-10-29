@@ -171,6 +171,28 @@ android {
     }
 }
 
+# 3d. Tat thu gon ma (R8) cho ban release: MediaPipe can giu nguyen lop Java
+if (Test-Path $kts) {
+    $c = Get-Content $kts -Raw
+    if ($c -notmatch "tvdNoShrink") {
+        $c += @'
+
+// --- Toan Van Dong (tvdNoShrink): khong thu gon ma ban release ---
+// R8 cat bo lop Java cua MediaPipe (goi tu ma native qua JNI) gay NoClassDefFoundError khi bat nhan dien.
+android {
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+    }
+}
+'@
+        Write-Utf8NoBom $kts $c
+        Write-Host ">> Da tat R8 cho ban release ($kts)"
+    }
+}
+
 # 4. Tai mo hinh MediaPipe Pose (lite + full)
 $assets = "android/app/src/main/assets"
 New-Item -ItemType Directory -Force -Path $assets | Out-Null

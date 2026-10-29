@@ -64,6 +64,7 @@ class MainActivity : FlutterFragmentActivity(), PoseEngine.Listener {
     /** Lần dừng bất thường gần nhất: file lỗi Java của app, rồi đến lý do hệ thống ghi lại (Android 11+). */
     private fun readLastCrash(): String? {
         val parts = mutableListOf<String>()
+        prefs.getString(KEY_LAST_ERROR, null)?.let { parts.add("Lỗi bật camera gần nhất:\n$it") }
         try {
             if (crashFile.exists()) parts.add("Lỗi Java:\n" + crashFile.readText())
         } catch (_: Throwable) {
@@ -98,7 +99,10 @@ class MainActivity : FlutterFragmentActivity(), PoseEngine.Listener {
 
         MethodChannel(messenger, "tvd/pose").setMethodCallHandler { call, result ->
             when (call.method) {
-                "status" -> result.success(mapOf("startCrashed" to startCrashed, "lastCrash" to lastCrash))
+                "status" -> {
+                    lastCrash = readLastCrash()
+                    result.success(mapOf("startCrashed" to startCrashed, "lastCrash" to lastCrash))
+                }
                 "clearCrash" -> {
                     startCrashed = false
                     lastCrash = null
@@ -106,7 +110,7 @@ class MainActivity : FlutterFragmentActivity(), PoseEngine.Listener {
                         crashFile.delete()
                     } catch (_: Throwable) {
                     }
-                    prefs.edit().putLong(KEY_EXIT_SEEN, System.currentTimeMillis()).apply()
+                    prefs.edit().putLong(KEY_EXIT_SEEN, System.currentTimeMillis()).remove(KEY_LAST_ERROR).apply()
                     result.success(null)
                 }
                 "start" -> {
@@ -181,7 +185,11 @@ class MainActivity : FlutterFragmentActivity(), PoseEngine.Listener {
                 }
             },
             onFailed = { code, message ->
-                prefs.edit().putBoolean(KEY_START_PENDING, false).apply()
+                val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
+                prefs.edit()
+                    .putBoolean(KEY_START_PENDING, false)
+                    .putString(KEY_LAST_ERROR, "$time · $code\n$message\nAndroid ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) · ${Build.MANUFACTURER} ${Build.MODEL}")
+                    .apply()
                 if (!replied) {
                     replied = true
                     result.error(code, message, null)
@@ -227,5 +235,6 @@ class MainActivity : FlutterFragmentActivity(), PoseEngine.Listener {
         private const val REQUEST_CAMERA = 4201
         private const val KEY_START_PENDING = "poseStartPending"
         private const val KEY_EXIT_SEEN = "exitSeenAt"
+        private const val KEY_LAST_ERROR = "lastStartError"
     }
 }

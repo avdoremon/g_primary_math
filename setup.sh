@@ -164,6 +164,38 @@ EOF2
   echo ">> Da them cau hinh khoa ky vao $GROOVY"
 fi
 
+# 3d. Tat thu gon ma (R8) cho ban release: MediaPipe can giu nguyen lop Java
+if [ -f "$KTS" ] && ! grep -q "tvdNoShrink" "$KTS"; then
+  cat >> "$KTS" <<'EOF2'
+
+// --- Toan Van Dong (tvdNoShrink): khong thu gon ma ban release ---
+// R8 cat bo lop Java cua MediaPipe (goi tu ma native qua JNI) gay NoClassDefFoundError khi bat nhan dien.
+android {
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+    }
+}
+EOF2
+  echo ">> Da tat R8 cho ban release ($KTS)"
+elif [ -f "$GROOVY" ] && ! grep -q "tvdNoShrink" "$GROOVY"; then
+  cat >> "$GROOVY" <<'EOF2'
+
+// --- Toan Van Dong (tvdNoShrink): khong thu gon ma ban release ---
+android {
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+}
+EOF2
+  echo ">> Da tat R8 cho ban release ($GROOVY)"
+fi
+
 # 4. Tai mo hinh MediaPipe Pose
 ASSETS=android/app/src/main/assets
 mkdir -p "$ASSETS"
