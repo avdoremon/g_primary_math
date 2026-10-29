@@ -13,6 +13,7 @@ import 'stats_generators.dart';
 abstract class Generators {
   static const List<QuestionGenerator> all = [
     CountObjectsGenerator(),
+    SplitNumberGenerator(),
     PlaceValueGenerator(),
     CompareGenerator(),
     OrderNumbersGenerator(),

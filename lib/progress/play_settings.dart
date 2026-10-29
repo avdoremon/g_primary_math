@@ -9,6 +9,7 @@ class PlaySettings {
     this.soundEffects = true,
     this.practiceMode = false,
     this.frontCamera = true,
+    this.unlockAllTopics = false,
   });
 
   /// Giới hạn chơi mỗi ngày của mỗi bé; 0 = không giới hạn.
@@ -28,6 +29,9 @@ class PlaySettings {
   /// false = camera sau (đặt máy cạnh TV, góc rộng và nét hơn).
   final bool frontCamera;
 
+  /// Mở mọi chủ đề trên Đường phiêu lưu (khi trên lớp học khác thứ tự, hoặc bé học trước).
+  final bool unlockAllTopics;
+
   static const dailyLimitChoices = [0, 15, 20, 30, 45, 60];
   static const breakChoices = [0, 10, 15, 20, 30];
 
@@ -38,6 +42,7 @@ class PlaySettings {
     bool? soundEffects,
     bool? practiceMode,
     bool? frontCamera,
+    bool? unlockAllTopics,
   }) =>
       PlaySettings(
         dailyLimitMinutes: dailyLimitMinutes ?? this.dailyLimitMinutes,
@@ -46,6 +51,7 @@ class PlaySettings {
         soundEffects: soundEffects ?? this.soundEffects,
         practiceMode: practiceMode ?? this.practiceMode,
         frontCamera: frontCamera ?? this.frontCamera,
+        unlockAllTopics: unlockAllTopics ?? this.unlockAllTopics,
       );
 
   static const _kDaily = 'play.dailyLimitMinutes';
@@ -54,6 +60,7 @@ class PlaySettings {
   static const _kSfx = 'play.soundEffects';
   static const _kPractice = 'play.practiceMode';
   static const _kFront = 'play.frontCamera';
+  static const _kUnlockAll = 'play.unlockAllTopics';
 
   static Future<PlaySettings> load(ProgressStore store) async {
     const d = PlaySettings();
@@ -66,6 +73,7 @@ class PlaySettings {
       soundEffects: boolOf(await store.setting(_kSfx), d.soundEffects),
       practiceMode: boolOf(await store.setting(_kPractice), d.practiceMode),
       frontCamera: boolOf(await store.setting(_kFront), d.frontCamera),
+      unlockAllTopics: boolOf(await store.setting(_kUnlockAll), d.unlockAllTopics),
     );
   }
 
@@ -76,5 +84,6 @@ class PlaySettings {
     await store.setSetting(_kSfx, soundEffects ? '1' : '0');
     await store.setSetting(_kPractice, practiceMode ? '1' : '0');
     await store.setSetting(_kFront, frontCamera ? '1' : '0');
+    await store.setSetting(_kUnlockAll, unlockAllTopics ? '1' : '0');
   }
 }

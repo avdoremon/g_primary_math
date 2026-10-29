@@ -102,6 +102,16 @@ class PoseService {
     }
   }
 
+  /// Mở màn phản chiếu màn hình của Android (Smart View trên Samsung). Trả về false khi máy
+  /// không có màn nào phù hợp hoặc không có lớp native (test).
+  Future<bool> openCastSettings() async {
+    try {
+      return await _method.invokeMethod<String>('openCastSettings') != null;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Xoá báo lỗi lần trước sau khi phụ huynh đã xem.
   Future<void> clearCrash() async {
     try {

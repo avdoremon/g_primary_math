@@ -1,17 +1,15 @@
-import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
 import '../app/services.dart';
-import '../app/tv_mode.dart';
 import '../content/curriculum.dart';
-import '../game/play_guard.dart';
+import '../game/practice.dart';
 import '../progress/models.dart';
 import '../progress/progress_rules.dart';
 import '../ui/theme/theme.dart';
-import '../ui/widgets/tin_tin.dart';
 import 'common.dart';
-import 'play/play_screen.dart';
+import 'play_launcher.dart';
 
 /// 5 level của một chủ đề. Level 1 luôn mở; level sau mở khi level trước được ít nhất 1 sao.
 class LevelsScreen extends StatefulWidget {
@@ -41,42 +39,16 @@ class _LevelsScreenState extends State<LevelsScreen> {
   }
 
   Future<void> _play(int index) async {
-    final guard = await _app.guardFor(widget.profile.id);
+    await launchPlay(context, profile: widget.profile, grade: widget.grade, topic: widget.topic, levelIndex: index);
+    await _load();
+  }
+
+  /// Luyện tập thêm: câu mới mỗi lượt, trộn từ các level đã mở, không đổi sao.
+  Future<void> _practice() async {
+    final records = _records ?? await _app.store.levelRecords(widget.profile.id, widget.grade.grade);
     if (!mounted) return;
-    switch (guard.check()) {
-      case GuardVerdict.dailyLimitReached:
-        await showDialog<void>(
-          context: context,
-          builder: (context) => AlertDialog(
-            icon: const TinTin(state: TinTinState.wait, size: 96),
-            title: const Text('Hôm nay con chơi đủ rồi!'),
-            content: Text(
-              'Đã chơi ${formatMinutes(guard.playedToday)} hôm nay. '
-              'Phụ huynh có thể đổi giới hạn trong phần cài đặt.',
-            ),
-            actions: [FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Đồng ý'))],
-          ),
-        );
-        return;
-      case GuardVerdict.takeBreak:
-        final rested = await showDialog<bool>(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => const _BreakDialog(),
-        );
-        if (rested != true || !mounted) return;
-        guard.breakTaken();
-      case GuardVerdict.ok:
-        break;
-    }
-    if (!mounted) return;
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => TvModeScope(
-          child: PlayScreen(profile: widget.profile, grade: widget.grade, topic: widget.topic, levelIndex: index),
-        ),
-      ),
-    );
+    final plan = PracticePlan.forTopic(widget.topic, records, math.Random());
+    await launchPlay(context, profile: widget.profile, grade: widget.grade, topic: widget.topic, practice: plan);
     await _load();
   }
 
@@ -90,6 +62,7 @@ class _LevelsScreenState extends State<LevelsScreen> {
           : ListView(
               padding: const EdgeInsets.all(TvdSpace.s4),
               children: [
+                _practiceTile(),
                 for (final (i, l) in widget.topic.levels.indexed) _tile(i, l, records),
                 const SizedBox(height: TvdSpace.s4),
                 Text(
@@ -101,6 +74,31 @@ class _LevelsScreenState extends State<LevelsScreen> {
             ),
     );
   }
+
+  Widget _practiceTile() => TvdCard(
+        key: const ValueKey('practice-more'),
+        onTap: _practice,
+        child: Row(
+          children: [
+            const CircleAvatar(
+              radius: 26,
+              backgroundColor: TvdColors.correct,
+              child: Icon(Icons.all_inclusive_rounded, color: TvdColors.white),
+            ),
+            const SizedBox(width: TvdSpace.s4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Luyện tập thêm', style: PhoneText.item),
+                  Text('Câu mới mỗi lượt, trộn các level đã mở. Có điểm, không đổi sao.', style: PhoneText.caption),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: TvdColors.inkSoft),
+          ],
+        ),
+      );
 
   Widget _tile(int index, Level l, Map<LevelKey, LevelRecord> records) {
     final open = ProgressRules.isUnlocked(records, widget.topic.id, l.level);
@@ -136,53 +134,6 @@ class _LevelsScreenState extends State<LevelsScreen> {
           LevelStars(stars: rec?.bestStars ?? 0),
         ],
       ),
-    );
-  }
-}
-
-/// Màn nghỉ trên điện thoại khi bé chơi liên tục quá lâu (bắt đầu level từ menu).
-class _BreakDialog extends StatefulWidget {
-  const _BreakDialog();
-
-  @override
-  State<_BreakDialog> createState() => _BreakDialogState();
-}
-
-class _BreakDialogState extends State<_BreakDialog> {
-  late int _left = PlayGuard.breakLength.inSeconds;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_left <= 0) return;
-      setState(() => _left--);
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      icon: const TinTin(state: TinTinState.wait, size: 96),
-      title: const Text('Nghỉ một chút nhé!'),
-      content: Text(
-        'Con uống nước, nhìn ra xa cho mắt nghỉ ngơi.\n'
-        '${_left > 0 ? 'Còn ${_left ~/ 60}:${(_left % 60).toString().padLeft(2, '0')}' : 'Chơi tiếp được rồi!'}',
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Để sau')),
-        FilledButton(
-          onPressed: _left > 0 ? null : () => Navigator.of(context).pop(true),
-          child: const Text('Chơi tiếp'),
-        ),
-      ],
     );
   }
 }

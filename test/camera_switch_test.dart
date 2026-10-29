@@ -7,6 +7,7 @@ import 'package:g_primary_math/audio/audio_service.dart';
 import 'package:g_primary_math/pose/pose_service.dart';
 import 'package:g_primary_math/progress/play_settings.dart';
 import 'package:g_primary_math/progress/progress_store.dart';
+import 'package:g_primary_math/screens/connect_tv_screen.dart';
 import 'package:g_primary_math/ui/widgets/tv_stage.dart';
 
 import 'app_flow_test.dart' show loadGrade, run;
@@ -41,6 +42,7 @@ Future<void> openFirstLevel(WidgetTester tester, {PlaySettings settings = const 
   final g1 = loadGrade(1);
   final store = MemoryProgressStore();
   await store.createProfile(name: 'An', grade: 1);
+  await store.setSetting(ConnectTvScreen.seenKey, '1');
   final services = AppServices(
     store: store,
     audio: AudioService.silent(),

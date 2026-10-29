@@ -14,6 +14,7 @@ import '../../dev/skeleton_painter.dart';
 import '../../game/feedback.dart';
 import '../../game/mechanics.dart';
 import '../../game/play_guard.dart';
+import '../../game/practice.dart';
 import '../../game/session.dart';
 import '../../motion/hand_tracker.dart';
 import '../../motion/motion_engine.dart';
@@ -37,7 +38,14 @@ enum _Stage { intro, playing, result, rest, limit }
 /// (chơi lại / level sau / về menu, chọn bằng tay hoặc chạm màn hình) → nhắc nghỉ hoặc hết giờ chơi nếu cần.
 /// Không có camera (máy dev) thì chạm màn hình để chọn.
 class PlayScreen extends StatefulWidget {
-  const PlayScreen({super.key, required this.profile, required this.grade, required this.topic, required this.levelIndex});
+  const PlayScreen({
+    super.key,
+    required this.profile,
+    required this.grade,
+    required this.topic,
+    required this.levelIndex,
+    this.practice,
+  });
 
   final Profile profile;
   final Grade grade;
@@ -45,6 +53,9 @@ class PlayScreen extends StatefulWidget {
 
   /// Vị trí level trong [Topic.levels].
   final int levelIndex;
+
+  /// Lượt luyện tập (Luyện tập thêm / Luyện chỗ còn sai); null = chơi level [levelIndex].
+  final PracticePlan? practice;
 
   @override
   State<PlayScreen> createState() => _PlayScreenState();
@@ -61,7 +72,13 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   MotionFrame? _motion;
 
   late int _levelIndex;
-  Level get _level => widget.topic.levels[_levelIndex];
+  PracticePlan? _practice;
+
+  /// Level chính của lượt (luyện tập: level đầu của nhóm luyện).
+  Level get _baseLevel => _practice?.base ?? widget.topic.levels[_levelIndex];
+
+  /// Level của câu đang hỏi (luyện tập trộn nhiều level cùng mini game).
+  Level get _level => _session?.currentLevel ?? _baseLevel;
   MiniGameView get _view => MiniGameView.of(_level);
   double _time = 0;
   int _spokenCount = 0;
@@ -137,6 +154,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
     super.initState();
     _app = AppScope.of(context);
     _levelIndex = widget.levelIndex;
+    _practice = widget.practice;
     _ticker = createTicker(_tick)..start();
     PoseService.instance.settings.frontCamera = _app.settings.frontCamera;
     unawaited(_initCamera());
@@ -234,8 +252,9 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
     _session?.dispose();
     final s = GameSession(
       grade: widget.grade.grade,
-      topicId: widget.topic.id,
-      level: _level,
+      topicId: _practice?.topic.id ?? widget.topic.id,
+      level: _baseLevel,
+      pool: _practice?.pool,
       practice: _app.settings.practiceMode,
     );
     _events = s.events.listen(_onEvent);
@@ -275,7 +294,8 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
     await _save(r);
     final records = await _app.store.levelRecords(widget.profile.id, widget.grade.grade);
     final next = _levelIndex + 1;
-    _nextUnlocked = next < widget.topic.levels.length &&
+    _nextUnlocked = _practice == null &&
+        next < widget.topic.levels.length &&
         ProgressRules.isUnlocked(records, widget.topic.id, widget.topic.levels[next].level);
     if (mounted) setState(() {});
     unawaited(_app.audio.say(SessionFeedback.forResult(r).speech));
@@ -296,6 +316,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
 
   List<(String, VoidCallback)> _menuItems() {
     if (_phase == _Stage.limit) return [('Về menu', _exit)];
+    if (_practice != null) return [('Luyện tiếp', _practiceNext), ('Về menu', _exit)];
     return [
       ('Chơi lại', () => _continueWith(_levelIndex)),
       if (_nextUnlocked) ('Level sau', () => _continueWith(_levelIndex + 1)),
@@ -310,11 +331,27 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
     items[i].$2();
   }
 
-  Future<void> _continueWith(int levelIndex) async {
+  /// Lượt luyện tập kế tiếp: chọn lại nhóm level (có thể ra mini game khác).
+  Future<void> _practiceNext() async {
+    final p = _practice;
+    if (p == null) return;
+    var plan = p;
+    try {
+      final records = await _app.store.levelRecords(widget.profile.id, widget.grade.grade);
+      final log = await _app.store.recentAnswers(widget.profile.id, limit: 100);
+      plan = p.next(widget.grade, records, log, math.Random());
+    } on Object catch (e) {
+      debugPrint('Không chọn được lượt luyện tập mới: $e');
+    }
+    await _continueWith(_levelIndex, plan: plan);
+  }
+
+  Future<void> _continueWith(int levelIndex, {PracticePlan? plan}) async {
     final guard = await _app.guardFor(widget.profile.id);
     if (!mounted) return;
     void go() {
       _levelIndex = levelIndex;
+      if (plan != null) _practice = plan;
       _startSession();
     }
 
@@ -632,7 +669,13 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
       _centered(Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('${widget.topic.title} · Level ${_level.level}', style: TvText.prompt, textAlign: TextAlign.center),
+          Text(
+            _practice == null
+                ? '${widget.topic.title} · Level ${_level.level}'
+                : '${_practice!.title} · ${_practice!.topic.title}',
+            style: TvText.prompt,
+            textAlign: TextAlign.center,
+          ),
           Text(MiniGames.title(_level.miniGame), style: TvText.label.copyWith(color: TvdColors.inkSoft)),
           const SizedBox(height: TvdSpace.s5),
           const TinTin(state: TinTinState.raiseBoth, size: 300),
