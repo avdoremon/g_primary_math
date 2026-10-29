@@ -103,11 +103,29 @@ jobs:
       - name: Dựng project Android (setup.sh)
         run: bash setup.sh
 
+      - name: Kiểm tra biểu tượng app
+        run: python3 tool/check_icons.py
+
+      - name: Khoá ký APK cố định (GitHub Secrets)
+        shell: bash
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KS" ] && [ -n "$PW" ]; then
+            echo "$KS" | base64 -d > android/app/upload.jks
+            printf 'storeFile=upload.jks\nstorePassword=%s\nkeyAlias=toanvandong\nkeyPassword=%s\n' "$PW" "$PW" > android/key.properties
+            echo "::notice title=Khoá ký::APK ký bằng khoá cố định, cài đè được lên bản trước"
+          else
+            echo "::warning title=Chưa có khoá ký::Thiếu secret ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD: APK ký bằng khoá debug tạm, không cài đè được lên bản trước"
+          fi
+
       - name: Build APK release
         shell: bash
         run: |
           set +e
-          flutter build apk --release > build.log 2>&1
+          # Số phiên bản (versionCode) = số lần chạy CI, luôn tăng nên Android nhận là bản cập nhật.
+          flutter build apk --release --build-number=${{ github.run_number }} > build.log 2>&1
           code=$?
           tail -n 60 build.log
           if [ $code -ne 0 ]; then
@@ -138,6 +156,10 @@ jobs:
             exit 1
           fi
           echo "::notice title=APK::Có mô hình pose (lite, full) và thư viện MediaPipe"
+          bt=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)
+          cert=$("$ANDROID_HOME/build-tools/$bt/apksigner" verify --print-certs "$apk" | grep -m1 'SHA-256 digest' | sed 's/.*: //' || true)
+          ver=$("$ANDROID_HOME/build-tools/$bt/aapt2" dump badging "$apk" 2>/dev/null | grep -o "versionCode='[0-9]*'" | head -1 || true)
+          echo "::notice title=Chữ ký APK::$ver · chứng chỉ SHA-256 ${cert:0:16}… (giống nhau giữa các bản = cài đè được)"
 
       - name: Tải APK lên (Artifacts)
         uses: actions/upload-artifact@v4

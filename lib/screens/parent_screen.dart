@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../app/services.dart';
 import '../dev/dev_menu_screen.dart';
+import '../pose/pose_service.dart';
 import '../progress/models.dart';
 import '../progress/play_settings.dart';
 import '../ui/theme/theme.dart';
@@ -20,11 +22,46 @@ class _ParentScreenState extends State<ParentScreen> {
   late final AppServices _app = AppScope.of(context);
   late PlaySettings _s = _app.settings;
   List<Profile> _profiles = const [];
+  String? _lastCrash;
 
   @override
   void initState() {
     super.initState();
     _loadProfiles();
+    PoseService.instance.status().then((st) {
+      if (mounted) setState(() => _lastCrash = st.lastCrash);
+    });
+  }
+
+  /// Báo lỗi lần trước: xem, sao chép gửi đội phát triển, hoặc xoá.
+  Future<void> _showCrash() async {
+    final text = _lastCrash ?? '';
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Báo lỗi lần trước'),
+        content: SingleChildScrollView(child: SelectableText(text, style: const TextStyle(fontSize: 13))),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await PoseService.instance.clearCrash();
+              if (ctx.mounted) Navigator.of(ctx).pop();
+              if (mounted) setState(() => _lastCrash = null);
+            },
+            child: const Text('Xoá'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: text));
+              if (ctx.mounted) {
+                ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Đã sao chép. Dán vào tin nhắn gửi đội phát triển.')));
+              }
+            },
+            child: const Text('Sao chép'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _loadProfiles() async {
@@ -104,13 +141,35 @@ class _ParentScreenState extends State<ParentScreen> {
             value: _s.practiceMode,
             onChanged: (v) => _update(_s.copyWith(practiceMode: v)),
           ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Dùng camera trước'),
-            subtitle: const Text('Bật khi màn hình điện thoại quay về phía bé. Tắt: camera sau (góc rộng, nét hơn)'),
-            value: _s.frontCamera,
-            onChanged: (v) => _update(_s.copyWith(frontCamera: v)),
+          const SizedBox(height: TvdSpace.s3),
+          Text('Camera mặc định khi vào chơi', style: PhoneText.body),
+          const SizedBox(height: TvdSpace.s2),
+          SegmentedButton<bool>(
+            key: const ValueKey('default-camera'),
+            segments: const [
+              ButtonSegment(value: true, label: Text('Camera trước'), icon: Icon(Icons.camera_front_outlined)),
+              ButtonSegment(value: false, label: Text('Camera sau'), icon: Icon(Icons.camera_rear_outlined)),
+            ],
+            selected: {_s.frontCamera},
+            onSelectionChanged: (v) => _update(_s.copyWith(frontCamera: v.first)),
           ),
+          const SizedBox(height: TvdSpace.s2),
+          Text(
+            _s.frontCamera
+                ? 'Màn hình điện thoại quay về phía bé. Hợp khi dựng máy trước mặt bé.'
+                : 'Mặt lưng điện thoại quay về phía bé, máy đặt cạnh TV. Góc rộng và nét hơn.',
+            style: PhoneText.caption,
+          ),
+          const SizedBox(height: TvdSpace.s2),
+          Text('Khi đang chơi vẫn đổi được camera bằng nút ở góc dưới màn hình.', style: PhoneText.caption),
+          if (_lastCrash != null)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.bug_report_outlined, color: TvdColors.encourageDark),
+              title: const Text('Báo lỗi lần trước'),
+              subtitle: const Text('App đã bị dừng bất thường. Bấm để xem và sao chép gửi đội phát triển.'),
+              onTap: _showCrash,
+            ),
           const Divider(height: TvdSpace.s7),
           Text('Tiến độ của bé', style: PhoneText.title),
           const SizedBox(height: TvdSpace.s2),

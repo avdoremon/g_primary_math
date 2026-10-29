@@ -8,7 +8,7 @@ class PlaySettings {
     this.voice = true,
     this.soundEffects = true,
     this.practiceMode = false,
-    this.frontCamera = false,
+    this.frontCamera = true,
   });
 
   /// Giới hạn chơi mỗi ngày của mỗi bé; 0 = không giới hạn.
@@ -24,7 +24,8 @@ class PlaySettings {
   /// Chế độ luyện tập: bỏ đếm giờ ở mọi level.
   final bool practiceMode;
 
-  /// Dùng camera trước (màn hình điện thoại quay về phía bé). Mặc định camera sau, góc rộng hơn.
+  /// Camera mặc định khi vào chơi: true = camera trước (màn hình quay về phía bé, cách thử quen thuộc nhất),
+  /// false = camera sau (đặt máy cạnh TV, góc rộng và nét hơn).
   final bool frontCamera;
 
   static const dailyLimitChoices = [0, 15, 20, 30, 45, 60];

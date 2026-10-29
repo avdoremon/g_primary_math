@@ -8,7 +8,9 @@ import 'pose_frame.dart';
 class PoseSettings {
   bool frontCamera = false;
   bool fullModel = false;
-  bool gpu = true;
+  /// GPU tắt mặc định: lỗi khởi tạo GPU nằm trong thư viện C++ nên không bắt được và làm app văng
+  /// trên một số máy. CPU đủ nhanh cho mô hình lite. Bật lại ở công cụ phát triển.
+  bool gpu = false;
   bool wideAngle = true;
 
   Map<String, Object> toMap() => {
@@ -17,6 +19,17 @@ class PoseSettings {
         'gpu': gpu,
         'wide': wideAngle,
       };
+}
+
+/// Tình trạng lớp nhận diện native lúc mở app.
+class PoseNativeStatus {
+  const PoseNativeStatus({this.startCrashed = false, this.lastCrash});
+
+  /// Lần trước app bị dừng khi đang bật camera: không tự bật lại, chờ người lớn bấm "Thử lại camera".
+  final bool startCrashed;
+
+  /// Mô tả lần app dừng bất thường gần nhất (để phụ huynh sao chép gửi đội phát triển).
+  final String? lastCrash;
 }
 
 class PoseStartInfo {
@@ -76,6 +89,26 @@ class PoseService {
     final info = PoseStartInfo.fromMap(res ?? const {});
     lastStart = info;
     return info;
+  }
+
+  /// Đọc tình trạng native; lỗi kênh (test, máy không có lớp native) coi như bình thường.
+  Future<PoseNativeStatus> status() async {
+    try {
+      final m = await _method.invokeMapMethod<String, dynamic>('status');
+      if (m == null) return const PoseNativeStatus();
+      return PoseNativeStatus(startCrashed: m['startCrashed'] == true, lastCrash: m['lastCrash'] as String?);
+    } catch (_) {
+      return const PoseNativeStatus();
+    }
+  }
+
+  /// Xoá báo lỗi lần trước sau khi phụ huynh đã xem.
+  Future<void> clearCrash() async {
+    try {
+      await _method.invokeMethod<void>('clearCrash');
+    } catch (_) {
+      // Không có lớp native: bỏ qua.
+    }
   }
 
   Future<void> stop() async {

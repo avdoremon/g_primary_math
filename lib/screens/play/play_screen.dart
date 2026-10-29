@@ -82,20 +82,48 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   double _unseen = 0;
   bool _switching = false;
 
-  /// Đổi camera trước ↔ sau ngay ở màn bắt đầu, lưu lại cho lần sau.
+  /// Lần trước bật camera thì app bị dừng: không tự bật lại, chờ người lớn bấm "Thử lại camera".
+  bool _safeMode = false;
+
+  /// Vừa đổi camera giữa lượt chơi: tạm dừng, chờ bé giơ hai tay để đo lại theo góc camera mới.
+  bool _recalibrating = false;
+
+  bool get _front => PoseService.instance.settings.frontCamera;
+
+  /// Bật camera theo cài đặt; nếu lần trước bật camera làm app dừng thì vào chế độ an toàn.
+  Future<void> _initCamera() async {
+    final st = await PoseService.instance.status();
+    if (!mounted) return;
+    if (st.startCrashed) {
+      setState(() => _safeMode = true);
+      return;
+    }
+    await startPose();
+  }
+
+  /// Người lớn bấm "Thử lại camera" sau khi app từng bị dừng.
+  Future<void> _retryCamera() async {
+    setState(() => _safeMode = false);
+    await startPose();
+  }
+
+  /// Đổi camera trước ↔ sau ở bất kỳ màn nào. Chỉ đổi cho lượt chơi này; camera mặc định chỉnh ở khu phụ huynh.
+  /// Đang chơi thì tạm dừng và đo lại cơ thể bé theo góc camera mới.
   Future<void> _switchCamera() async {
     if (_switching) return;
     _switching = true;
-    final front = !_app.settings.frontCamera;
+    final front = !_front;
     stopPose();
+    _engine.reset();
     setState(() {
       startInfo = null;
       poseError = null;
       _motion = null;
       _cameraOn = 0;
       _unseen = 0;
+      _safeMode = false;
+      if (_phase == _Stage.playing) _recalibrating = true;
     });
-    await _app.updateSettings(_app.settings.copyWith(frontCamera: front));
     PoseService.instance.settings.frontCamera = front;
     await startPose();
     _switching = false;
@@ -110,7 +138,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
     _levelIndex = widget.levelIndex;
     _ticker = createTicker(_tick)..start();
     PoseService.instance.settings.frontCamera = _app.settings.frontCamera;
-    startPose();
+    unawaited(_initCamera());
     unawaited(_app.audio.say('Con đứng vào giữa khung hình, giơ hai tay lên để bắt đầu nhé!'));
   }
 
@@ -135,6 +163,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
     final m = _engine.process(frame);
     _motion = m;
     if (_phase == _Stage.intro && m.justCalibrated != null) _startSession();
+    if (_recalibrating && m.justCalibrated != null) setState(() => _recalibrating = false);
   }
 
   // ------------------------------------------------------------------ vòng lặp
@@ -152,9 +181,12 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
         if (_camera) _cameraOn += dtSec;
       case _Stage.playing:
         final s = _session!;
+        // Camera hỏng sau khi đổi: bỏ bước đo lại, chơi tiếp bằng chạm.
+        if (_recalibrating && poseError != null) _recalibrating = false;
         final lost = _camera && _engine.tracking == TrackingState.lost;
-        if (lost && !s.paused) s.pause();
-        if (!lost && s.paused) s.resume();
+        final hold = lost || _recalibrating;
+        if (hold && !s.paused) s.pause();
+        if (!hold && s.paused) s.resume();
         s.tick(dt);
         final mech = _mech;
         if (s.phase == SessionPhase.asking && !s.paused && mech != null) {
@@ -354,6 +386,10 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
         _startSession();
       case _Stage.playing:
         final s = _session!;
+        if (_recalibrating) {
+          setState(() => _recalibrating = false);
+          return;
+        }
         if (GameHud.cardRect.contains(stagePoint) && s.question != null) {
           // Chạm thẻ đề: đọc lại đề.
           unawaited(_app.audio.say(s.question!.speech));
@@ -417,7 +453,21 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
                       icon: const Icon(Icons.close),
                     ),
                   ),
-                  if (_session?.paused ?? false) _pauseOverlay(),
+                  if (_recalibrating && _phase == _Stage.playing)
+                    _recalibrateOverlay()
+                  else if (_session?.paused ?? false)
+                    _pauseOverlay(),
+                  Positioned(
+                    left: 16 + 76,
+                    bottom: 16,
+                    child: IconButton.filledTonal(
+                      key: const ValueKey('switch-camera-corner'),
+                      iconSize: 36,
+                      tooltip: 'Đổi sang camera ${_front ? 'sau' : 'trước'}',
+                      onPressed: _switching ? null : _switchCamera,
+                      icon: const Icon(Icons.cameraswitch),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -447,11 +497,14 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
 
   /// Trạng thái camera ở màn bắt đầu: bé và phụ huynh biết camera có chạy và đang nhìn thấy gì.
   Widget _cameraPanel() {
-    final front = _app.settings.frontCamera;
+    final front = _front;
     final fps = PoseService.instance.fps;
     final String status;
     final Color color;
-    if (poseError != null) {
+    if (_safeMode) {
+      status = 'Lần trước bật camera thì app bị dừng.\nBấm Thử lại camera, hoặc chạm màn hình để chơi bằng tay.';
+      color = TvdColors.encourageDark;
+    } else if (poseError != null) {
       status = 'Không mở được camera: $poseError\nVẫn chơi được bằng cách chạm màn hình.';
       color = TvdColors.encourageDark;
     } else if (!_camera) {
@@ -494,13 +547,22 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
                   Text(status, style: TvText.label.copyWith(fontSize: 30, height: 1.25, color: color)),
                   if (_camera) Text('${fps.round()} khung hình/giây', style: TvText.label.copyWith(fontSize: 24, color: TvdColors.inkSoft)),
                   const SizedBox(height: TvdSpace.s4),
-                  FilledButton.icon(
-                    key: const ValueKey('switch-camera'),
-                    onPressed: _switching ? null : _switchCamera,
-                    icon: const Icon(Icons.cameraswitch, size: 40),
-                    label: Text('Đổi sang camera ${front ? 'sau' : 'trước'}', style: const TextStyle(fontSize: 28)),
-                    style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18)),
-                  ),
+                  if (_safeMode)
+                    FilledButton.icon(
+                      key: const ValueKey('retry-camera'),
+                      onPressed: _retryCamera,
+                      icon: const Icon(Icons.refresh, size: 40),
+                      label: const Text('Thử lại camera', style: TextStyle(fontSize: 28)),
+                      style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18)),
+                    )
+                  else
+                    FilledButton.icon(
+                      key: const ValueKey('switch-camera'),
+                      onPressed: _switching ? null : _switchCamera,
+                      icon: const Icon(Icons.cameraswitch, size: 40),
+                      label: Text('Đổi sang camera ${front ? 'sau' : 'trước'}', style: const TextStyle(fontSize: 28)),
+                      style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18)),
+                    ),
                 ],
               ),
             ),
@@ -511,7 +573,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   }
 
   String get _startText {
-    if (!_camera) return poseError != null ? 'Chạm màn hình để bắt đầu' : 'Đang mở camera…';
+    if (!_camera) return poseError != null || _safeMode ? 'Chạm màn hình để bắt đầu' : 'Đang mở camera…';
     return _motion?.body != null ? 'Giơ hai tay lên để bắt đầu' : 'Con đứng vào giữa khung hình nhé!';
   }
 
@@ -695,6 +757,39 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
       ],
     ));
   }
+
+  /// Sau khi đổi camera giữa lượt: chờ bé giơ hai tay để đo lại. Chạm màn hình để bỏ qua (chơi bằng chạm).
+  Widget _recalibrateOverlay() => Positioned.fill(
+        child: ColoredBox(
+          color: TvdColors.ink.withAlpha(215),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const TinTin(state: TinTinState.raiseBoth, size: 240),
+                const SizedBox(height: TvdSpace.s5),
+                Text(
+                  'Đã đổi sang camera ${_front ? 'trước' : 'sau'}',
+                  style: TvText.prompt.copyWith(color: TvdColors.white),
+                ),
+                Text('Con giơ hai tay lên để chơi tiếp nhé!', style: TvText.question.copyWith(color: TvdColors.white)),
+                const SizedBox(height: TvdSpace.s5),
+                SizedBox(
+                  width: 600,
+                  child: LinearProgressIndicator(
+                    value: _motion?.calibrationProgress ?? 0,
+                    minHeight: 24,
+                    color: TvdColors.correct,
+                    backgroundColor: TvdColors.white,
+                  ),
+                ),
+                const SizedBox(height: TvdSpace.s4),
+                Text('Chạm màn hình để chơi tiếp bằng tay', style: TvText.label.copyWith(color: TvdColors.white)),
+              ],
+            ),
+          ),
+        ),
+      );
 
   Widget _pauseOverlay() => Positioned.fill(
         child: ColoredBox(

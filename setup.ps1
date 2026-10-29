@@ -133,6 +133,44 @@ android {
     }
 }
 
+# 3c. Ky ban release bang khoa co dinh neu co android/key.properties
+if (Test-Path $kts) {
+    $c = Get-Content $kts -Raw
+    if ($c -notmatch "tvdKeyProps") {
+        $c += @'
+
+// --- Toan Van Dong: ky ban release bang khoa co dinh (android/key.properties), thieu thi dung khoa debug ---
+// (Khong dung java.util.Properties: trong khoi android, "java" bi hieu la extension cua Gradle.)
+val tvdKeyProps: Map<String, String> = rootProject.file("key.properties").let { f ->
+    if (!f.exists()) emptyMap() else f.readLines()
+        .mapNotNull { line -> line.split("=", limit = 2).takeIf { it.size == 2 }?.let { it[0].trim() to it[1].trim() } }
+        .toMap()
+}
+android {
+    signingConfigs {
+        if (tvdKeyProps["storeFile"] != null) {
+            create("tvdRelease") {
+                storeFile = file(tvdKeyProps.getValue("storeFile"))
+                storePassword = tvdKeyProps["storePassword"]
+                keyAlias = tvdKeyProps["keyAlias"]
+                keyPassword = tvdKeyProps["keyPassword"]
+            }
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            if (tvdKeyProps["storeFile"] != null) {
+                signingConfig = signingConfigs.getByName("tvdRelease")
+            }
+        }
+    }
+}
+'@
+        Write-Utf8NoBom $kts $c
+        Write-Host ">> Da them cau hinh khoa ky vao $kts"
+    }
+}
+
 # 4. Tai mo hinh MediaPipe Pose (lite + full)
 $assets = "android/app/src/main/assets"
 New-Item -ItemType Directory -Force -Path $assets | Out-Null

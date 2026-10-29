@@ -33,6 +33,10 @@ CI (GitHub Actions) mỗi lần push: `dart analyze`, `flutter test` (gồm widg
 
 **Cài thử không cần build:** vào tab Actions của repo → lần chạy CI mới nhất → mục Artifacts → tải `toan-van-dong-apk` (file zip chứa `app-release.apk`), giải nén rồi cài lên điện thoại (cho phép cài ứng dụng không rõ nguồn).
 
+**Cài đè bản cập nhật:** CI ký APK bằng một khoá cố định lấy từ GitHub Secrets (`ANDROID_KEYSTORE_BASE64` = file `.jks` mã base64, `ANDROID_KEYSTORE_PASSWORD`; alias `toanvandong`), số phiên bản tăng theo số lần chạy CI. Có đủ hai secret thì bản mới cài đè lên bản cũ và giữ tiến độ của bé; thiếu thì APK ký bằng khoá debug tạm (phải gỡ bản cũ). Khoá không bao giờ nằm trong repo (`*.jks`, `key.properties` đã bị bỏ qua). Build trên máy: đặt `android/key.properties` (storeFile, storePassword, keyAlias, keyPassword) nếu muốn ký giống CI.
+
+**Camera:** mặc định camera trước (đổi ở khu phụ huynh), nút đổi camera ở góc dưới màn chơi; đổi giữa lượt thì game tạm dừng và đo lại khi bé giơ hai tay. Nhận diện chạy bằng CPU (GPU bật ở công cụ phát triển). Nếu app từng bị dừng khi bật camera, lần sau không tự bật lại mà hiện nút "Thử lại camera"; khu phụ huynh có mục "Báo lỗi lần trước" để sao chép lỗi gửi đội phát triển.
+
 ## Nội dung học
 
 - Chương trình nằm trong `assets/content/grade1.json` … `grade5.json` (10, 14, 16, 13, 12 chủ đề; tổng 325 level), sinh từ `tool/build_content.py` (sửa file Python rồi chạy `python3 tool/build_content.py`).
