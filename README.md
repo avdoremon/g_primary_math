@@ -7,7 +7,7 @@ Game học Toán tiểu học (lớp 1–5) bằng chuyển động: điện tho
 
 ## Trạng thái
 
-Giai đoạn 1 – Nền tảng. Đã có:
+Đã có (giai đoạn Nền tảng và phần lớn giai đoạn Mini game):
 
 | Hạng mục | Nội dung |
 | --- | --- |
@@ -15,13 +15,17 @@ Giai đoạn 1 – Nền tảng. Đã có:
 | F2 | Lớp nhận diện Kotlin (CameraX + MediaPipe Pose), cầu nối Flutter, bộ lọc One Euro, cơ chế chạm đáp án; chế độ TV tự xoay ngang |
 | F3–F5 | Motion Engine: hiệu chỉnh theo từng bé (giơ hai tay 1 giây), bước trái/phải (B), đếm nhảy / ngồi xổm / vỗ tay (Đ), tạo dáng tay và Đồng hồ người (T); theo dõi mất hình > 2 giây |
 | F6 | Bộ giả lập khung xương (`PoseSimulator`) và ghi/phát lại (`PoseRecording`, JSON Lines) để test không cần camera |
-| F7–F8 | Content Engine: chương trình lớp 1 (8 chủ đề) và lớp 2 (12 chủ đề), mỗi chủ đề 5 level; 18 dạng bài có lời giải thích khi sai; luật tính điểm |
+| F7–F8 | Content Engine: chương trình lớp 1 và lớp 2, mỗi chủ đề 5 level; 18 dạng bài có lời giải thích khi sai; luật tính điểm |
 | F9 | Lưu tiến độ bằng SQLite: nhiều hồ sơ trên một máy, sao và điểm cao nhất mỗi level, lịch sử trả lời, cài đặt phụ huynh |
 | F10 | Âm thanh: đọc đề và lời giải thích (ghép đoạn ghi âm sẵn, thiếu thì dùng giọng tiếng Việt của máy), hiệu ứng giữ chỗ |
 | F11 | Luồng màn hình: hồ sơ → chủ đề → level → màn chơi trên TV → tổng kết; nhắc nghỉ, giới hạn thời gian, khu phụ huynh |
 | F12 (một phần) | Token màu, kiểu chữ, khoảng cách theo design system; font Baloo 2 + Nunito; khung TV 1920×1080; linh vật Tin Tin và asset G7 dạng SVG |
+| G1 | Khung mini game: HUD chung theo design (Câu x/10, mức gợi ý, điểm, chuỗi, thẻ đề có loa và từ khoá, thanh thời gian), mỗi mini game chỉ khai báo cảnh và vùng chạm |
+| G2–G6 | Bóng bay phép tính, Bên nào lớn hơn / Đúng hay sai, Nhảy đếm, Đồng hồ người, Săn hình (hình phẳng, hình khối, tờ tiền) |
+| G7 | Con nói, con làm theo 10 màn design: tạo dáng dễ/khó, chạm đồ vật (kệ, cây, bàn, hộp), bước chân, lệnh ghép, phản hồi đúng/chưa đúng |
+| G11 | Chương trình theo đúng mục lục SGK: Toán 1 (10 chủ đề), Toán 2 (14 chủ đề), gồm cả các chủ đề ôn tập |
 
-Màn chơi hiện là **màn tạm dùng chung** cho mọi mini game (ô đáp án, thanh thời gian, phản hồi, tổng kết). Cơ chế trả lời đã chạy đủ: chạm tay (C), bước trái/phải (B), nhảy đếm (Đ), giơ tay và Đồng hồ người (T), lệnh ghép. Giao diện riêng từng mini game làm ở G1–G6 khi có design đợt 2–3.
+Mini game G2–G6 dựng theo design system (màu, chữ, nhãn TRÁI/PHẢI, bóng người) vì chưa có design riêng; khi có design đợt 2–3 chỉ cần sửa lớp cảnh trong `lib/screens/play/views/`.
 
 CI (GitHub Actions) mỗi lần push: `dart analyze`, `flutter test` (gồm widget test chạy trọn luồng app không cần camera), và build APK release. Lỗi hiện thành annotation trên GitHub.
 
@@ -29,11 +33,11 @@ CI (GitHub Actions) mỗi lần push: `dart analyze`, `flutter test` (gồm widg
 
 ## Nội dung học
 
-- Chương trình nằm trong `assets/content/grade1.json`, `grade2.json`, sinh từ `tool/build_content.py` (sửa file Python rồi chạy `python3 tool/build_content.py`).
+- Chương trình nằm trong `assets/content/grade1.json` (10 chủ đề), `grade2.json` (14 chủ đề), sinh từ `tool/build_content.py` (sửa file Python rồi chạy `python3 tool/build_content.py`).
 - Mỗi level chọn một dạng bài (`generator`), tham số (`params`), số đáp án, thời gian mỗi câu và mini game.
 - Level 1–3 dùng gợi ý dễ (nhãn TRÁI/PHẢI, linh vật làm mẫu, tô từ khoá), level 4–5 gợi ý khó.
 - Điểm: 100 mỗi câu đúng + thưởng tốc độ (tối đa 50) + thưởng chuỗi (20 mỗi câu liên tiếp, tối đa 100). Câu sai không trừ điểm: báo "Chưa đúng", giải thích đáp án đúng bằng chữ và giọng đọc rồi sang câu sau. Sao: 6/10 câu = 1 sao (mở level sau), 8/10 = 2 sao, 10/10 = 3 sao.
-- Thứ tự chủ đề theo SGK Toán Kết nối tri thức với cuộc sống; cần đối chiếu lại với mục lục bản 2026–2027.
+- Tên và thứ tự chủ đề theo SGK Toán 1, Toán 2 Kết nối tri thức với cuộc sống (đã đối chiếu kế hoạch dạy học của bộ sách ngày 29/10/2026).
 
 ## Luồng chơi và quy tắc
 
@@ -88,7 +92,8 @@ lib/content/generators/  18 dạng bài và registry
 lib/game/          GameSession (một lượt chơi), AnswerMechanic (C/B/Đ/T), lời phản hồi, PlayGuard (nhắc nghỉ, giới hạn)
 lib/progress/      ProgressStore (SQLite, bộ nhớ), Profile, LevelRecord, luật mở khoá, cài đặt phụ huynh
 lib/audio/         AudioService, SpeechPlanner (ghép ghi âm), TTS + audioplayers
-lib/screens/       hồ sơ, chủ đề, level, phụ huynh; play/ (màn chơi tạm trên TV)
+lib/screens/       hồ sơ, chủ đề, level, phụ huynh
+lib/screens/play/  màn chơi TV: HUD, bóng người, hình minh hoạ; views/ (cảnh từng mini game)
 lib/ui/theme/      TvdColors, TvText / PhoneText, TvdSpace, TvLayout
 lib/ui/widgets/    TvStage (khung 1920×1080), TinTin, TvdButton
 lib/dev/           công cụ phát triển: khung xương, đo độ trễ, bóng bay PoC, xem design system
