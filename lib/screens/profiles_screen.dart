@@ -90,7 +90,7 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
                   ),
                   const Center(child: TinTin(state: TinTinState.hello, size: 150)),
                   const SizedBox(height: TvdSpace.s3),
-                  const Center(child: AppLogo(height: 44)),
+                  const Center(child: AppLogo(height: 72)),
                   Text(
                     items.isEmpty ? 'Tạo hồ sơ cho bé để bắt đầu' : 'Ai đang chơi nào?',
                     style: PhoneText.body,

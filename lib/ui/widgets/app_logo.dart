@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/theme.dart';
 
-/// Logo Toán Vận Động: biểu tượng (bạn nhỏ dang tay thành dấu cộng) + chữ, "Vận Động" màu xanh.
+/// Logo Toán Vận Động (design "Dấu cộng nhảy múa"): bạn nhỏ dang tay thành dấu cộng + chữ, "Vận Động" màu xanh.
 class AppLogo extends StatelessWidget {
   const AppLogo({super.key, this.height = 44, this.showName = true});
 
@@ -14,24 +14,20 @@ class AppLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final mark = SvgPicture.asset('assets/svg/brand/logo_mark.svg', width: height, height: height);
     if (!showName) return mark;
-    final style = PhoneText.titleLarge.copyWith(fontSize: height * .72, height: 1.1);
+    // Theo design "Dấu cộng nhảy múa": biểu tượng bên trái, chữ hai dòng "Toán" / "Vận Động".
+    final style = PhoneText.titleLarge.copyWith(fontSize: height * .42, height: 1.0);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         mark,
-        SizedBox(width: height * .25),
-        Flexible(
-          child: Text.rich(
-            TextSpan(
-              style: style,
-              children: [
-                const TextSpan(text: 'Toán '),
-                TextSpan(text: 'Vận Động', style: style.copyWith(color: TvdColors.answerA)),
-              ],
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+        SizedBox(width: height * .22),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Toán', style: style),
+            Text('Vận Động', style: style.copyWith(color: TvdColors.answerA)),
+          ],
         ),
       ],
     );
