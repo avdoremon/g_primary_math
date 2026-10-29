@@ -140,24 +140,26 @@ if (Test-Path $kts) {
         $c += @'
 
 // --- Toan Van Dong: ky ban release bang khoa co dinh (android/key.properties), thieu thi dung khoa debug ---
-val tvdKeyProps = java.util.Properties().apply {
-    val f = rootProject.file("key.properties")
-    if (f.exists()) f.inputStream().use { load(it) }
+// (Khong dung java.util.Properties: trong khoi android, "java" bi hieu la extension cua Gradle.)
+val tvdKeyProps: Map<String, String> = rootProject.file("key.properties").let { f ->
+    if (!f.exists()) emptyMap() else f.readLines()
+        .mapNotNull { line -> line.split("=", limit = 2).takeIf { it.size == 2 }?.let { it[0].trim() to it[1].trim() } }
+        .toMap()
 }
 android {
     signingConfigs {
-        if (tvdKeyProps.getProperty("storeFile") != null) {
+        if (tvdKeyProps["storeFile"] != null) {
             create("tvdRelease") {
-                storeFile = file(tvdKeyProps.getProperty("storeFile"))
-                storePassword = tvdKeyProps.getProperty("storePassword")
-                keyAlias = tvdKeyProps.getProperty("keyAlias")
-                keyPassword = tvdKeyProps.getProperty("keyPassword")
+                storeFile = file(tvdKeyProps.getValue("storeFile"))
+                storePassword = tvdKeyProps["storePassword"]
+                keyAlias = tvdKeyProps["keyAlias"]
+                keyPassword = tvdKeyProps["keyPassword"]
             }
         }
     }
     buildTypes {
         getByName("release") {
-            if (tvdKeyProps.getProperty("storeFile") != null) {
+            if (tvdKeyProps["storeFile"] != null) {
                 signingConfig = signingConfigs.getByName("tvdRelease")
             }
         }
