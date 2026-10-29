@@ -11,7 +11,6 @@ import 'package:g_primary_math/game/mechanics.dart';
 import 'package:g_primary_math/game/session.dart';
 import 'package:g_primary_math/screens/play/hud.dart';
 import 'package:g_primary_math/screens/play/mini_game_view.dart';
-import 'package:g_primary_math/screens/play/views/cards_view.dart';
 import 'package:g_primary_math/screens/play/views/simon_says_view.dart';
 import 'package:g_primary_math/ui/theme/theme.dart';
 import 'package:g_primary_math/ui/widgets/tv_stage.dart';
@@ -171,7 +170,7 @@ void main() {
     expect(view.keyword(PlayFrame(level: simonLevel(2), question: q2))!.side, 'r');
   });
 
-  testWidgets('ô đáp án: mọi level lớp 1–2 dùng CardsView vẽ được', (tester) async {
+  testWidgets('mọi level lớp 1–2 vẽ được bằng mini game của level (đang hỏi, đúng, chưa đúng)', (tester) async {
     tester.view.physicalSize = const Size(1920, 1080);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -181,18 +180,36 @@ void main() {
       for (final t in grade.topics) {
         for (final l in t.levels) {
           final view = MiniGameView.of(l);
-          if (view is! CardsView) continue;
-          final q = l.generate(r);
-          final mech = AnswerMechanic.forQuestion(l, q);
-          await render(tester, view, PlayFrame(level: l, question: q, mechanic: mech));
-          await render(
-            tester,
-            view,
-            PlayFrame(level: l, question: q, mechanic: mech, feedback: record(q, AnswerOutcome.wrong, chosen: null)),
-          );
+          for (var k = 0; k < 3; k++) {
+            final q = l.generate(r);
+            final mech = AnswerMechanic.forQuestion(l, q);
+            await render(tester, view, PlayFrame(level: l, question: q, mechanic: mech, time: k * 0.7));
+            await render(
+              tester,
+              view,
+              PlayFrame(level: l, question: q, mechanic: mech, feedback: record(q, AnswerOutcome.correct)),
+            );
+            final wrong = q.options.length > 1 ? (q.answer + 1) % q.options.length : null;
+            await render(
+              tester,
+              view,
+              PlayFrame(level: l, question: q, mechanic: mech, feedback: record(q, AnswerOutcome.wrong, chosen: wrong)),
+            );
+            // Vùng chạm màn hình phải nằm trong khung và đủ số đáp án (nếu có).
+            final taps = view.tapTargets(PlayFrame(level: l, question: q, mechanic: mech));
+            if (taps.isNotEmpty) expect(taps.length, q.options.length, reason: '${t.id} level ${l.level}');
+          }
         }
       }
     }
+  });
+
+  test('Săn hình và Tiền Việt Nam hiện tên đọc được, không hiện mã', () {
+    final r = math.Random(1);
+    final shape = Generators.find('shape_identify')!.generate(GenParams({}, answers: 3), r);
+    expect(shape.label(shape.answer), startsWith('hình'));
+    final money = Generators.find('money_identify')!.generate(GenParams({'notes': [2000]}, answers: 1), r);
+    expect(money.correctLabel, '2 000 đồng');
   });
 
   test('dạng bài sinh đề có tham số hợp lệ cho Con nói, con làm', () {

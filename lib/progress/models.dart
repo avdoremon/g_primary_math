@@ -100,8 +100,8 @@ class AnswerLogEntry {
         level: s.level,
         generator: a.question.generator,
         prompt: a.question.prompt,
-        chosen: a.chosen == null ? null : a.question.options[a.chosen!],
-        correctOption: a.question.correctOption,
+        chosen: a.chosen == null ? null : a.question.label(a.chosen!),
+        correctOption: a.question.correctLabel,
         outcome: a.outcome,
         elapsed: a.elapsed,
       );

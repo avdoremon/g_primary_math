@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../content/curriculum.dart';
 import '../../content/question.dart';
-import '../../game/feedback.dart';
 import '../../game/mechanics.dart';
 import '../../game/session.dart';
 import '../../motion/body_metrics.dart';
 import '../../pose/pose_frame.dart';
 import '../../ui/theme/theme.dart';
-import '../../ui/widgets/tin_tin.dart';
 import 'hud.dart';
 import 'views/cards_view.dart';
+import 'views/motion_views.dart';
 import 'views/simon_says_view.dart';
 
 /// Trạng thái màn chơi ở một khung hình, đưa cho mini game vẽ cảnh.
@@ -54,6 +53,11 @@ abstract class MiniGameView {
   const MiniGameView();
 
   static MiniGameView of(Level level) => switch (level.miniGame) {
+        MiniGames.balloon => const BalloonView(),
+        MiniGames.sides => const SidesView(),
+        MiniGames.jumpCount => const JumpCountView(),
+        MiniGames.humanClock => const HumanClockView(),
+        MiniGames.shapeHunt => const CardsView(bob: true),
         MiniGames.simonSays => const SimonSaysView(),
         _ => const CardsView(),
       };
@@ -77,65 +81,10 @@ abstract class MiniGameView {
         child: CamTile(frame: f.pose, seen: f.body != null, width: 150),
       );
 
+  /// Thẻ đề ở HUD hiện lời phản hồi sau mỗi câu (false: mini game tự vẽ phản hồi trong cảnh).
+  bool get hudFeedback => true;
+
   /// Màn giới thiệu riêng (null = dùng màn giới thiệu chung). [time] tính bằng giây, để diễn lần lượt.
   /// Màn chơi tự thêm dòng "Giơ hai tay lên để bắt đầu" và thanh hiệu chỉnh ở đáy.
   List<Widget>? intro(BuildContext context, Level level, double time) => null;
 }
-
-/// Băng phản hồi chung: Tin Tin khen/động viên và lời giải thích.
-class FeedbackBanner extends StatelessWidget {
-  const FeedbackBanner({super.key, required this.record});
-
-  final AnswerRecord record;
-
-  @override
-  Widget build(BuildContext context) {
-    final msg = SessionFeedback.forRecord(record);
-    final ok = record.correct;
-    final accent = ok ? TvdColors.correct : TvdColors.encourage;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        TinTin(state: ok ? TinTinState.praise : TinTinState.encourage, size: 130),
-        const SizedBox(width: TvdSpace.s4),
-        Flexible(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 14),
-            decoration: BoxDecoration(
-              color: TvdColors.white,
-              borderRadius: BorderRadius.circular(TvdRadius.tv),
-              border: Border.all(color: accent, width: 5),
-              boxShadow: TvdShadow.tv(ok ? TvdColors.correctDark : TvdColors.encourageShadow),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ok && record.points > 0 ? '${msg.title}  +${record.points}' : msg.title,
-                  style: TvText.button.copyWith(fontSize: 52, color: ok ? TvdColors.correctDark : TvdColors.encourageDark),
-                ),
-                if (msg.body.isNotEmpty)
-                  Text(
-                    msg.body,
-                    style: TvText.label.copyWith(fontSize: 40, height: 1.15),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Đặt [FeedbackBanner] giữa đáy màn hình.
-Widget bottomFeedback(AnswerRecord r) => Positioned(
-      left: 260,
-      right: 260,
-      bottom: 24,
-      child: Center(child: FeedbackBanner(record: r)),
-    );

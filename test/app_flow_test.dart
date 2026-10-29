@@ -10,8 +10,7 @@ import 'package:g_primary_math/content/curriculum.dart';
 import 'package:g_primary_math/game/session.dart';
 import 'package:g_primary_math/progress/play_settings.dart';
 import 'package:g_primary_math/progress/progress_store.dart';
-import 'package:g_primary_math/screens/play/mini_game_view.dart';
-import 'package:g_primary_math/screens/play/play_widgets.dart';
+import 'package:g_primary_math/screens/play/hud.dart';
 import 'package:g_primary_math/ui/widgets/tv_stage.dart';
 
 Grade loadGrade(int n) => Grade.parse(File('assets/content/grade$n.json').readAsStringSync());
@@ -81,10 +80,10 @@ void main() {
     await run(tester, 0.5);
 
     for (var i = 0; i < topic.levels.first.questions; i++) {
-      expect(find.byType(AnswerCard), findsWidgets, reason: 'câu ${i + 1} phải có ô đáp án');
-      await tester.tap(find.byType(AnswerCard).first);
+      expect(find.byKey(const ValueKey('answer-0')), findsOneWidget, reason: 'câu ${i + 1} phải có ô đáp án');
+      await tester.tap(find.byKey(const ValueKey('answer-0')));
       await run(tester, 0.3);
-      expect(find.byType(FeedbackBanner), findsOneWidget);
+      expect(find.byType(HudFeedbackCard), findsOneWidget);
       await run(tester, 5);
     }
 

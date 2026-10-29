@@ -1,9 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../content/question.dart';
 import '../../ui/theme/theme.dart';
 
 /// Thành phần màn chơi dùng chung. Mọi kích thước tính theo khung 1920×1080.
@@ -19,7 +17,15 @@ class AnswerCard extends StatelessWidget {
     this.mark = CardMark.none,
     this.progress = 0,
     this.caption,
+    this.content,
+    this.light = false,
   });
+
+  /// Nội dung thay cho chữ (hình phẳng, tờ tiền…).
+  final Widget? content;
+
+  /// Nền trắng, viền màu vị trí – dùng khi nội dung là hình có màu riêng.
+  final bool light;
 
   final int slot;
   final String label;
@@ -38,7 +44,7 @@ class AnswerCard extends StatelessWidget {
       CardMark.correct => (TvdColors.correct, TvdColors.correctDark, TvdColors.white),
       CardMark.wrongPick => (TvdColors.encourageSoft, TvdColors.encourage, TvdColors.encourageDark),
       CardMark.dimmed => (TvdColors.line, TvdColors.cardShadow, TvdColors.inkSoft),
-      _ => (style.color, style.shadow, style.onColor),
+      _ => light ? (TvdColors.white, style.color, TvdColors.ink) : (style.color, style.shadow, style.onColor),
     };
     final short = label.length <= 4;
     final scale = mark == CardMark.aimed ? 1.06 : 1.0;
@@ -55,7 +61,9 @@ class AnswerCard extends StatelessWidget {
                 color: bg,
                 borderRadius: BorderRadius.circular(TvdRadius.tv),
                 boxShadow: TvdShadow.tv(shadow),
-                border: mark == CardMark.aimed ? Border.all(color: TvdColors.white, width: 10) : null,
+                border: mark == CardMark.aimed
+                    ? Border.all(color: light ? style.color : TvdColors.white, width: 10)
+                    : (light && mark == CardMark.none ? Border.all(color: style.color, width: 8) : null),
               ),
               padding: const EdgeInsets.all(TvdSpace.s5),
               child: Stack(
@@ -63,16 +71,20 @@ class AnswerCard extends StatelessWidget {
                   Positioned(
                     left: 0,
                     top: 0,
-                    child: CustomPaint(size: const Size(56, 56), painter: _ShapePainter(style.shape, fg.withAlpha(150))),
+                    child: CustomPaint(
+                      size: const Size(56, 56),
+                      painter: _ShapePainter(style.shape, (light ? style.color : fg).withAlpha(150)),
+                    ),
                   ),
                   Center(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        style: (short ? TvText.answerNumber : TvText.prompt).copyWith(color: fg),
-                      ),
+                      child: content ??
+                          Text(
+                            label,
+                            textAlign: TextAlign.center,
+                            style: (short ? TvText.answerNumber : TvText.prompt).copyWith(color: fg),
+                          ),
                     ),
                   ),
                   if (progress > 0)
@@ -165,39 +177,6 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RingPainter old) => old.progress != progress || old.color != color;
-}
-
-/// Hình minh hoạ đơn giản cho đề (hiện chỉ có đếm đồ vật); các dạng khác chờ design G1–G6.
-class QuestionVisual extends StatelessWidget {
-  const QuestionVisual({super.key, required this.question});
-
-  final Question question;
-
-  static const _objects = {'apple', 'ball', 'fish'};
-
-  static bool hasVisual(Question q) =>
-      q.generator == 'count_objects' && _objects.contains(q.data['object']) && q.data['count'] is int;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!hasVisual(question)) return const SizedBox.shrink();
-    final n = question.data['count']! as int;
-    final asset = 'assets/svg/g7/${question.data['object']}.svg';
-    final size = n <= 10 ? 96.0 : (n <= 20 ? 60.0 : 30.0);
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: n > 20 ? 6 : 16,
-      runSpacing: 12,
-      children: [
-        for (var i = 0; i < n; i++)
-          Padding(
-            // Trên 20 đồ vật: tách nhóm mười cho dễ đếm theo chục.
-            padding: EdgeInsets.only(right: n > 20 && i % 10 == 9 ? 28 : 0),
-            child: SvgPicture.asset(asset, width: size, height: size),
-          ),
-      ],
-    );
-  }
 }
 
 /// Hàng sao kết quả.

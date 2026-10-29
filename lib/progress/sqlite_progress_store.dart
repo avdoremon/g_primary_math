@@ -210,8 +210,8 @@ class SqliteProgressStore implements ProgressStore {
           'idx': a.index,
           'generator': a.question.generator,
           'prompt': a.question.prompt,
-          'chosen': a.chosen == null ? null : a.question.options[a.chosen!],
-          'correct_option': a.question.correctOption,
+          'chosen': a.chosen == null ? null : a.question.label(a.chosen!),
+          'correct_option': a.question.correctLabel,
           'outcome': a.outcome.name,
           'elapsed_ms': a.elapsed.inMilliseconds,
         });

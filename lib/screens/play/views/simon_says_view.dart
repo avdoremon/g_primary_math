@@ -28,6 +28,9 @@ class SimonSaysView extends MiniGameView {
   static const _grass = Color(0xFFCDEBC3);
   static const _wrongArm = Color(0xFFFFC48F);
 
+  @override
+  bool get hudFeedback => false;
+
   String _type(PlayFrame f) => f.question.data['type'] as String? ?? 'touch';
 
   // ------------------------------------------------------------------ từ khoá và vùng chạm

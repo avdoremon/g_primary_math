@@ -20,12 +20,15 @@ class ArmGlow {
 /// nằm ở (300 + [shift], 520) và chiều dài thân bằng 252, nên bé đứng xa hay gần thì bóng vẫn cùng cỡ.
 /// Không thấy bé thì vẽ tư thế đứng buông tay.
 class KidFigurePainter extends CustomPainter {
-  KidFigurePainter({this.body, this.shift = 0, this.left, this.right, this.dim = false});
+  KidFigurePainter({this.body, this.shift = 0, this.lift = 0, this.left, this.right, this.dim = false});
 
   final BodySnapshot? body;
 
   /// Dời ngang (đơn vị design) – dùng khi bé bước sang trái/phải.
   final double shift;
+
+  /// Nâng lên (đơn vị design) – dùng khi bé nhảy.
+  final double lift;
 
   /// Tô sáng tay trái / tay phải của bé (tay trái nằm bên trái màn hình).
   final ArmGlow? left;
@@ -76,16 +79,15 @@ class KidFigurePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.save();
     canvas.scale(size.width / designSize.width, size.height / designSize.height);
-    canvas.translate(shift, 0);
     final p = _points();
-    final alpha = dim ? 110 : 255;
-    final bodyColor = _body.withAlpha(alpha);
-
-    // Bóng dưới chân.
+    // Bóng dưới chân đứng yên khi bé nhảy.
     canvas.drawOval(
-      Rect.fromCenter(center: const Offset(300, 884), width: 300, height: 28),
+      Rect.fromCenter(center: Offset(300 + shift, 884), width: 300 - lift.clamp(0.0, 150.0) * .6, height: 28),
       Paint()..color = TvdColors.ink.withAlpha(30),
     );
+    canvas.translate(shift, -lift);
+    final alpha = dim ? 110 : 255;
+    final bodyColor = _body.withAlpha(alpha);
 
     void limb(List<int> chain, double width, Color color, {Color? glow}) {
       final path = Path()..moveTo(p[chain.first]!.dx, p[chain.first]!.dy);
@@ -211,16 +213,17 @@ class KidFigurePainter extends CustomPainter {
 
 /// Bóng người trong một khung có tỉ lệ 600×900 (2:3).
 class KidFigure extends StatelessWidget {
-  const KidFigure({super.key, this.body, this.shift = 0, this.left, this.right, this.dim = false});
+  const KidFigure({super.key, this.body, this.shift = 0, this.lift = 0, this.left, this.right, this.dim = false});
 
   final BodySnapshot? body;
   final double shift;
+  final double lift;
   final ArmGlow? left;
   final ArmGlow? right;
   final bool dim;
 
   @override
   Widget build(BuildContext context) => CustomPaint(
-        painter: KidFigurePainter(body: body, shift: shift, left: left, right: right, dim: dim),
+        painter: KidFigurePainter(body: body, shift: shift, lift: lift, left: left, right: right, dim: dim),
       );
 }

@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import '../../app/services.dart';
 import '../../audio/audio_service.dart';
 import '../../content/curriculum.dart';
+import '../../content/vietnamese_number.dart';
 import '../../dev/pose_screen_mixin.dart';
 import '../../dev/skeleton_painter.dart';
 import '../../game/feedback.dart';
@@ -61,6 +62,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   Level get _level => widget.topic.levels[_levelIndex];
   MiniGameView get _view => MiniGameView.of(_level);
   double _time = 0;
+  int _spokenCount = 0;
 
   _Stage _phase = _Stage.intro;
   GameSession? _session;
@@ -135,6 +137,15 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
             hands: _hands.both,
             targets: _normalized(_view.targets(_frame()!)),
           ));
+          // Nhảy đếm: đọc to số vừa đếm được.
+          if (mech is CountMechanic && mech.count != _spokenCount) {
+            _spokenCount = mech.count;
+            final seq = (s.question?.data['sequence'] as List?)?.cast<int>();
+            if (_spokenCount > 0) {
+              final n = seq != null && _spokenCount <= seq.length ? seq[_spokenCount - 1] : _spokenCount;
+              unawaited(_app.audio.say(VietnameseNumber.read(n)));
+            }
+          }
           switch (signal) {
             case ChooseOption(:final option):
               s.answer(option);
@@ -179,6 +190,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
     switch (e) {
       case QuestionShown(:final question):
         _mech = AnswerMechanic.forQuestion(_level, question);
+        _spokenCount = 0;
         unawaited(_app.audio.say(question.speech));
       case Answered(:final record):
         _app.audio.play(switch (record.outcome) {
@@ -494,6 +506,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
             keyword: _view.keyword(f),
             remaining: s.remainingFraction,
             easy: _level.miniGame == MiniGames.simonSays ? f.easy : null,
+            feedback: _view.hudFeedback ? f.feedback : null,
           ),
         ),
       ),

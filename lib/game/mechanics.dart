@@ -239,6 +239,9 @@ class CountMechanic extends AnswerMechanic {
 
   int get count => counter.count;
 
+  /// Giây kể từ lần nhảy gần nhất (để linh vật nhảy theo).
+  double sinceRep = 99;
+
   @override
   MechanicKind get kind => MechanicKind.count;
 
@@ -251,8 +254,12 @@ class CountMechanic extends AnswerMechanic {
   @override
   MechanicSignal? update(MechanicInput input) {
     final cal = input.calibration;
+    sinceRep += input.dt;
     if (cal == null || _done) return null;
-    if (counter.update(input.body, cal)) _settled = 0;
+    if (counter.update(input.body, cal)) {
+      _settled = 0;
+      sinceRep = 0;
+    }
     if (count > target) return _finish(false);
     if (count == target) {
       _settled += input.dt;

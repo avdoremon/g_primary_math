@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../dev/skeleton_painter.dart';
+import '../../game/feedback.dart';
+import '../../game/session.dart';
 import '../../pose/pose_frame.dart';
 import '../../ui/theme/theme.dart';
 
@@ -37,7 +39,11 @@ class GameHud extends StatelessWidget {
     this.keyword,
     this.remaining,
     this.easy,
+    this.feedback,
   });
+
+  /// Khi có: thẻ đề chuyển thành lời phản hồi (đúng: xanh lá; chưa đúng / hết giờ: cam, kèm giải thích).
+  final AnswerRecord? feedback;
 
   final int index;
   final int total;
@@ -144,7 +150,7 @@ class GameHud extends StatelessWidget {
           left: cardRect.left,
           right: TvLayout.width - cardRect.right,
           top: cardRect.top,
-          child: Container(
+          child: feedback != null ? HudFeedbackCard(record: feedback!) : Container(
             padding: const EdgeInsets.fromLTRB(40, 24, 40, 28),
             decoration: BoxDecoration(
               color: TvdColors.white,
@@ -183,6 +189,63 @@ class GameHud extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Thẻ đề khi đang phản hồi: tiêu đề màu và lời giải thích.
+class HudFeedbackCard extends StatelessWidget {
+  const HudFeedbackCard({super.key, required this.record});
+
+  final AnswerRecord record;
+
+  @override
+  Widget build(BuildContext context) {
+    final msg = SessionFeedback.forRecord(record);
+    final ok = record.correct;
+    final accent = ok ? TvdColors.correct : TvdColors.encourage;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(40, 24, 40, 28),
+      decoration: BoxDecoration(
+        color: ok ? TvdColors.correctSoft : TvdColors.encourageSoft,
+        borderRadius: BorderRadius.circular(TvdRadius.tv),
+        border: Border.all(color: accent, width: 6),
+        boxShadow: TvdShadow.tv(ok ? TvdColors.correctDark : TvdColors.encourageShadow),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+            child: Icon(ok ? Icons.check_rounded : Icons.lightbulb_rounded, color: TvdColors.white, size: 56),
+          ),
+          const SizedBox(width: 28),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ok && record.points > 0 ? '${msg.title}  +${record.points}' : msg.title,
+                  style: TvText.question.copyWith(
+                    fontSize: 72,
+                    height: 1.1,
+                    color: ok ? TvdColors.correctDark : TvdColors.encourageDark,
+                  ),
+                ),
+                if (msg.body.isNotEmpty)
+                  Text(
+                    msg.body,
+                    style: TvText.prompt.copyWith(fontSize: 52, height: 1.15),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -36,6 +36,26 @@ class Question {
 
   String get correctOption => options[answer];
 
+  /// Tên đọc được của đáp án [i]: dạng bài dùng mã hình / mã tờ tiền thì đổi ra tên ("hình vuông", "2 000 đồng").
+  String label(int i) {
+    final o = options[i];
+    final names = data['names'];
+    if (names is Map && names[o] is String) return names[o] as String;
+    if (data['kind'] == 'banknote' && o.startsWith('vnd_')) {
+      final v = int.tryParse(o.substring(4)) ?? 0;
+      final s = '$v';
+      final b = StringBuffer();
+      for (var k = 0; k < s.length; k++) {
+        if (k > 0 && (s.length - k) % 3 == 0) b.write(' ');
+        b.write(s[k]);
+      }
+      return '$b đồng';
+    }
+    return o;
+  }
+
+  String get correctLabel => label(answer);
+
   @override
   String toString() => '$prompt  [${options.join(' | ')}]  → ${options[answer]}';
 }
