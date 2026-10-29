@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../content/generators/generator.dart' show fmt;
 import '../../content/question.dart';
 import '../../ui/theme/theme.dart';
+import 'math_art.dart';
 import 'scene_art.dart';
 
 /// Hình minh hoạ cho đề bài (đếm đồ vật, đồng hồ, biểu đồ tranh, hộp bóng, đường gấp khúc).
@@ -12,6 +13,8 @@ import 'scene_art.dart';
 abstract class QuestionArt {
   /// Chiều cao vùng minh hoạ cần cho câu [q]; 0 = câu không có hình.
   static double heightFor(Question q) {
+    final m = MathArt.heightFor(q);
+    if (m > 0) return m;
     switch (q.generator) {
       case 'count_objects':
         return q.data['count'] is int && _countArt.containsKey(q.data['object']) ? 150 : 0;
@@ -32,6 +35,8 @@ abstract class QuestionArt {
 
   static Widget? of(Question q) {
     if (heightFor(q) == 0) return null;
+    final m = MathArt.of(q);
+    if (m != null) return m;
     switch (q.generator) {
       case 'count_objects':
         return _CountArt(object: _countArt[q.data['object']]!, count: q.data['count']! as int);
@@ -362,6 +367,8 @@ class ShapeIcon extends StatelessWidget {
   static const known = {
     'square', 'circle', 'triangle', 'rectangle', 'quadrilateral', 'cube', 'cuboid', 'cylinder', 'sphere',
     'segment', 'curve', 'polyline', //
+    'angle_right', 'angle_acute', 'angle_obtuse', 'angle_straight', //
+    'lines_perpendicular', 'lines_parallel', 'lines_intersect', 'parallelogram', 'rhombus', 'trapezoid',
   };
 
   @override
@@ -385,6 +392,9 @@ class _ShapePainter extends CustomPainter {
     'cuboid': Color(0xFFE2AE6E),
     'cylinder': TvdColors.answerA,
     'sphere': TvdColors.correct,
+    'parallelogram': TvdColors.answerC,
+    'rhombus': TvdColors.answerD,
+    'trapezoid': TvdColors.answerB,
   };
 
   @override
@@ -509,6 +519,55 @@ class _ShapePainter extends CustomPainter {
         for (final o in const [Offset(10, 96), Offset(38, 30), Offset(70, 86), Offset(110, 24)]) {
           canvas.drawCircle(o, 8, Paint()..color = TvdColors.answerA);
         }
+      case 'parallelogram':
+        both(Path()
+          ..moveTo(32, 28)
+          ..lineTo(116, 28)
+          ..lineTo(88, 92)
+          ..lineTo(4, 92)
+          ..close());
+      case 'rhombus':
+        both(Path()
+          ..moveTo(60, 6)
+          ..lineTo(104, 60)
+          ..lineTo(60, 114)
+          ..lineTo(16, 60)
+          ..close());
+      case 'trapezoid':
+        both(Path()
+          ..moveTo(34, 26)
+          ..lineTo(86, 26)
+          ..lineTo(114, 94)
+          ..lineTo(6, 94)
+          ..close());
+      case 'angle_right':
+      case 'angle_acute':
+      case 'angle_obtuse':
+      case 'angle_straight':
+        final deg = switch (shape) { 'angle_right' => 90.0, 'angle_acute' => 45.0, 'angle_obtuse' => 130.0, _ => 180.0 };
+        drawAngle(canvas, Offset(shape == 'angle_obtuse' ? 70 : (shape == 'angle_straight' ? 60 : 20), 96), deg,
+            length: shape == 'angle_straight' ? 52 : 92, color: color ?? TvdColors.answerA);
+      case 'lines_perpendicular':
+      case 'lines_parallel':
+      case 'lines_intersect':
+        final lp = Paint()
+          ..strokeWidth = 7
+          ..strokeCap = StrokeCap.round
+          ..color = TvdColors.ink;
+        if (shape == 'lines_parallel') {
+          canvas.drawLine(const Offset(8, 40), const Offset(112, 22), lp);
+          canvas.drawLine(const Offset(8, 98), const Offset(112, 80), lp);
+        } else if (shape == 'lines_perpendicular') {
+          canvas.drawLine(const Offset(8, 74), const Offset(112, 74), lp);
+          canvas.drawLine(const Offset(54, 8), const Offset(54, 112), lp);
+          canvas.drawRect(const Rect.fromLTWH(54, 60, 14, 14), Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 3
+            ..color = TvdColors.answerA);
+        } else {
+          canvas.drawLine(const Offset(8, 96), const Offset(112, 30), lp);
+          canvas.drawLine(const Offset(14, 20), const Offset(106, 108), lp);
+        }
       default:
         both(Path()..addOval(const Rect.fromLTWH(30, 30, 60, 60)));
     }
@@ -573,6 +632,33 @@ class Banknote extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Vẽ góc đỉnh [vertex], một cạnh nằm ngang sang phải, cạnh kia mở [deg] độ ngược chiều kim đồng hồ.
+/// Góc vuông có ký hiệu ô vuông, góc khác có cung.
+void drawAngle(Canvas canvas, Offset vertex, double deg,
+    {double length = 90, double rotation = 0, Color color = TvdColors.answerA, double stroke = 7}) {
+  final ray = Paint()
+    ..strokeWidth = stroke
+    ..strokeCap = StrokeCap.round
+    ..color = TvdColors.ink;
+  final a0 = -rotation * math.pi / 180;
+  final a1 = a0 - deg * math.pi / 180;
+  Offset at(double a, double len) => vertex + Offset(math.cos(a), math.sin(a)) * len;
+  final mark = Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = stroke * .6
+    ..color = color;
+  if (deg == 90) {
+    final k = length * .2;
+    canvas.drawPath(Path()..addPolygon([at(a0, k), at(a0, k) + at(a1, k) - vertex, at(a1, k)], false), mark);
+  } else {
+    final rr = length * .28;
+    canvas.drawArc(Rect.fromCircle(center: vertex, radius: rr), a0, a1 - a0, false, mark);
+  }
+  canvas.drawLine(vertex, at(a0, length), ray);
+  canvas.drawLine(vertex, at(a1, length), ray);
+  canvas.drawCircle(vertex, stroke * .9, Paint()..color = TvdColors.ink);
 }
 
 /// Nội dung một ô đáp án: hình (Săn hình, tờ tiền) hoặc chữ.

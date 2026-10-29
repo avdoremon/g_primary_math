@@ -9,6 +9,7 @@ import '../../pose/pose_frame.dart';
 import '../../ui/theme/theme.dart';
 import 'hud.dart';
 import 'views/cards_view.dart';
+import 'views/line_angle_views.dart';
 import 'views/motion_views.dart';
 import 'views/simon_says_view.dart';
 
@@ -59,6 +60,8 @@ abstract class MiniGameView {
         MiniGames.humanClock => const HumanClockView(),
         MiniGames.shapeHunt => const CardsView(bob: true),
         MiniGames.simonSays => const SimonSaysView(),
+        MiniGames.armAngle => const ArmAngleView(),
+        MiniGames.numberLine => const NumberLineView(),
         _ => const CardsView(),
       };
 

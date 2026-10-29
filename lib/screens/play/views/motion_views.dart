@@ -7,6 +7,7 @@ import '../../../motion/detectors/arm_pose.dart';
 import '../../../ui/theme/theme.dart';
 import '../../../ui/widgets/tin_tin.dart';
 import '../kid_figure.dart';
+import '../math_art.dart';
 import '../mini_game_view.dart';
 import '../play_widgets.dart';
 import '../scene_art.dart';
@@ -97,9 +98,8 @@ class BalloonView extends MiniGameView {
                 height: b.height * .62,
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text(
+                  child: MathText(
                     q.options[i],
-                    textAlign: TextAlign.center,
                     style: (q.options[i].length <= 4 ? TvText.answerNumber : TvText.prompt).copyWith(color: fg),
                   ),
                 ),

@@ -14,7 +14,7 @@ final _numeric = RegExp(r'^\d[\d ]*$');
 int? asInt(String s) => _numeric.hasMatch(s) ? int.parse(s.replaceAll(' ', '')) : null;
 
 /// Mini game không cần chọn đáp án (bé làm động tác), chỉ có một "đáp án".
-const _singleAnswerGames = {MiniGames.jumpCount, MiniGames.humanClock};
+const _singleAnswerGames = {MiniGames.jumpCount, MiniGames.humanClock, MiniGames.armAngle};
 
 void checkQuestion(Question q, Level level, String where) {
   expect(q.prompt.trim(), isNotEmpty, reason: '$where: đề trống');
@@ -36,7 +36,7 @@ void checkQuestion(Question q, Level level, String where) {
 }
 
 void main() {
-  for (final n in [1, 2]) {
+  for (final n in [1, 2, 3, 4, 5]) {
     group('Chương trình lớp $n', () {
       final grade = loadGrade(n);
 

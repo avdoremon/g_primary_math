@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../ui/theme/theme.dart';
+import 'math_art.dart';
 
 /// Thành phần màn chơi dùng chung. Mọi kích thước tính theo khung 1920×1080.
 
@@ -80,9 +81,8 @@ class AnswerCard extends StatelessWidget {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: content ??
-                          Text(
+                          MathText(
                             label,
-                            textAlign: TextAlign.center,
                             style: (short ? TvText.answerNumber : TvText.prompt).copyWith(color: fg),
                           ),
                     ),

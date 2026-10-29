@@ -7,6 +7,7 @@ import '../../game/feedback.dart';
 import '../../game/session.dart';
 import '../../pose/pose_frame.dart';
 import '../../ui/theme/theme.dart';
+import 'math_art.dart';
 
 /// Từ khoá tô màu trong đề (mức gợi ý dễ): "trái" vàng, "phải" xanh dương, còn lại tím nhạt.
 class HudKeyword {
@@ -235,10 +236,15 @@ class HudFeedbackCard extends StatelessWidget {
                   ),
                 ),
                 if (msg.body.isNotEmpty)
-                  Text(
-                    msg.body,
-                    style: TvText.prompt.copyWith(fontSize: 52, height: 1.15),
-                    maxLines: 2,
+                  Text.rich(
+                    TextSpan(
+                      children: MathText.spans(
+                        msg.body,
+                        TvText.prompt.copyWith(fontSize: msg.body.length > 80 ? 42 : 52, height: 1.15),
+                      ),
+                    ),
+                    style: TvText.prompt.copyWith(fontSize: msg.body.length > 80 ? 42 : 52, height: 1.15),
+                    maxLines: msg.body.length > 80 ? 3 : 2,
                     overflow: TextOverflow.ellipsis,
                   ),
               ],
@@ -262,11 +268,11 @@ class PromptText extends StatelessWidget {
     final base = TvText.question.copyWith(fontSize: size, height: 1.12);
     final k = keyword;
     final i = k == null || k.text.isEmpty ? -1 : prompt.lastIndexOf(k.text);
-    if (i < 0) return TextSpan(text: prompt, style: base);
+    if (i < 0) return TextSpan(style: base, children: MathText.spans(prompt, base));
     return TextSpan(
       style: base,
       children: [
-        TextSpan(text: prompt.substring(0, i)),
+        ...MathText.spans(prompt.substring(0, i), base),
         WidgetSpan(
           alignment: PlaceholderAlignment.middle,
           child: Container(
@@ -275,7 +281,7 @@ class PromptText extends StatelessWidget {
             child: Text(k.text, style: base.copyWith(color: k.foreground)),
           ),
         ),
-        TextSpan(text: prompt.substring(i + k.text.length)),
+        ...MathText.spans(prompt.substring(i + k.text.length), base),
       ],
     );
   }

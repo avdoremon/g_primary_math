@@ -155,6 +155,17 @@ class ShapeIdentifyGenerator extends QuestionGenerator {
     'segment': (name: 'đoạn thẳng', fact: 'Đoạn thẳng nối hai điểm.'),
     'curve': (name: 'đường cong', fact: 'Đường cong không thẳng.'),
     'polyline': (name: 'đường gấp khúc', fact: 'Đường gấp khúc gồm nhiều đoạn thẳng nối nhau.'),
+    // Lớp 3–5
+    'angle_right': (name: 'góc vuông', fact: 'Góc vuông giống góc của tờ giấy, số đo 90°.'),
+    'angle_acute': (name: 'góc nhọn', fact: 'Góc nhọn bé hơn góc vuông.'),
+    'angle_obtuse': (name: 'góc tù', fact: 'Góc tù lớn hơn góc vuông nhưng bé hơn góc bẹt.'),
+    'angle_straight': (name: 'góc bẹt', fact: 'Góc bẹt có hai cạnh thẳng hàng, số đo 180°.'),
+    'lines_perpendicular': (name: 'hai đường thẳng vuông góc', fact: 'Hai đường thẳng vuông góc tạo thành bốn góc vuông.'),
+    'lines_parallel': (name: 'hai đường thẳng song song', fact: 'Hai đường thẳng song song không bao giờ cắt nhau.'),
+    'lines_intersect': (name: 'hai đường thẳng cắt nhau', fact: 'Hai đường thẳng cắt nhau tại một điểm.'),
+    'parallelogram': (name: 'hình bình hành', fact: 'Hình bình hành có hai cặp cạnh đối diện song song và bằng nhau.'),
+    'rhombus': (name: 'hình thoi', fact: 'Hình thoi có bốn cạnh bằng nhau và hai cặp cạnh đối diện song song.'),
+    'trapezoid': (name: 'hình thang', fact: 'Hình thang có một cặp cạnh đối diện song song.'),
   };
 
   @override
@@ -247,6 +258,13 @@ class UnitChooseGenerator extends QuestionGenerator {
     (text: 'Cái xô đựng được 10 … nước', speech: 'Cái xô đựng được mười mấy nước?', unit: 'l'),
     (text: 'Chai nước to đựng 2 … nước', speech: 'Chai nước to đựng hai mấy nước?', unit: 'l'),
     (text: 'Cửa lớp học cao khoảng 2 …', speech: 'Cửa lớp học cao khoảng hai mấy?', unit: 'm'),
+    // Lớp 3: mm, g, ml
+    (text: 'Con kiến dài khoảng 5 …', speech: 'Con kiến dài khoảng năm mấy?', unit: 'mm'),
+    (text: 'Quyển vở dày khoảng 4 …', speech: 'Quyển vở dày khoảng bốn mấy?', unit: 'mm'),
+    (text: 'Quả trứng gà nặng khoảng 50 …', speech: 'Quả trứng gà nặng khoảng năm mươi mấy?', unit: 'g'),
+    (text: 'Gói kẹo nặng 200 …', speech: 'Gói kẹo nặng hai trăm mấy?', unit: 'g'),
+    (text: 'Hộp sữa nhỏ đựng 180 … sữa', speech: 'Hộp sữa nhỏ đựng một trăm tám mươi mấy sữa?', unit: 'ml'),
+    (text: 'Cái thìa đựng được 5 … nước', speech: 'Cái thìa đựng được năm mấy nước?', unit: 'ml'),
   ];
 
   static const _unitWords = {
@@ -256,7 +274,13 @@ class UnitChooseGenerator extends QuestionGenerator {
     'km': 'ki-lô-mét',
     'kg': 'ki-lô-gam',
     'l': 'lít',
+    'mm': 'mi-li-mét',
+    'g': 'gam',
+    'ml': 'mi-li-lít',
   };
+
+  /// Đơn vị lớp 2 (mặc định). Lớp 3 thêm mm, g, ml qua tham số "units".
+  static const _grade2Units = ['cm', 'dm', 'm', 'km', 'kg', 'l'];
 
   static const _conversions = <({String text, String speech, int value, List<int> wrong, String unit})>[
     (text: '1 dm = … cm', speech: 'Một đề-xi-mét bằng bao nhiêu xăng-ti-mét?', value: 10, wrong: [1, 100], unit: 'cm'),
@@ -285,8 +309,9 @@ class UnitChooseGenerator extends QuestionGenerator {
         explanationSpeech: c.speech.replaceAll(' bao nhiêu ', ' ${say(c.value)} ').replaceAll('?', '.'),
       );
     }
-    final item = pick(_items, r);
-    final o = textOptions(r, item.unit, _unitWords.keys.toList(), p.answers);
+    final units = p.strList('units', _grade2Units);
+    final item = pick(_items.where((i) => units.contains(i.unit)).toList(), r);
+    final o = textOptions(r, item.unit, units, p.answers);
     final answerText = item.text.replaceAll('…', item.unit);
     return Question(
       generator: id,

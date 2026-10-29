@@ -56,6 +56,32 @@ class Question {
 
   String get correctLabel => label(answer);
 
+  /// Giá trị số của một đáp án ("1 250", "2,5", "3/4", "25%", "12 cm"); null nếu không phải số.
+  static double? valueOf(String option) {
+    final m = RegExp(r'^(\d+(?: \d{3})*)(?:,(\d+))?(?:/(\d+))?').firstMatch(option.trim());
+    if (m == null) return null;
+    final whole = double.parse(m.group(1)!.replaceAll(' ', ''));
+    if (m.group(3) != null) return m.group(2) == null ? whole / double.parse(m.group(3)!) : null;
+    return m.group(2) == null ? whole : double.parse('${m.group(1)!.replaceAll(' ', '')}.${m.group(2)}');
+  }
+
+  /// Bản sao với các đáp án xếp tăng dần theo giá trị (giữ nguyên nếu có đáp án không phải số).
+  Question sortedByValue() {
+    final values = [for (final o in options) valueOf(o)];
+    if (values.any((v) => v == null)) return this;
+    final order = List.generate(options.length, (i) => i)..sort((a, b) => values[a]!.compareTo(values[b]!));
+    return Question(
+      generator: generator,
+      prompt: prompt,
+      speech: speech,
+      options: [for (final i in order) options[i]],
+      answer: order.indexOf(answer),
+      explanation: explanation,
+      explanationSpeech: explanationSpeech,
+      data: data,
+    );
+  }
+
   @override
   String toString() => '$prompt  [${options.join(' | ')}]  → ${options[answer]}';
 }

@@ -11,6 +11,7 @@ String _opWord(String op) => op == '+' ? 'cộng' : 'trừ';
 /// Cộng, trừ. Tham số:
 /// - max: phạm vi (10, 20, 100, 1000)
 /// - carry: "none" (không nhớ) | "allowed" (nhớ không quá một lượt) | "required" (đúng một lượt nhớ)
+///   | "any" (nhớ bao nhiêu lượt cũng được – số có nhiều chữ số, lớp 3–4)
 /// - ops: ["+", "-"]; terms: 2 hoặc 3 (lớp 1: hai dấu phép tính, tính từ trái sang phải)
 /// - round: "none" | "tens" (số tròn chục) | "hundreds" (số tròn trăm)
 /// - format: "choice" (chọn đáp án) | "true_false" (Đúng hay sai: bước trái = Sai, bước phải = Đúng)
@@ -25,8 +26,8 @@ class AddSubGenerator extends QuestionGenerator {
     final errors = <String>[];
     final ops = p.strList('ops', const ['+', '-']);
     if (ops.isEmpty || ops.any((o) => o != '+' && o != '-')) errors.add('ops chỉ gồm "+" và "-"');
-    if (!const ['none', 'allowed', 'required'].contains(p.strOf('carry', 'none'))) {
-      errors.add('carry phải là none, allowed hoặc required');
+    if (!const ['none', 'allowed', 'required', 'any'].contains(p.strOf('carry', 'none'))) {
+      errors.add('carry phải là none, allowed, required hoặc any');
     }
     if (!const [2, 3].contains(p.intOf('terms', 2))) errors.add('terms phải là 2 hoặc 3');
     return errors;
@@ -48,7 +49,8 @@ class AddSubGenerator extends QuestionGenerator {
     late List<String> opsUsed;
     late int result;
     for (var attempt = 0;; attempt++) {
-      nums = [between(r, 0, max ~/ unit) * unit];
+      final minFirst = p.intOf('min', 0);
+      nums = [between(r, minFirst ~/ unit, max ~/ unit) * unit];
       opsUsed = [];
       var acc = nums.first;
       var carries = 0;
@@ -69,7 +71,7 @@ class AddSubGenerator extends QuestionGenerator {
         opsUsed.add(op);
         if (acc < 0 || acc > max) ok = false;
       }
-      if (carries > 1) ok = false;
+      if (carries > 1 && carry != 'any') ok = false;
       if (carry == 'none' && carries > 0) ok = false;
       if (carry == 'required' && carries != 1) ok = false;
       // Hạn chế phép tính với số 0 cho đỡ nhàm (vẫn giữ một ít vì sách có dạng này).

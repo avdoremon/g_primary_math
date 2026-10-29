@@ -13,8 +13,10 @@ abstract class MiniGames {
   static const humanClock = 'human_clock'; // Đồng hồ người (T)
   static const shapeHunt = 'shape_hunt'; // Săn hình (C)
   static const simonSays = 'simon_says'; // Con nói, con làm (T, C, B)
+  static const armAngle = 'arm_angle'; // Góc tay (T) – lớp 4
+  static const numberLine = 'number_line'; // Tia số (B) – lớp 3–5
 
-  static const all = {balloon, sides, jumpCount, humanClock, shapeHunt, simonSays};
+  static const all = {balloon, sides, jumpCount, humanClock, shapeHunt, simonSays, armAngle, numberLine};
 
   static const titles = {
     balloon: 'Bóng bay phép tính',
@@ -23,6 +25,8 @@ abstract class MiniGames {
     humanClock: 'Đồng hồ người',
     shapeHunt: 'Săn hình',
     simonSays: 'Con nói, con làm',
+    armAngle: 'Góc tay',
+    numberLine: 'Tia số',
   };
 
   static String title(String id) => titles[id] ?? id;
@@ -57,7 +61,11 @@ class Level {
 
   GenParams get genParams => GenParams(params, answers: answers);
 
-  Question generate(math.Random r) => Generators.byId[generator]!.generate(genParams, r);
+  Question generate(math.Random r) {
+    final q = Generators.byId[generator]!.generate(genParams, r);
+    // Tia số: đáp án xếp từ bé đến lớn, trái sang phải như trên tia số.
+    return miniGame == MiniGames.numberLine ? q.sortedByValue() : q;
+  }
 
   factory Level.fromJson(Map<String, dynamic> j) => Level(
         level: (j['level'] as num).toInt(),

@@ -28,6 +28,12 @@ enum MechanicKind {
 
   /// T + B – lệnh ghép: giơ tay và bước sang một bên.
   compound,
+
+  /// T – hai tay tạo thành góc (Góc tay).
+  armAngle,
+
+  /// B – đứng vào ô trên tia số rồi giơ tay (Tia số).
+  zone,
 }
 
 /// Dữ liệu đầu vào mỗi khung hình.
@@ -130,6 +136,9 @@ abstract class AnswerMechanic {
       return ClockMechanic(hour: hour, minute: minute);
     }
     if (level.miniGame == MiniGames.sides && q.options.length == 2) return StepMechanic(alsoTouch: true);
+    final angle = q.data['angle'];
+    if (level.miniGame == MiniGames.armAngle && angle is String) return ArmAngleMechanic(target: angle);
+    if (level.miniGame == MiniGames.numberLine && q.options.length >= 2) return ZoneMechanic(zones: q.options.length);
     return TouchMechanic();
   }
 
@@ -458,6 +467,131 @@ class CompoundMechanic extends AnswerMechanic {
       }
     } else {
       _held = 0;
+    }
+    return null;
+  }
+}
+
+// ------------------------------------------------------------------ Góc tay
+
+/// Góc tay (lớp 4): bé dang hai tay (vai → cổ tay) tạo thành góc nhọn / vuông / tù / bẹt và giữ [holdSeconds] giây.
+/// Ngưỡng có biên rộng vì trẻ không giữ tay thẳng tuyệt đối: nhọn < 75°, vuông 75–105°, tù 105–165°, bẹt > 165°.
+class ArmAngleMechanic extends AnswerMechanic {
+  ArmAngleMechanic({required this.target, this.holdSeconds = 0.8});
+
+  /// acute | right | obtuse | straight
+  final String target;
+  final double holdSeconds;
+
+  /// Góc giữa hai tay đang thấy (độ), null khi chưa thấy đủ hai tay hoặc bé đang buông thõng cả hai tay.
+  double? angle;
+  String? current;
+  double _held = 0;
+  bool _done = false;
+
+  static const order = ['acute', 'right', 'obtuse', 'straight'];
+
+  static String classify(double deg) => deg < 75 ? 'acute' : (deg <= 105 ? 'right' : (deg <= 165 ? 'obtuse' : 'straight'));
+
+  /// Góc giữa hai cánh tay; null nếu không thấy cổ tay hoặc cả hai tay đều buông xuống.
+  static double? between(BodySnapshot body) {
+    final l = body.armAngle(right: false), r = body.armAngle(right: true);
+    if (l == null || r == null) return null;
+    if (body.armDown(right: false) && body.armDown(right: true)) return null;
+    return BodySnapshot.angleDiff(l, r);
+  }
+
+  @override
+  MechanicKind get kind => MechanicKind.armAngle;
+
+  @override
+  double get progress => current == target ? (_held / holdSeconds).clamp(0.0, 1.0).toDouble() : 0;
+
+  @override
+  String? get hint {
+    if (current == null || current == target) return null;
+    return order.indexOf(current!) < order.indexOf(target) ? 'Mở rộng hai tay ra thêm' : 'Khép hai tay lại một chút';
+  }
+
+  @override
+  MechanicSignal? update(MechanicInput input) {
+    if (_done) return null;
+    final body = input.body;
+    angle = body == null ? null : between(body);
+    final now = angle == null ? null : classify(angle!);
+    if (now != current) _held = 0;
+    current = now;
+    if (now == target) {
+      _held += input.dt;
+      if (_held >= holdSeconds) {
+        _done = true;
+        return const ReportResult(true);
+      }
+    }
+    return null;
+  }
+}
+
+// ------------------------------------------------------------------ Tia số
+
+/// Tia số (lớp 3–5): các đáp án xếp từ trái sang phải; bé đi ngang tới ô có đáp án đúng rồi giơ một tay lên,
+/// giữ [holdSeconds] giây để chọn. Phải giơ tay mới chọn nên bé đi qua các ô khác không bị tính.
+class ZoneMechanic extends AnswerMechanic {
+  ZoneMechanic({required this.zones, this.holdSeconds = 0.8, this.span = 1.6});
+
+  final int zones;
+  final double holdSeconds;
+
+  /// Bé bước sang mỗi bên tối đa [span] lần bề rộng vai là tới ô ngoài cùng.
+  final double span;
+
+  /// Vị trí bé trên tia số, −1 (trái màn hình) … 1 (phải).
+  double position = 0;
+  int? zone;
+  bool handUp = false;
+  double _held = 0;
+  bool _done = false;
+
+  @override
+  MechanicKind get kind => MechanicKind.zone;
+
+  @override
+  bool get needsCalibration => true;
+
+  @override
+  int? get aimed => zone;
+
+  @override
+  double get progress => handUp ? (_held / holdSeconds).clamp(0.0, 1.0).toDouble() : 0;
+
+  @override
+  String? get hint => zone != null && !handUp ? 'Đứng đúng ô rồi giơ tay lên!' : null;
+
+  static int zoneOf(double position, int zones) => (((position + 1) / 2) * zones).floor().clamp(0, zones - 1);
+
+  @override
+  MechanicSignal? update(MechanicInput input) {
+    final cal = input.calibration;
+    final body = input.body;
+    if (_done || cal == null) return null;
+    if (body == null) {
+      zone = null;
+      handUp = false;
+      _held = 0;
+      return null;
+    }
+    position = ((body.hipCenter.dx - cal.hipCenter.dx) / cal.shoulderWidth / span).clamp(-1.0, 1.0).toDouble();
+    final z = zoneOf(position, zones);
+    final up = body.armRaised(right: false) || body.armRaised(right: true);
+    if (z != zone || !up) _held = 0;
+    zone = z;
+    handUp = up;
+    if (up) {
+      _held += input.dt;
+      if (_held >= holdSeconds) {
+        _done = true;
+        return ChooseOption(z);
+      }
     }
     return null;
   }

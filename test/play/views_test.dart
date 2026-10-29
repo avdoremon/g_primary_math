@@ -170,12 +170,12 @@ void main() {
     expect(view.keyword(PlayFrame(level: simonLevel(2), question: q2))!.side, 'r');
   });
 
-  testWidgets('mọi level lớp 1–2 vẽ được bằng mini game của level (đang hỏi, đúng, chưa đúng)', (tester) async {
+  testWidgets('mọi level lớp 1–5 vẽ được bằng mini game của level (đang hỏi, đúng, chưa đúng)', (tester) async {
     tester.view.physicalSize = const Size(1920, 1080);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final r = math.Random(5);
-    for (final n in [1, 2]) {
+    for (final n in [1, 2, 3, 4, 5]) {
       final grade = Grade.parse(File('assets/content/grade$n.json').readAsStringSync());
       for (final t in grade.topics) {
         for (final l in t.levels) {

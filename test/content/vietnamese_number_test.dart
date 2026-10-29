@@ -24,7 +24,18 @@ void main() {
       1005: 'một nghìn không trăm linh năm',
       20000: 'hai mươi nghìn',
       50000: 'năm mươi nghìn',
+      100000: 'một trăm nghìn',
+      1000000: 'một triệu',
+      2005000: 'hai triệu không trăm linh năm nghìn',
+      3405120: 'ba triệu bốn trăm linh năm nghìn một trăm hai mươi',
+      1000000005: 'một tỉ không trăm linh năm',
     };
     cases.forEach((n, text) => expect(VietnameseNumber.read(n), text, reason: '$n'));
+  });
+
+  test('đọc phần thập phân', () {
+    expect(VietnameseNumber.readDecimalPart('05'), 'không năm');
+    expect(VietnameseNumber.readDecimalPart('45'), 'bốn mươi lăm');
+    expect(VietnameseNumber.readDecimalPart('5'), 'năm');
   });
 }

@@ -14,7 +14,7 @@ class CurriculumLibrary {
   CurriculumLibrary(this.grades);
 
   /// Lớp có nội dung trong bản này (MVP: lớp 1, 2).
-  static const availableGrades = [1, 2];
+  static const availableGrades = [1, 2, 3, 4, 5];
 
   final Map<int, Grade> grades;
 
