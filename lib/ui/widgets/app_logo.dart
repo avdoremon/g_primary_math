@@ -16,7 +16,10 @@ class AppLogo extends StatelessWidget {
     if (!showName) return mark;
     // Theo design "Dấu cộng nhảy múa": biểu tượng bên trái, chữ hai dòng "Toán" / "Vận Động".
     final style = PhoneText.titleLarge.copyWith(fontSize: height * .42, height: 1.0);
-    return Row(
+    // Màn hẹp hoặc chữ hệ thống to: thu nhỏ cả cụm thay vì tràn.
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         mark,
@@ -30,6 +33,7 @@ class AppLogo extends StatelessWidget {
           ],
         ),
       ],
+      ),
     );
   }
 }
