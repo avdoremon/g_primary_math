@@ -158,7 +158,8 @@ jobs:
           # Lớp Java của MediaPipe phải còn nguyên trong dex (R8 từng cắt bỏ → NoClassDefFoundError trên máy).
           tmp=$(mktemp -d); unzip -q -o "$apk" 'classes*.dex' -d "$tmp"
           for c in com/google/mediapipe/tasks/vision/poselandmarker/PoseLandmarker com/google/mediapipe/tasks/core/BaseOptions com/google/mediapipe/framework/image/BitmapImageBuilder com/google/protobuf/GeneratedMessageLite; do
-            if ! cat "$tmp"/classes*.dex | grep -aq "L$c;"; then missing="$missing $c"; fi
+            # grep trực tiếp trên file (không dùng "cat | grep -q": với pipefail, SIGPIPE làm sai kết quả).
+            if ! grep -aqs "L$c;" "$tmp"/classes*.dex; then missing="$missing $c"; fi
           done
           if [ -n "$missing" ]; then
             echo "::error title=APK thiếu lớp MediaPipe::Không thấy trong dex:$missing"
