@@ -1,0 +1,1158 @@
+{
+  "grade": 2,
+  "title": "Lớp 2",
+  "topics": [
+    {
+      "id": "g2-on-tap",
+      "title": "Ôn tập và bổ sung",
+      "sgkOrder": 1,
+      "icon": "numbers",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "neighbors",
+          "params": {
+            "max": 100,
+            "ask": "mixed"
+          },
+          "answers": 2,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "neighbors",
+          "params": {
+            "max": 100,
+            "ask": "number_line",
+            "steps": [
+              1,
+              10
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "compare",
+          "params": {
+            "max": 100,
+            "format": "sign"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 8,
+          "generator": "order_numbers",
+          "params": {
+            "max": 100,
+            "count": 4,
+            "ask": "mixed"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 6,
+          "generator": "add_sub",
+          "params": {
+            "max": 100,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "none"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-cong-tru-20",
+      "title": "Phép cộng, phép trừ trong phạm vi 20",
+      "sgkOrder": 2,
+      "icon": "add_sub",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "add_sub",
+          "params": {
+            "max": 20,
+            "ops": [
+              "+"
+            ],
+            "carry": "allowed"
+          },
+          "answers": 2,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 20,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "add_sub",
+          "params": {
+            "max": 20,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed",
+            "format": "true_false"
+          },
+          "answers": 2,
+          "miniGame": "sides"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 20,
+          "generator": "word_problem",
+          "params": {
+            "max": 20,
+            "kinds": [
+              "add",
+              "sub",
+              "more",
+              "less"
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 6,
+          "generator": "add_sub",
+          "params": {
+            "max": 20,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "required"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-khoi-luong-dung-tich",
+      "title": "Làm quen với khối lượng, dung tích",
+      "sgkOrder": 3,
+      "icon": "measure",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "length_compare",
+          "params": {
+            "measure": "weight"
+          },
+          "answers": 2,
+          "miniGame": "sides"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "unit_choose",
+          "params": {
+            "ask": "unit"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "unit_choose",
+          "params": {
+            "ask": "unit"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 8,
+          "generator": "length_compare",
+          "params": {
+            "measure": "weight"
+          },
+          "answers": 2,
+          "miniGame": "sides"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "unit_choose",
+          "params": {
+            "ask": "mixed"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-cong-tru-100",
+      "title": "Phép cộng, phép trừ có nhớ trong phạm vi 100",
+      "sgkOrder": 4,
+      "icon": "add_sub",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "add_sub",
+          "params": {
+            "max": 100,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "round": "tens"
+          },
+          "answers": 2,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 100,
+            "ops": [
+              "+"
+            ],
+            "carry": "required"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "add_sub",
+          "params": {
+            "max": 100,
+            "ops": [
+              "-"
+            ],
+            "carry": "required"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 8,
+          "generator": "add_sub",
+          "params": {
+            "max": 100,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed",
+            "format": "true_false"
+          },
+          "answers": 2,
+          "miniGame": "sides"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "word_problem",
+          "params": {
+            "max": 100,
+            "kinds": [
+              "add",
+              "sub",
+              "more",
+              "less"
+            ],
+            "ask": "mixed"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-hinh-phang",
+      "title": "Làm quen với hình phẳng",
+      "sgkOrder": 5,
+      "icon": "shapes",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "segment",
+              "curve",
+              "polyline"
+            ]
+          },
+          "answers": 3,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "quadrilateral",
+              "triangle",
+              "circle",
+              "polyline",
+              "segment"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "polyline_length",
+          "params": {
+            "minSegments": 2,
+            "maxSegments": 2
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "polyline_length",
+          "params": {
+            "minSegments": 3,
+            "maxSegments": 3
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "polyline_length",
+          "params": {
+            "minSegments": 3,
+            "maxSegments": 4,
+            "maxLength": 15
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-thoi-gian",
+      "title": "Ngày – giờ, giờ – phút, ngày – tháng",
+      "sgkOrder": 6,
+      "icon": "time",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "time",
+          "params": {
+            "ask": [
+              "read"
+            ],
+            "minutes": [
+              0,
+              15,
+              30
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "time",
+          "params": {
+            "ask": [
+              "read"
+            ],
+            "minutes": [
+              0,
+              15,
+              30
+            ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 20,
+          "generator": "time",
+          "params": {
+            "ask": [
+              "pose"
+            ],
+            "minutes": [
+              0,
+              15,
+              30
+            ]
+          },
+          "answers": 1,
+          "miniGame": "human_clock"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "time",
+          "params": {
+            "ask": [
+              "month_days"
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 8,
+          "generator": "time",
+          "params": {
+            "ask": [
+              "read",
+              "month_days",
+              "weekday"
+            ],
+            "minutes": [
+              0,
+              15,
+              30
+            ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-on-tap-hk1",
+      "title": "Ôn tập học kì I",
+      "sgkOrder": 7,
+      "icon": "review",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "add_sub",
+          "params": {
+            "max": 20,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 100,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "quadrilateral",
+              "triangle",
+              "circle",
+              "polyline",
+              "segment"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "unit_choose",
+          "params": {
+            "ask": "unit"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "time",
+          "params": {
+            "ask": [
+              "read",
+              "month_days"
+            ],
+            "minutes": [
+              0,
+              15,
+              30
+            ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-nhan-chia",
+      "title": "Phép nhân, phép chia",
+      "sgkOrder": 8,
+      "icon": "mul_div",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 30,
+          "generator": "skip_count",
+          "params": {
+            "steps": [
+              2,
+              5
+            ],
+            "format": "jump",
+            "minJumps": 3,
+            "maxJumps": 6
+          },
+          "answers": 1,
+          "miniGame": "jump_count"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "skip_count",
+          "params": {
+            "steps": [
+              2,
+              5
+            ],
+            "format": "choice"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "mul_div",
+          "params": {
+            "tables": [
+              2,
+              5
+            ],
+            "ops": [
+              "×"
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 8,
+          "generator": "mul_div",
+          "params": {
+            "tables": [
+              2,
+              5
+            ],
+            "ops": [
+              ":"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 6,
+          "generator": "mul_div",
+          "params": {
+            "tables": [
+              2,
+              5
+            ],
+            "ops": [
+              "×",
+              ":"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-hinh-khoi",
+      "title": "Làm quen với hình khối",
+      "sgkOrder": 9,
+      "icon": "shapes",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "cylinder",
+              "sphere"
+            ]
+          },
+          "answers": 2,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "cube",
+              "cuboid",
+              "cylinder",
+              "sphere"
+            ]
+          },
+          "answers": 3,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "cube",
+              "cuboid",
+              "cylinder",
+              "sphere"
+            ]
+          },
+          "answers": 3,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "cube",
+              "cuboid",
+              "cylinder",
+              "sphere"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 8,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "cube",
+              "cuboid",
+              "cylinder",
+              "sphere"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "shape_hunt"
+        }
+      ]
+    },
+    {
+      "id": "g2-so-den-1000",
+      "title": "Các số trong phạm vi 1000",
+      "sgkOrder": 10,
+      "icon": "numbers",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "place_value",
+          "params": {
+            "max": 1000
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "neighbors",
+          "params": {
+            "max": 1000,
+            "ask": "mixed",
+            "steps": [
+              1,
+              10,
+              100
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "neighbors",
+          "params": {
+            "max": 1000,
+            "ask": "number_line",
+            "steps": [
+              10,
+              100
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 8,
+          "generator": "compare",
+          "params": {
+            "max": 1000,
+            "format": "sign"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 6,
+          "generator": "order_numbers",
+          "params": {
+            "max": 1000,
+            "count": 4,
+            "ask": "mixed"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-do-dai-tien",
+      "title": "Độ dài và đơn vị đo độ dài. Tiền Việt Nam",
+      "sgkOrder": 11,
+      "icon": "money",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "unit_choose",
+          "params": {
+            "ask": "convert"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "unit_choose",
+          "params": {
+            "ask": "unit"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "money_identify",
+          "params": {
+            "notes": [
+              1000,
+              2000,
+              5000
+            ]
+          },
+          "answers": 3,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "money_identify",
+          "params": {
+            "notes": [
+              1000,
+              2000,
+              5000,
+              10000,
+              20000,
+              50000
+            ]
+          },
+          "answers": 4,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 8,
+          "generator": "unit_choose",
+          "params": {
+            "ask": "mixed"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-cong-tru-1000",
+      "title": "Phép cộng, phép trừ trong phạm vi 1000",
+      "sgkOrder": 12,
+      "icon": "add_sub",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "add_sub",
+          "params": {
+            "max": 1000,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "round": "hundreds"
+          },
+          "answers": 2,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 1000,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "round": "tens",
+            "carry": "none"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 1000,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "none"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 1000,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "word_problem",
+          "params": {
+            "max": 1000,
+            "kinds": [
+              "add",
+              "sub",
+              "more",
+              "less"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-thong-ke",
+      "title": "Làm quen với yếu tố thống kê, xác suất",
+      "sgkOrder": 13,
+      "icon": "stats",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "pictograph",
+          "params": {
+            "ask": [
+              "count"
+            ],
+            "rows": 3
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "pictograph",
+          "params": {
+            "ask": [
+              "most",
+              "least"
+            ],
+            "rows": 3
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "pictograph",
+          "params": {
+            "ask": [
+              "difference"
+            ],
+            "rows": 4
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "likelihood",
+          "params": {},
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "pictograph",
+          "params": {
+            "ask": [
+              "count",
+              "most",
+              "least",
+              "difference"
+            ],
+            "rows": 4
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-on-tap-cuoi-nam",
+      "title": "Ôn tập cuối năm",
+      "sgkOrder": 14,
+      "icon": "review",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "compare",
+          "params": {
+            "max": 1000,
+            "format": "sign"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 1000,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "mul_div",
+          "params": {
+            "tables": [
+              2,
+              5
+            ],
+            "ops": [
+              "×",
+              ":"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "pictograph",
+          "params": {
+            "ask": [
+              "count",
+              "most",
+              "least"
+            ],
+            "rows": 3
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "likelihood",
+          "params": {},
+          "answers": 3,
+          "miniGame": "balloon"
+        }
+      ]
+    }
+  ]
+}

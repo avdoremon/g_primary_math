@@ -85,4 +85,55 @@ class PoseFrame {
       arrival: arrival,
     );
   }
+
+  /// Bản sao với danh sách điểm khớp khác (dùng cho bộ làm mượt).
+  PoseFrame withLandmarks(List<PoseLandmark>? points) => PoseFrame(
+        landmarks: points,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
+        processingMs: processingMs,
+        luma: luma,
+        gpu: gpu,
+        arrival: arrival,
+      );
+
+  /// Ghi ra JSON để lưu chuỗi khung xương (toạ độ đã lật gương, làm tròn 4 chữ số).
+  Map<String, Object?> toJson() {
+    double r(double v) => (v * 10000).roundToDouble() / 10000;
+    return {
+      't': arrival.inMilliseconds,
+      'w': imageWidth,
+      'h': imageHeight,
+      'inf': processingMs,
+      'luma': r(luma),
+      'lm': landmarks == null
+          ? null
+          : [
+              for (final l in landmarks!) ...[r(l.x), r(l.y), r(l.z), r(l.visibility)],
+            ],
+    };
+  }
+
+  /// Đọc lại từ [toJson]. Toạ độ trong JSON đã lật gương nên không lật lần nữa.
+  factory PoseFrame.fromJson(Map<String, dynamic> j) {
+    final raw = j['lm'] as List<dynamic>?;
+    List<PoseLandmark>? points;
+    if (raw != null) {
+      final v = raw.map((e) => (e as num).toDouble()).toList(growable: false);
+      points = List<PoseLandmark>.generate(
+        v.length ~/ 4,
+        (i) => PoseLandmark(v[i * 4], v[i * 4 + 1], v[i * 4 + 2], v[i * 4 + 3]),
+        growable: false,
+      );
+    }
+    return PoseFrame(
+      landmarks: points,
+      imageWidth: (j['w'] as num?)?.toInt() ?? 0,
+      imageHeight: (j['h'] as num?)?.toInt() ?? 0,
+      processingMs: (j['inf'] as num?)?.toInt() ?? 0,
+      luma: (j['luma'] as num?)?.toDouble() ?? 0,
+      gpu: false,
+      arrival: Duration(milliseconds: (j['t'] as num?)?.toInt() ?? 0),
+    );
+  }
 }

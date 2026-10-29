@@ -82,7 +82,11 @@ class PoseService {
     lastStart = null;
     _recentArrivals.clear();
     fps = 0;
-    await _method.invokeMethod<void>('stop');
+    try {
+      await _method.invokeMethod<void>('stop');
+    } on MissingPluginException {
+      // Chạy test hoặc nền tảng chưa có lớp native: bỏ qua.
+    }
   }
 
   /// Giữ màn hình luôn sáng (dùng khi vào chế độ TV).

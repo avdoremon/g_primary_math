@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 
 import '../app/tv_mode.dart';
-import '../dev/balloon_game_screen.dart';
-import '../dev/latency_screen.dart';
-import '../dev/skeleton_screen.dart';
-import '../dev/theme_preview_screen.dart';
+import 'balloon_game_screen.dart';
+import 'latency_screen.dart';
+import 'skeleton_screen.dart';
+import 'theme_preview_screen.dart';
 import '../pose/pose_service.dart';
 import '../ui/theme/theme.dart';
 import '../ui/widgets/tin_tin.dart';
 import '../ui/widgets/tvd_button.dart';
 
-/// Màn chính tạm thời (giai đoạn Nền tảng): lối vào các công cụ phát triển.
-/// Sẽ thay bằng luồng màn hình theo design đợt 2 (hạng mục G8).
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+/// Công cụ phát triển (vào từ khu phụ huynh): khung xương, bóng bay PoC, đo độ trễ, design system,
+/// cài đặt nhận diện.
+class DevMenuScreen extends StatefulWidget {
+  const DevMenuScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<DevMenuScreen> createState() => _DevMenuScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _DevMenuScreenState extends State<DevMenuScreen> {
   PoseSettings get _s => PoseService.instance.settings;
 
   void _open(Widget screen, {bool tv = false}) {
@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Công cụ phát triển')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(TvdSpace.s5),
@@ -38,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const Center(child: TinTin(state: TinTinState.hello, size: 140)),
             const SizedBox(height: TvdSpace.s3),
             Text('Toán Vận Động', style: PhoneText.titleLarge, textAlign: TextAlign.center),
-            Text('Bản phát triển · giai đoạn Nền tảng', style: PhoneText.caption, textAlign: TextAlign.center),
+            Text('Bản phát triển', style: PhoneText.caption, textAlign: TextAlign.center),
             const SizedBox(height: TvdSpace.s6),
             TvdButton(
               label: 'Khung xương thời gian thực',
