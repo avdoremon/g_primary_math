@@ -50,52 +50,73 @@ class ConnectTvScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: TvdColors.cream,
-      appBar: AppBar(title: const Text('Kết nối TV'), backgroundColor: TvdColors.cream),
+      appBar: AppBar(
+        title: const Text('Kết nối TV'),
+        backgroundColor: TvdColors.cream,
+        scrolledUnderElevation: 0,
+        notificationPredicate: (_) => false,
+      ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(TvdSpace.s4, 0, TvdSpace.s4, TvdSpace.s4),
+        child: Column(
           children: [
-            const _TvIllustration(),
-            const SizedBox(height: TvdSpace.s3),
-            const _Step(
-              n: 1,
-              title: 'Phản chiếu màn hình lên TV',
-              body: 'Wifi: kéo thanh thông báo, chọn "Smart View" / "Phản chiếu màn hình" rồi chọn TV. '
-                  'Hoặc cắm cáp HDMI.',
-            ),
-            const _Step(
-              n: 2,
-              title: 'Đặt điện thoại cạnh TV',
-              body: 'Dựng máy cao ngang bụng bé, camera hướng về phía bé. '
-                  'Dùng camera trước hay sau thì chọn ở khu phụ huynh.',
-            ),
-            const _Step(
-              n: 3,
-              title: 'Bé đứng cách 2–3 m',
-              body: 'Phòng đủ sáng, dọn đồ quanh bé. Màn TV hiện "Thấy con rồi" là sẵn sàng.',
-            ),
-            const SizedBox(height: TvdSpace.s4),
-            TvdButton(
-              key: const ValueKey('open-cast'),
-              label: 'Mở Smart View',
-              icon: Icons.cast_rounded,
-              onPressed: () => _openCast(context),
-            ),
-            const SizedBox(height: TvdSpace.s3),
-            TvdButton(
-              key: const ValueKey('camera-check'),
-              label: 'Thử camera',
-              icon: Icons.videocam_rounded,
-              kind: TvdButtonKind.secondary,
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const CameraCheckScreen()),
+            const Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(TvdSpace.s4, 0, TvdSpace.s4, TvdSpace.s2),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _TvIllustration(),
+                    SizedBox(height: TvdSpace.s3),
+                    _Step(
+                      n: 1,
+                      title: 'Phản chiếu màn hình lên TV',
+                      body: 'Wifi: kéo thanh thông báo, chọn "Smart View" / "Phản chiếu màn hình" rồi chọn TV. '
+                          'Hoặc cắm cáp HDMI.',
+                    ),
+                    _Step(
+                      n: 2,
+                      title: 'Đặt điện thoại cạnh TV',
+                      body: 'Dựng máy cao ngang bụng bé, camera hướng về phía bé. '
+                          'Dùng camera trước hay sau thì chọn ở khu phụ huynh.',
+                    ),
+                    _Step(
+                      n: 3,
+                      title: 'Bé đứng cách 2–3 m',
+                      body: 'Phòng đủ sáng, dọn đồ quanh bé. Màn TV hiện "Thấy con rồi" là sẵn sàng.',
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: TvdSpace.s2),
-            TvdButton(
-              label: beforePlay ? 'Để sau' : 'Xong',
-              kind: TvdButtonKind.text,
-              onPressed: () => Navigator.of(context).maybePop(),
+            // Nút luôn nằm cuối màn như thiết kế, không phải cuộn mới thấy.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(TvdSpace.s4, TvdSpace.s2, TvdSpace.s4, TvdSpace.s2),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TvdButton(
+                    key: const ValueKey('open-cast'),
+                    label: 'Mở Smart View',
+                    icon: Icons.cast_rounded,
+                    onPressed: () => _openCast(context),
+                  ),
+                  const SizedBox(height: TvdSpace.s2),
+                  TvdButton(
+                    key: const ValueKey('camera-check'),
+                    label: 'Thử camera',
+                    icon: Icons.videocam_rounded,
+                    kind: TvdButtonKind.secondary,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(builder: (_) => const CameraCheckScreen()),
+                    ),
+                  ),
+                  TvdButton(
+                    label: beforePlay ? 'Để sau' : 'Xong',
+                    kind: TvdButtonKind.text,
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -376,44 +397,64 @@ class _CameraCheckScreenState extends State<CameraCheckScreen> with PoseScreenMi
     final ready = _ready && poseError == null && !_safeMode;
     return Scaffold(
       backgroundColor: TvdColors.cream,
-      appBar: AppBar(title: const Text('Thử camera'), backgroundColor: TvdColors.cream),
+      appBar: AppBar(
+        title: const Text('Thử camera'),
+        backgroundColor: TvdColors.cream,
+        scrolledUnderElevation: 0,
+        notificationPredicate: (_) => false,
+      ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(TvdSpace.s4),
+        child: Column(
           children: [
-            Center(child: CamTile(frame: lastFrame, seen: ready, width: 240)),
-            const SizedBox(height: TvdSpace.s4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TinTin(state: ready ? TinTinState.happy : TinTinState.wait, size: 64),
-                const SizedBox(width: TvdSpace.s3),
-                Flexible(
-                  child: Text(
-                    _status,
-                    key: const ValueKey('camera-check-status'),
-                    style: PhoneText.item.copyWith(color: ready ? TvdColors.correctDark : TvdColors.ink),
-                  ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(TvdSpace.s4),
+                child: Column(
+                  children: [
+                    Center(child: CamTile(frame: lastFrame, seen: ready, width: 240)),
+                    const SizedBox(height: TvdSpace.s4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TinTin(state: ready ? TinTinState.happy : TinTinState.wait, size: 64),
+                        const SizedBox(width: TvdSpace.s3),
+                        Flexible(
+                          child: Text(
+                            _status,
+                            key: const ValueKey('camera-check-status'),
+                            style: PhoneText.item.copyWith(color: ready ? TvdColors.correctDark : TvdColors.ink),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: TvdSpace.s3),
+                    Text(
+                      'Đổi camera ở đây chỉ để thử. Camera mặc định khi chơi chọn ở khu phụ huynh.',
+                      style: PhoneText.caption,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: TvdSpace.s5),
-            if (_safeMode)
-              TvdButton(label: 'Vẫn thử', icon: Icons.refresh_rounded, onPressed: _retry)
-            else
-              TvdButton(
-                label: _front ? 'Đổi sang camera sau' : 'Đổi sang camera trước',
-                icon: Icons.cameraswitch_rounded,
-                kind: TvdButtonKind.secondary,
-                onPressed: _switch,
               ),
-            const SizedBox(height: TvdSpace.s2),
-            TvdButton(label: 'Xong', kind: TvdButtonKind.text, onPressed: () => Navigator.of(context).maybePop()),
-            const SizedBox(height: TvdSpace.s3),
-            Text(
-              'Đổi camera ở đây chỉ để thử. Camera mặc định khi chơi chọn ở khu phụ huynh.',
-              style: PhoneText.caption,
-              textAlign: TextAlign.center,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(TvdSpace.s4, TvdSpace.s2, TvdSpace.s4, TvdSpace.s2),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_safeMode)
+                    TvdButton(label: 'Vẫn thử', icon: Icons.refresh_rounded, onPressed: _retry)
+                  else
+                    TvdButton(
+                      label: _front ? 'Đổi sang camera sau' : 'Đổi sang camera trước',
+                      icon: Icons.cameraswitch_rounded,
+                      kind: TvdButtonKind.secondary,
+                      onPressed: _switch,
+                    ),
+                  const SizedBox(height: TvdSpace.s2),
+                  TvdButton(label: 'Xong', kind: TvdButtonKind.text, onPressed: () => Navigator.of(context).maybePop()),
+                ],
+              ),
             ),
           ],
         ),

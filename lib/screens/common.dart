@@ -115,37 +115,60 @@ class TvdCard extends StatelessWidget {
 /// Cổng phụ huynh: một phép nhân trẻ lớp 1–2 chưa làm được, để bé không tự đổi cài đặt.
 Future<bool> showParentGate(BuildContext context) async {
   final r = math.Random();
-  final a = 6 + r.nextInt(4), b = 6 + r.nextInt(4);
-  final controller = TextEditingController();
   final ok = await showDialog<bool>(
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (context) => _ParentGateDialog(a: 6 + r.nextInt(4), b: 6 + r.nextInt(4)),
+  );
+  return ok ?? false;
+}
+
+/// Hộp thoại giữ ô nhập trong State để ô nhập chỉ bị huỷ khi hộp thoại đã đóng hẳn
+/// (huỷ ngay sau showDialog thì hiệu ứng đóng vẫn còn dùng ô nhập).
+class _ParentGateDialog extends StatefulWidget {
+  const _ParentGateDialog({required this.a, required this.b});
+
+  final int a;
+  final int b;
+
+  @override
+  State<_ParentGateDialog> createState() => _ParentGateDialogState();
+}
+
+class _ParentGateDialogState extends State<_ParentGateDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit(String v) => Navigator.of(context).pop(int.tryParse(v.trim()) == widget.a * widget.b);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
       title: const Text('Dành cho phụ huynh'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$a × $b = ?', style: PhoneText.titleLarge),
+          Text('${widget.a} × ${widget.b} = ?', style: PhoneText.titleLarge),
           TextField(
-            controller: controller,
+            controller: _controller,
             autofocus: true,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(hintText: 'Nhập kết quả'),
-            onSubmitted: (v) => Navigator.of(context).pop(int.tryParse(v.trim()) == a * b),
+            onSubmitted: _submit,
           ),
         ],
       ),
       actions: [
         TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Huỷ')),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(int.tryParse(controller.text.trim()) == a * b),
-          child: const Text('Vào'),
-        ),
+        FilledButton(onPressed: () => _submit(_controller.text), child: const Text('Vào')),
       ],
-    ),
-  );
-  controller.dispose();
-  return ok ?? false;
+    );
+  }
 }
 
 String formatMinutes(Duration d) {
