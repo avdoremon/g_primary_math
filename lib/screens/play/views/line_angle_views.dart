@@ -15,8 +15,13 @@ import 'cards_view.dart';
 
 /// Tia số nằm ngang dưới đề; các đáp án (đã xếp tăng dần) đứng thành ô trên tia số.
 /// Bóng bé đi theo vị trí thật của bé; bé đứng vào ô đúng rồi giơ tay để chọn.
+/// Biến thể của cảnh các ô đứng ngang: tia số (giơ tay), nhảy ô (nhảy), hứng sao (chờ sao rơi).
+enum LaneVariant { line, hop, star }
+
 class NumberLineView extends MiniGameView {
-  const NumberLineView();
+  const NumberLineView({this.variant = LaneVariant.line});
+
+  final LaneVariant variant;
 
   static const _lineY = 880.0;
   static const _x0 = 180.0, _x1 = 1740.0;
@@ -74,11 +79,13 @@ class NumberLineView extends MiniGameView {
       height: 60,
       child: CustomPaint(painter: _RayPainter(ticks: [for (var i = 0; i < n; i++) 60 + zoneW * (i + .5)])),
     ));
+    // Hứng sao: các ô rơi dần từ trên xuống sàn.
+    final drop = variant == LaneVariant.star && f.answering ? (1 - mech.fall) * 230 : 0.0;
     for (var i = 0; i < n; i++) {
       final aimed = f.answering && mech.zone == i;
       out.add(Positioned.fromRect(
         key: ValueKey('answer-$i'),
-        rect: rects[i],
+        rect: rects[i].shift(Offset(0, -drop)),
         child: AnswerCard(
           slot: i,
           label: q.options[i],
@@ -96,6 +103,7 @@ class NumberLineView extends MiniGameView {
       height: 270,
       child: KidFigure(
         body: f.body,
+        lift: variant == LaneVariant.hop ? mech.rise.clamp(0.0, 1.2).toDouble() * 252 : 0,
         left: mech.handUp ? const ArmGlow(TvdColors.correct) : null,
         right: mech.handUp ? const ArmGlow(TvdColors.correct) : null,
         dim: f.body == null,

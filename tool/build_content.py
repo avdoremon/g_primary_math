@@ -502,6 +502,30 @@ grade5 = {"grade": 5, "title": "Lớp 5", "topics": [
     ]),
 ]}
 
+# Game vận động mới: đổi mini game của một số level (giữ nguyên bộ sinh câu hỏi), rải đều các lớp và độ khó.
+# Mỗi mini game đòi hỏi: star_catch / hop_tiles ≥ 2 đáp án; tintin_says đúng 3 đáp án; touch_order câu xếp thứ tự;
+# balance / run_race / squat_gate đúng 2 đáp án; clap_count câu đếm nhảy.
+NEW_GAMES = {
+    "star_catch": ["g1-so-den-100:2", "g1-cong-tru-10:2", "g2-cong-tru-20:2", "g2-so-den-1000:3",
+                   "g3-tinh-10000:1", "g4-cong-tru:2", "g5-so-thap-phan:2"],
+    "hop_tiles": ["g1-cong-tru-100:2", "g1-on-tap-hk1:1", "g2-cong-tru-100:2", "g3-nhan-chia-100:1",
+                  "g4-nhan-chia:1", "g5-ti-so:1"],
+    "tintin_says": ["g1-on-tap-hk1:2", "g2-on-tap:2", "g2-nhan-chia:3", "g3-on-tap:2", "g4-on-tap:3", "g5-on-tap:2"],
+    "touch_order": ["g1-so-den-100:5", "g2-on-tap:4", "g2-so-den-1000:5", "g3-so-den-100000:5"],
+    "balance": ["g1-so-den-10:3", "g1-do-dai:1", "g1-do-dai:3", "g1-so-den-100:4", "g3-so-den-10000:3"],
+    "run_race": ["g1-do-dai:2", "g1-do-dai:4", "g2-khoi-luong-dung-tich:1", "g3-nhan-chia-100:3", "g3-cong-tru-100000:3"],
+    "squat_gate": ["g1-cong-tru-10:3", "g2-cong-tru-20:3", "g2-cong-tru-100:4", "g4-on-tap:2", "g4-cong-tru:5"],
+    "clap_count": ["g2-nhan-chia:1", "g3-bang-nhan-chia:1"],
+}
+_levels = {(t["id"], l["level"]): l for g in (grade1, grade2, grade3, grade4, grade5) for t in g["topics"] for l in t["levels"]}
+for _game, _where in NEW_GAMES.items():
+    for _w in _where:
+        _tid, _n = _w.rsplit(":", 1)
+        _l = _levels[(_tid, int(_n))]
+        _l["miniGame"] = _game
+        if _game == "touch_order":
+            _l["params"] = {**_l["params"], "ask": "order"}
+
 root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "content")
 for name, g in (("grade1.json", grade1), ("grade2.json", grade2), ("grade3.json", grade3), ("grade4.json", grade4), ("grade5.json", grade5)):
     with open(os.path.join(root, name), "w", encoding="utf-8") as f:

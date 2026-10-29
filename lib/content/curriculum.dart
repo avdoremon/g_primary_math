@@ -15,8 +15,16 @@ abstract class MiniGames {
   static const simonSays = 'simon_says'; // Con nói, con làm (T, C, B)
   static const armAngle = 'arm_angle'; // Góc tay (T) – lớp 4
   static const numberLine = 'number_line'; // Tia số (B) – lớp 3–5
+  static const starCatch = 'star_catch'; // Hứng sao rơi (B)
+  static const hopTiles = 'hop_tiles'; // Nhảy ô (B + Đ)
+  static const touchOrder = 'touch_order'; // Chạm theo thứ tự (C)
+  static const tintinSays = 'tintin_says'; // Tin Tin nói (T)
+  static const balance = 'balance'; // Cân thăng bằng (B)
+  static const runRace = 'run_race'; // Chạy đua tại chỗ (Đ + B)
+  static const clapCount = 'clap_count'; // Vỗ tay theo nhịp (Đ)
+  static const squatGate = 'squat_gate'; // Cổng nhảy ngồi (Đ)
 
-  static const all = {balloon, sides, jumpCount, humanClock, shapeHunt, simonSays, armAngle, numberLine};
+  static const all = {balloon, sides, jumpCount, humanClock, shapeHunt, simonSays, armAngle, numberLine, starCatch, hopTiles, touchOrder, tintinSays, balance, runRace, clapCount, squatGate};
 
   static const titles = {
     balloon: 'Bóng bay phép tính',
@@ -27,6 +35,14 @@ abstract class MiniGames {
     simonSays: 'Con nói, con làm',
     armAngle: 'Góc tay',
     numberLine: 'Tia số',
+    starCatch: 'Hứng sao rơi',
+    hopTiles: 'Nhảy ô',
+    touchOrder: 'Chạm theo thứ tự',
+    tintinSays: 'Tin Tin nói',
+    balance: 'Cân thăng bằng',
+    runRace: 'Chạy đua tại chỗ',
+    clapCount: 'Vỗ tay theo nhịp',
+    squatGate: 'Cổng nhảy ngồi',
   };
 
   static String title(String id) => titles[id] ?? id;

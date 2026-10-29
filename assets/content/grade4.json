@@ -35,7 +35,7 @@
             "max": 100000
           },
           "answers": 2,
-          "miniGame": "sides"
+          "miniGame": "squat_gate"
         },
         {
           "level": 3,
@@ -47,7 +47,7 @@
             "max": 10000
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 4,
@@ -392,7 +392,7 @@
             "carry": "any"
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 3,
@@ -436,7 +436,7 @@
             "format": "true_false"
           },
           "answers": 2,
-          "miniGame": "sides"
+          "miniGame": "squat_gate"
         }
       ]
     },
@@ -648,7 +648,7 @@
             "max": 1000000
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 2,

@@ -5,6 +5,7 @@ import '../content/question.dart';
 import '../motion/body_metrics.dart';
 import '../motion/calibration.dart';
 import '../motion/detectors/arm_pose.dart';
+import '../motion/detectors/knee_lift.dart';
 import '../motion/detectors/rep_counter.dart';
 import '../motion/detectors/step_detector.dart';
 import '../motion/dwell_selector.dart';
@@ -32,8 +33,17 @@ enum MechanicKind {
   /// T – hai tay tạo thành góc (Góc tay).
   armAngle,
 
-  /// B – đứng vào ô trên tia số rồi giơ tay (Tia số).
+  /// B – đứng vào ô trên tia số rồi giơ tay (Tia số), nhảy (Nhảy ô) hoặc chờ sao rơi (Hứng sao).
   zone,
+
+  /// C – chạm lần lượt nhiều ô theo thứ tự (Chạm theo thứ tự).
+  orderTouch,
+
+  /// Đ + B – chạy tại chỗ tới ngã ba rồi nghiêng người chọn đường (Chạy đua).
+  run,
+
+  /// Đ – ngồi xuống hoặc nhảy lên để chọn cổng thấp / cao (Cổng nhảy ngồi).
+  gate,
 }
 
 /// Dữ liệu đầu vào mỗi khung hình.
@@ -130,7 +140,8 @@ abstract class AnswerMechanic {
       );
     }
     if (type == 'pose' && q.options.length == 3) return ArmChoiceMechanic(expected: q.answer);
-    if (type == 'step' && q.options.length == 2) return StepMechanic();
+    const viaOwnMechanic = {MiniGames.balance, MiniGames.runRace, MiniGames.squatGate};
+    if (type == 'step' && q.options.length == 2 && !viaOwnMechanic.contains(level.miniGame)) return StepMechanic();
     if (level.miniGame == MiniGames.jumpCount && jumps is int) return CountMechanic(target: jumps);
     if (level.miniGame == MiniGames.humanClock && hour is int && minute is int) {
       return ClockMechanic(hour: hour, minute: minute);
@@ -139,8 +150,31 @@ abstract class AnswerMechanic {
     final angle = q.data['angle'];
     if (level.miniGame == MiniGames.armAngle && angle is String) return ArmAngleMechanic(target: angle);
     if (level.miniGame == MiniGames.numberLine && q.options.length >= 2) return ZoneMechanic(zones: q.options.length);
+    final n = q.options.length;
+    switch (level.miniGame) {
+      case MiniGames.hopTiles when n >= 2:
+        return ZoneMechanic(zones: n, confirm: ZoneConfirm.jump);
+      case MiniGames.starCatch when n >= 2:
+        return ZoneMechanic(zones: n, confirm: ZoneConfirm.landing, fallSeconds: starFallSeconds(level));
+      case MiniGames.touchOrder when q.data['sequence'] is List:
+        return OrderTouchMechanic(sequence: (q.data['sequence']! as List).cast<int>());
+      case MiniGames.tintinSays when n == 3:
+        return ArmChoiceMechanic(expected: q.answer);
+      case MiniGames.balance when n == 2:
+        return StepMechanic(alsoTouch: true, detector: StepDetector(allowLean: true, holdSeconds: 0.4));
+      case MiniGames.runRace when n == 2:
+        return RunChooseMechanic();
+      case MiniGames.clapCount when jumps is int:
+        return CountMechanic(target: jumps, kind: RepKind.clap);
+      case MiniGames.squatGate when n == 2:
+        return GateMechanic();
+    }
     return TouchMechanic();
   }
+
+  /// Sao rơi hết trong bao lâu: 60% thời gian của câu, từ 3,5 đến 9 giây (không giới hạn giờ: 7 giây).
+  static double starFallSeconds(Level level) =>
+      level.secondsPerQuestion <= 0 ? 7 : (level.secondsPerQuestion * 0.6).clamp(3.5, 9.0).toDouble();
 
   static ArmTarget _armTarget(Object? v) => switch (v) {
         'up' => ArmTarget.up,
@@ -536,11 +570,33 @@ class ArmAngleMechanic extends AnswerMechanic {
 
 /// Tia số (lớp 3–5): các đáp án xếp từ trái sang phải; bé đi ngang tới ô có đáp án đúng rồi giơ một tay lên,
 /// giữ [holdSeconds] giây để chọn. Phải giơ tay mới chọn nên bé đi qua các ô khác không bị tính.
+/// Cách chốt đáp án khi bé đã đứng đúng ô.
+enum ZoneConfirm {
+  /// Giơ tay giữ [ZoneMechanic.holdSeconds] giây (Tia số).
+  handUp,
+
+  /// Nhảy lên một cái (Nhảy ô).
+  jump,
+
+  /// Chờ sao rơi xuống đất: bé đang đứng ở ô nào thì chọn ô đó (Hứng sao).
+  landing,
+}
+
 class ZoneMechanic extends AnswerMechanic {
-  ZoneMechanic({required this.zones, this.holdSeconds = 0.8, this.span = 1.6});
+  ZoneMechanic({
+    required this.zones,
+    this.holdSeconds = 0.8,
+    this.span = 1.6,
+    this.confirm = ZoneConfirm.handUp,
+    this.fallSeconds = 6,
+  });
 
   final int zones;
   final double holdSeconds;
+  final ZoneConfirm confirm;
+
+  /// Hứng sao: số giây sao rơi từ trên xuống đất.
+  final double fallSeconds;
 
   /// Bé bước sang mỗi bên tối đa [span] lần bề rộng vai là tới ô ngoài cùng.
   final double span;
@@ -549,7 +605,14 @@ class ZoneMechanic extends AnswerMechanic {
   double position = 0;
   int? zone;
   bool handUp = false;
+
+  /// Độ nhảy hiện tại theo chiều dài thân (để vẽ bé nhảy lên).
+  double rise = 0;
+
+  /// Giây đã trôi (hứng sao).
+  double elapsed = 0;
   double _held = 0;
+  double _stable = 0;
   bool _done = false;
 
   @override
@@ -561,11 +624,25 @@ class ZoneMechanic extends AnswerMechanic {
   @override
   int? get aimed => zone;
 
-  @override
-  double get progress => handUp ? (_held / holdSeconds).clamp(0.0, 1.0).toDouble() : 0;
+  /// Hứng sao: 0 = sao vừa xuất hiện, 1 = sao chạm đất.
+  double get fall => (elapsed / fallSeconds).clamp(0.0, 1.0).toDouble();
 
   @override
-  String? get hint => zone != null && !handUp ? 'Đứng đúng ô rồi giơ tay lên!' : null;
+  double get progress => switch (confirm) {
+        ZoneConfirm.handUp => handUp ? (_held / holdSeconds).clamp(0.0, 1.0).toDouble() : 0,
+        ZoneConfirm.jump => 0,
+        ZoneConfirm.landing => fall,
+      };
+
+  @override
+  String? get hint {
+    if (_done) return null;
+    return switch (confirm) {
+      ZoneConfirm.handUp => zone != null && !handUp ? 'Đứng đúng ô rồi giơ tay lên!' : null,
+      ZoneConfirm.jump => zone != null ? 'Đứng vào ô đúng rồi nhảy lên!' : null,
+      ZoneConfirm.landing => zone != null && fall < 0.85 ? 'Bước sang dưới ngôi sao đúng nhé!' : null,
+    };
+  }
 
   static int zoneOf(double position, int zones) => (((position + 1) / 2) * zones).floor().clamp(0, zones - 1);
 
@@ -573,26 +650,228 @@ class ZoneMechanic extends AnswerMechanic {
   MechanicSignal? update(MechanicInput input) {
     final cal = input.calibration;
     final body = input.body;
+    if (confirm == ZoneConfirm.landing) elapsed += input.dt;
     if (_done || cal == null) return null;
     if (body == null) {
       zone = null;
       handUp = false;
       _held = 0;
+      _stable = 0;
       return null;
     }
     position = ((body.hipCenter.dx - cal.hipCenter.dx) / cal.shoulderWidth / span).clamp(-1.0, 1.0).toDouble();
     final z = zoneOf(position, zones);
-    final up = body.armRaised(right: false) || body.armRaised(right: true);
-    if (z != zone || !up) _held = 0;
-    zone = z;
-    handUp = up;
-    if (up) {
-      _held += input.dt;
-      if (_held >= holdSeconds) {
-        _done = true;
-        return ChooseOption(z);
-      }
+    rise = cal.torsoLength <= 0 ? 0 : (cal.hipCenter.dy - body.hipCenter.dy) / cal.torsoLength;
+    switch (confirm) {
+      case ZoneConfirm.handUp:
+        final up = body.armRaised(right: false) || body.armRaised(right: true);
+        if (z != zone || !up) _held = 0;
+        zone = z;
+        handUp = up;
+        if (up) {
+          _held += input.dt;
+          if (_held >= holdSeconds) {
+            _done = true;
+            return ChooseOption(z);
+          }
+        }
+      case ZoneConfirm.jump:
+        zone = z;
+        // Phải đứng yên trên sàn một lúc trước khi nhảy được tính (tránh chọn khi bé vừa nhảy từ câu trước).
+        if (rise < 0.08) {
+          _stable += input.dt;
+        } else if (rise < 0.15) {
+          // vùng trễ: giữ nguyên
+        } else if (_stable >= 0.3) {
+          _done = true;
+          return ChooseOption(z);
+        }
+        if (rise >= 0.15) _stable = 0;
+      case ZoneConfirm.landing:
+        zone = z;
+        if (elapsed >= fallSeconds) {
+          _done = true;
+          return ChooseOption(z);
+        }
     }
     return null;
+  }
+}
+
+// ------------------------------------------------------------------ C (nhiều ô, theo thứ tự)
+
+/// Chạm lần lượt các ô theo thứ tự [sequence] (chỉ số ô, vd. từ bé đến lớn).
+///
+/// Chạm đúng ô kế tiếp thì ô đó được đánh dấu; chạm nhầm ô chưa tới lượt thì tính chưa đúng;
+/// chạm đủ cả dãy thì đúng. Ô đã chạm rồi bị bỏ qua.
+class OrderTouchMechanic extends AnswerMechanic {
+  OrderTouchMechanic({required this.sequence, double dwellSeconds = 0.4}) : dwell = DwellSelector(dwellSeconds: dwellSeconds);
+
+  final List<int> sequence;
+  final DwellSelector dwell;
+
+  /// Số ô đã chạm đúng.
+  int step = 0;
+  bool _done = false;
+
+  /// Ô đã chạm đúng.
+  Set<int> get touched => {...sequence.take(step)};
+
+  /// Ô cần chạm tiếp theo (null khi đã xong).
+  int? get next => step < sequence.length ? sequence[step] : null;
+
+  @override
+  MechanicKind get kind => MechanicKind.orderTouch;
+
+  @override
+  bool get usesTouch => true;
+
+  @override
+  double get progress => dwell.progress;
+
+  @override
+  int? get aimed => dwell.candidate;
+
+  @override
+  Offset? get activePoint => dwell.activePoint;
+
+  @override
+  MechanicSignal? update(MechanicInput input) {
+    if (_done || input.targets.isEmpty) return null;
+    final hit = dwell.update(input.hands, input.targets, input.dt);
+    if (hit == null) return null;
+    return pick(hit);
+  }
+
+  /// Bé chọn ô [i] (chạm tay hoặc chạm màn hình). null: ô đã chạm rồi, bỏ qua.
+  MechanicSignal? pick(int i) {
+    if (_done || touched.contains(i)) return null;
+    if (i != next) {
+      _done = true;
+      return const ReportResult(false);
+    }
+    step++;
+    if (step >= sequence.length) {
+      _done = true;
+      return const ReportResult(true);
+    }
+    return null;
+  }
+}
+
+// ------------------------------------------------------------------ Đ + B (chạy rồi chọn đường)
+
+/// Chạy tại chỗ đủ [lifts] bước thì tới ngã ba, rồi nghiêng người (hoặc bước) sang trái/phải chọn đường.
+class RunChooseMechanic extends AnswerMechanic {
+  RunChooseMechanic({this.lifts = 5, StepDetector? detector})
+      : detector = detector ?? StepDetector(allowLean: true, holdSeconds: 0.4);
+
+  /// Số bước chạy cần để tới ngã ba.
+  final int lifts;
+  final StepDetector detector;
+  final KneeLiftCounter counter = KneeLiftCounter();
+
+  /// Bé đã đứng giữa ở ngã ba (tránh chọn ngay khi vừa dừng chạy mà người còn lắc).
+  bool armed = false;
+  bool _done = false;
+
+  int get steps => counter.count.clamp(0, lifts);
+  bool get arrived => counter.count >= lifts;
+
+  /// 0..1 quãng đường tới ngã ba.
+  double get route => steps / lifts;
+
+  @override
+  MechanicKind get kind => MechanicKind.run;
+
+  @override
+  bool get needsCalibration => true;
+
+  @override
+  double get progress => route;
+
+  @override
+  String? get hint {
+    if (_done) return null;
+    if (!arrived) return counter.seesKnees || counter.count > 0 ? 'Chạy tại chỗ nào!' : 'Lùi ra để camera thấy tới đầu gối nhé';
+    return armed ? 'Nghiêng người sang đường đúng!' : 'Dừng lại, đứng thẳng nhé!';
+  }
+
+  @override
+  MechanicSignal? update(MechanicInput input) {
+    if (_done) return null;
+    final body = input.body;
+    if (!arrived) {
+      counter.update(body);
+      return null;
+    }
+    final cal = input.calibration;
+    if (cal == null || body == null) return null;
+    final event = detector.update(body, cal);
+    if (!armed) {
+      if (detector.offset.abs() < detector.centerThreshold && body.leanOffset.abs() < detector.leanThreshold / 2) {
+        armed = true;
+      }
+      return null;
+    }
+    if (event == StepSide.left) return _finish(0);
+    if (event == StepSide.right) return _finish(1);
+    return null;
+  }
+
+  MechanicSignal _finish(int option) {
+    _done = true;
+    return ChooseOption(option);
+  }
+}
+
+// ------------------------------------------------------------------ Đ (cổng thấp / cao)
+
+/// Hai cổng: ngồi xuống để chui cổng thấp (đáp án 0), nhảy lên để vượt cổng cao (đáp án 1).
+class GateMechanic extends AnswerMechanic {
+  GateMechanic({this.squatSeconds = 0.3});
+
+  final double squatSeconds;
+
+  /// Độ cao hông so với lúc đứng, theo chiều dài thân (dương = nhảy, âm = ngồi).
+  double rise = 0;
+  double _stable = 0;
+  double _low = 0;
+  bool _done = false;
+
+  @override
+  MechanicKind get kind => MechanicKind.gate;
+
+  @override
+  bool get needsCalibration => true;
+
+  @override
+  double get progress => (_low / squatSeconds).clamp(0.0, 1.0).toDouble();
+
+  @override
+  String? get hint => _done ? null : 'Ngồi xuống chui cổng thấp, nhảy lên vượt cổng cao!';
+
+  @override
+  MechanicSignal? update(MechanicInput input) {
+    final cal = input.calibration;
+    final body = input.body;
+    if (_done || cal == null || body == null || cal.torsoLength <= 0) return null;
+    rise = (cal.hipCenter.dy - body.hipCenter.dy) / cal.torsoLength;
+    if (rise.abs() < 0.08) _stable += input.dt;
+    // Chỉ tính khi bé đã đứng thẳng một lúc, để không chọn nhầm lúc vừa đổi câu.
+    if (_stable < 0.3) return null;
+    if (rise <= -0.35) {
+      _low += input.dt;
+      if (_low >= squatSeconds) return _finish(0);
+    } else {
+      _low = 0;
+    }
+    if (rise >= 0.18) return _finish(1);
+    return null;
+  }
+
+  MechanicSignal _finish(int option) {
+    _done = true;
+    return ChooseOption(option);
   }
 }

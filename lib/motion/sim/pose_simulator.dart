@@ -11,6 +11,9 @@ class SimPose {
     this.scale = 1.0,
     this.jump = 0,
     this.squat = 0,
+    this.lean = 0,
+    this.leftKnee = 0,
+    this.rightKnee = 0,
     this.leftArm = 180,
     this.rightArm = 180,
     this.visible = true,
@@ -29,6 +32,13 @@ class SimPose {
   /// 0 = đứng thẳng, 1 = ngồi xổm hết mức (hông hạ 50% chiều dài thân).
   double squat;
 
+  /// Nghiêng người: tâm vai lệch khỏi tâm hông, tính theo bề rộng vai (âm = sang trái màn hình).
+  double lean;
+
+  /// Nhấc đầu gối trái / phải: 0 = đứng, 1 = đùi nằm ngang (chạy tại chỗ).
+  double leftKnee;
+  double rightKnee;
+
   /// Góc cánh tay (độ, theo chiều kim đồng hồ, 0 = thẳng lên, 180 = buông xuống).
   double leftArm;
   double rightArm;
@@ -43,6 +53,9 @@ class SimPose {
         scale: scale,
         jump: jump,
         squat: squat,
+        lean: lean,
+        leftKnee: leftKnee,
+        rightKnee: rightKnee,
         leftArm: leftArm,
         rightArm: rightArm,
         visible: visible,
@@ -82,7 +95,7 @@ class PoseSimulator {
     final standHipY = ground - 2 * leg;
     final hipY = standHipY + p.squat * 0.5 * torso;
     final hip = Offset(p.centerX * w, hipY);
-    final sh = hip - Offset(0, torso);
+    final sh = hip + Offset(p.lean * shoulderW, -torso);
 
     final pts = List<Offset>.filled(33, sh);
     void put(int i, Offset o) => pts[i] = o;
@@ -128,7 +141,12 @@ class PoseSimulator {
       final sign = right ? 1.0 : -1.0;
       final hipP = hip + Offset(sign * hipW / 2, 0);
       final ankle = Offset(hipP.dx, ground - 0.05 * torso);
-      final knee = Offset(hipP.dx + sign * p.squat * 0.4 * torso, (hipP.dy + ankle.dy) / 2);
+      final lift = right ? p.rightKnee : p.leftKnee;
+      final stand = (hipP.dy + ankle.dy) / 2;
+      final knee = Offset(
+        hipP.dx + sign * p.squat * 0.4 * torso,
+        stand + (hipP.dy + 0.05 * torso - stand) * lift,
+      );
       put(right ? PoseIdx.rightKnee : PoseIdx.leftKnee, knee);
       put(right ? PoseIdx.rightAnkle : PoseIdx.leftAnkle, ankle);
       put(right ? 30 : 29, ankle + Offset(0, 0.03 * torso)); // gót
