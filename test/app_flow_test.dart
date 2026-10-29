@@ -72,6 +72,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Đạt 1 sao ở level 1'), findsOneWidget, reason: 'level 2 đang khoá');
     await tester.tap(find.textContaining('Level 1 ·'));
+    await tester.pumpAndSettle();
+
+    // Lần đầu chơi: hiện hướng dẫn kết nối TV, bấm "Để sau" để vào chơi.
+    expect(find.text('Phản chiếu màn hình lên TV'), findsOneWidget);
+    await tester.ensureVisible(find.text('Để sau'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Để sau'));
     await run(tester, 1);
 
     // Màn chơi: không có camera thì chạm để bắt đầu.

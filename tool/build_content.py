@@ -30,11 +30,11 @@ def topic(tid, title, order, icon, levels):
 
 grade1 = {"grade": 1, "title": "Lớp 1", "topics": [
     topic("g1-so-den-10", "Các số từ 0 đến 10", 1, "numbers", [
-        ("count_objects", "balloon", 2, {"max": 5}),
-        ("count_objects", "balloon", 3, {"max": 10}),
+        ("count_objects", "balloon", 2, {"max": 10}),
         ("skip_count", "jump_count", 1, {"steps": [1], "format": "jump", "minJumps": 3, "maxJumps": 6}, 30),
         ("compare", "sides", 2, {"max": 10, "format": "side", "ask": "mixed"}),
         ("compare", "balloon", 3, {"max": 10, "format": "sign"}),
+        ("split_number", "balloon", 3, {"max": 10, "ask": "mixed"}, 8),
     ]),
     topic("g1-hinh-phang", "Làm quen với một số hình phẳng", 2, "shapes", [
         ("shape_identify", "shape_hunt", 2, {"shapes": ["square", "circle", "triangle", "rectangle"]}, 15),

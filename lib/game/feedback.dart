@@ -39,6 +39,18 @@ abstract class SessionFeedback {
   /// Lời tổng kết cuối level theo số sao.
   static FeedbackMessage forResult(SessionResult r) {
     final line = 'Con đúng ${r.correct} trên ${r.total} câu, được ${r.score} điểm.';
+    if (r.extraPractice) {
+      return switch (r.stars) {
+        3 => FeedbackMessage(title: 'Xuất sắc!', body: line, speech: 'Xuất sắc! $line'),
+        2 => FeedbackMessage(title: 'Giỏi lắm!', body: line, speech: 'Giỏi lắm! $line'),
+        1 => FeedbackMessage(title: 'Làm tốt lắm!', body: line, speech: 'Làm tốt lắm! $line'),
+        _ => FeedbackMessage(
+            title: 'Cố lên nào!',
+            body: '$line Luyện thêm lượt nữa nhé.',
+            speech: 'Cố lên nào! $line Mình luyện thêm lượt nữa nhé.',
+          ),
+      };
+    }
     return switch (r.stars) {
       3 => FeedbackMessage(title: 'Xuất sắc!', body: line, speech: 'Xuất sắc! $line'),
       2 => FeedbackMessage(title: 'Giỏi lắm!', body: line, speech: 'Giỏi lắm! $line'),

@@ -18,6 +18,8 @@ abstract class QuestionArt {
     switch (q.generator) {
       case 'count_objects':
         return q.data['count'] is int && _countArt.containsKey(q.data['object']) ? 150 : 0;
+      case 'split_number':
+        return q.data['a'] is int && q.data['b'] is int && _countArt.containsKey(q.data['object']) ? 150 : 0;
       case 'time':
         return q.data['hour'] is int && q.data['minute'] is int && q.options.length > 1 ? 250 : 0;
       case 'pictograph':
@@ -40,6 +42,13 @@ abstract class QuestionArt {
     switch (q.generator) {
       case 'count_objects':
         return _CountArt(object: _countArt[q.data['object']]!, count: q.data['count']! as int);
+      case 'split_number':
+        return _SplitArt(
+          object: _countArt[q.data['object']]!,
+          a: q.data['a']! as int,
+          b: q.data['b']! as int,
+          hideB: q.data['hide'] == 'b',
+        );
       case 'time':
         return ClockFace(hour: q.data['hour']! as int, minute: q.data['minute']! as int, size: 250);
       case 'pictograph':
@@ -80,6 +89,52 @@ class _CountArt extends StatelessWidget {
             padding: EdgeInsets.only(right: count > 20 && i % 10 == 9 ? 28 : 0),
             child: Art(object, width: size),
           ),
+      ],
+    );
+  }
+}
+
+/// Mấy và mấy: hai nhóm đồ vật cách nhau một vạch. Câu tách số thì nhóm thứ hai là ô dấu hỏi.
+class _SplitArt extends StatelessWidget {
+  const _SplitArt({required this.object, required this.a, required this.b, required this.hideB});
+
+  final String object;
+  final int a;
+  final int b;
+  final bool hideB;
+
+  @override
+  Widget build(BuildContext context) {
+    const size = 84.0;
+    Widget group(int n) => Wrap(
+          spacing: 10,
+          runSpacing: 8,
+          children: [for (var i = 0; i < n; i++) Art(object, width: size)],
+        );
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        group(a),
+        Container(
+          width: 8,
+          height: size + 30,
+          margin: const EdgeInsets.symmetric(horizontal: 28),
+          decoration: BoxDecoration(color: TvdColors.line, borderRadius: BorderRadius.circular(4)),
+        ),
+        if (hideB)
+          Container(
+            width: size + 30,
+            height: size + 30,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: TvdColors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: TvdColors.answerA, width: 6),
+            ),
+            child: Text('?', style: TvText.question.copyWith(color: TvdColors.answerADark)),
+          )
+        else
+          group(b),
       ],
     );
   }

@@ -43,6 +43,53 @@ class CountObjectsGenerator extends QuestionGenerator {
   }
 }
 
+/// Lớp 1, bài "Mấy và mấy": tách một số thành hai phần, hoặc gộp hai phần thành một số.
+/// Có hình hai nhóm đồ vật để bé đếm; câu tách thì nhóm thứ hai là ô dấu hỏi.
+class SplitNumberGenerator extends QuestionGenerator {
+  const SplitNumberGenerator();
+
+  @override
+  String get id => 'split_number';
+
+  @override
+  List<String> validate(GenParams p) => p.intOf('max', 10) < 2 ? ['max phải ≥ 2'] : const [];
+
+  @override
+  Question generate(GenParams p, math.Random r) {
+    final max = p.intOf('max', 10);
+    final n = between(r, math.max(2, p.intOf('min', 2)), max);
+    final a = between(r, 1, n - 1);
+    final b = n - a;
+    final obj = pick(p.strList('objects', countObjects.keys.toList()), r);
+    final ask = p.strOf('ask', 'mixed');
+    final split = ask == 'split' || (ask == 'mixed' && r.nextBool());
+    if (split) {
+      final o = numericOptions(r, b, p.answers, min: 0, max: max, preferred: [n, a, b + 1, b - 1]);
+      return Question(
+        generator: id,
+        prompt: '$n gồm $a và mấy?',
+        speech: '${cap(say(n))} gồm ${say(a)} và mấy?',
+        options: o.options,
+        answer: o.answer,
+        explanation: '$n gồm $a và $b.',
+        explanationSpeech: '${cap(say(n))} gồm ${say(a)} và ${say(b)}.',
+        data: {'object': obj, 'a': a, 'b': b, 'hide': 'b'},
+      );
+    }
+    final o = numericOptions(r, n, p.answers, min: 1, max: max + 1, preferred: [n + 1, n - 1, a, b]);
+    return Question(
+      generator: id,
+      prompt: '$a và $b gộp lại là mấy?',
+      speech: '${cap(say(a))} và ${say(b)} gộp lại là mấy?',
+      options: o.options,
+      answer: o.answer,
+      explanation: '$a và $b là $n.',
+      explanationSpeech: '${cap(say(a))} và ${say(b)} là ${say(n)}.',
+      data: {'object': obj, 'a': a, 'b': b},
+    );
+  }
+}
+
 /// Lớp 1–2: chục và đơn vị (lớp 2 thêm trăm), viết số thành tổng.
 class PlaceValueGenerator extends QuestionGenerator {
   const PlaceValueGenerator();

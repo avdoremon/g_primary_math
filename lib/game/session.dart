@@ -88,6 +88,9 @@ class SessionResult {
   /// Chế độ luyện tập: không đếm giờ.
   final bool practice;
 
+  /// Lượt luyện tập thêm (câu trộn từ nhiều level, lưu với level 0 nên không đổi sao của level nào).
+  bool get extraPractice => level == GameSession.practiceLevel;
+
   /// Lượt chơi bỏ dở giữa chừng (thoát trước khi hết câu).
   bool get incomplete => answers.length < total;
 
@@ -136,16 +139,31 @@ class GameSession extends ChangeNotifier {
     required this.topicId,
     required this.level,
     this.practice = false,
+    List<Level>? pool,
     math.Random? random,
     DateTime? startedAt,
     this.correctFeedback = const Duration(milliseconds: 1500),
     this.wrongFeedback = const Duration(milliseconds: 4500),
   })  : _random = random ?? math.Random(),
+        pool = pool == null || pool.isEmpty ? null : List.unmodifiable(pool),
+        _current = level,
         startedAt = startedAt ?? DateTime.now();
+
+  /// Số level ghi cho lượt luyện tập thêm (không trùng level thật nào, level thật bắt đầu từ 1).
+  static const practiceLevel = 0;
 
   final int grade;
   final String topicId;
+
+  /// Level chính của lượt: quyết định số câu. Với lượt luyện tập là level đầu của [pool].
   final Level level;
+
+  /// Luyện tập thêm: mỗi câu lấy ngẫu nhiên từ một level trong [pool] (cùng mini game).
+  final List<Level>? pool;
+  Level _current;
+
+  /// Level sinh ra câu đang hỏi (khác [level] khi luyện tập trộn nhiều level).
+  Level get currentLevel => _current;
   final bool practice;
   final DateTime startedAt;
 
@@ -183,7 +201,7 @@ class GameSession extends ChangeNotifier {
 
   /// null = không giới hạn thời gian (luyện tập hoặc level đặt 0).
   Duration? get timeLimit =>
-      practice || level.secondsPerQuestion <= 0 ? null : Duration(seconds: level.secondsPerQuestion);
+      practice || _current.secondsPerQuestion <= 0 ? null : Duration(seconds: _current.secondsPerQuestion);
 
   Duration get elapsed => _elapsed;
   Duration get playTime => _playTime;
@@ -283,7 +301,7 @@ class GameSession extends ChangeNotifier {
   SessionResult get result => SessionResult(
         grade: grade,
         topicId: topicId,
-        level: level.level,
+        level: pool == null ? level.level : practiceLevel,
         total: total,
         correct: correctCount,
         score: score,
@@ -303,6 +321,8 @@ class GameSession extends ChangeNotifier {
   // ------------------------------------------------------------------ nội bộ
 
   void _ask() {
+    final p = pool;
+    if (p != null) _current = p[_random.nextInt(p.length)];
     question = _freshQuestion();
     _elapsed = Duration.zero;
     phase = SessionPhase.asking;
@@ -311,9 +331,9 @@ class GameSession extends ChangeNotifier {
 
   /// Sinh câu mới, tránh lặp lại câu đã hỏi trong lượt (thử tối đa 8 lần).
   Question _freshQuestion() {
-    var q = level.generate(_random);
+    var q = _current.generate(_random);
     for (var i = 0; i < 8 && _seen.contains(_key(q)); i++) {
-      q = level.generate(_random);
+      q = _current.generate(_random);
     }
     _seen.add(_key(q));
     return q;

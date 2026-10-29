@@ -14,24 +14,13 @@
           "secondsPerQuestion": 15,
           "generator": "count_objects",
           "params": {
-            "max": 5
+            "max": 10
           },
           "answers": 2,
           "miniGame": "balloon"
         },
         {
           "level": 2,
-          "questions": 10,
-          "secondsPerQuestion": 12,
-          "generator": "count_objects",
-          "params": {
-            "max": 10
-          },
-          "answers": 3,
-          "miniGame": "balloon"
-        },
-        {
-          "level": 3,
           "questions": 10,
           "secondsPerQuestion": 30,
           "generator": "skip_count",
@@ -47,9 +36,9 @@
           "miniGame": "jump_count"
         },
         {
-          "level": 4,
+          "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 8,
+          "secondsPerQuestion": 10,
           "generator": "compare",
           "params": {
             "max": 10,
@@ -60,13 +49,25 @@
           "miniGame": "sides"
         },
         {
-          "level": 5,
+          "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 6,
+          "secondsPerQuestion": 8,
           "generator": "compare",
           "params": {
             "max": 10,
             "format": "sign"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 8,
+          "generator": "split_number",
+          "params": {
+            "max": 10,
+            "ask": "mixed"
           },
           "answers": 3,
           "miniGame": "balloon"

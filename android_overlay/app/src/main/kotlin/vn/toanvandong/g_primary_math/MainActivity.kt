@@ -4,9 +4,11 @@ import android.Manifest
 import android.app.ActivityManager
 import android.app.ApplicationExitInfo
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.WindowManager
 import java.io.File
 import java.text.SimpleDateFormat
@@ -130,6 +132,7 @@ class MainActivity : FlutterFragmentActivity(), PoseEngine.Listener {
                     engine = null
                     result.success(null)
                 }
+                "openCastSettings" -> result.success(openCastSettings())
                 "keepScreenOn" -> {
                     val on = call.arguments as? Boolean ?: true
                     if (on) {
@@ -152,6 +155,27 @@ class MainActivity : FlutterFragmentActivity(), PoseEngine.Listener {
                 sink = null
             }
         })
+    }
+
+    /**
+     * Mở màn phản chiếu màn hình (Smart View / Truyền / Cast). Thử lần lượt các màn cài đặt
+     * mà máy hỗ trợ; trả về tên màn đã mở, hoặc null nếu máy không có màn nào.
+     */
+    private fun openCastSettings(): String? {
+        val candidates = listOf(
+            "cast" to Intent(Settings.ACTION_CAST_SETTINGS),
+            "wifi_display" to Intent("android.settings.WIFI_DISPLAY_SETTINGS"),
+            "display" to Intent(Settings.ACTION_DISPLAY_SETTINGS),
+        )
+        for ((name, intent) in candidates) {
+            try {
+                // Không dùng resolveActivity: Android 11+ giới hạn nhìn thấy gói khác, cứ mở rồi bắt lỗi.
+                startActivity(intent)
+                return name
+            } catch (_: Throwable) {
+            }
+        }
+        return null
     }
 
     private fun hasCameraPermission() =
