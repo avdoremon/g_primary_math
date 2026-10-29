@@ -76,12 +76,14 @@ class PoseEngine(
         onStarted: (Map<String, Any?>) -> Unit,
         onFailed: (String, String) -> Unit,
     ) {
+        // Mọi lỗi (kể cả Error như UnsatisfiedLinkError khi nạp thư viện) đều được bắt ở đây
+        // và báo về Flutter; app không được văng vì lớp nhận diện.
         executor.execute {
             val lm = try {
                 createLandmarker(cfg)
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.e(TAG, "Không tạo được PoseLandmarker", e)
-                main.post { onFailed("model", "Không tải được mô hình nhận diện: ${e.message}") }
+                main.post { onFailed("model", "Không tải được mô hình nhận diện: ${e.javaClass.simpleName}: ${e.message}") }
                 return@execute
             }
             if (stopped) {
@@ -120,7 +122,7 @@ class PoseEngine(
                 val lm = buildLandmarker(asset, Delegate.GPU)
                 usingGpu = true
                 return lm
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.w(TAG, "GPU không dùng được, chuyển sang CPU", e)
             }
         }
@@ -140,7 +142,13 @@ class PoseEngine(
             .setMinPoseDetectionConfidence(0.5f)
             .setMinPosePresenceConfidence(0.5f)
             .setMinTrackingConfidence(0.5f)
-            .setResultListener { result, input -> onResult(result, input) }
+            .setResultListener { result, input ->
+                try {
+                    onResult(result, input)
+                } catch (e: Throwable) {
+                    Log.e(TAG, "Lỗi đọc kết quả nhận diện", e)
+                }
+            }
             .setErrorListener { e -> main.post { listener.onError("mediapipe", e.message ?: "Lỗi MediaPipe") } }
             .build()
         return PoseLandmarker.createFromOptions(context, options)
@@ -223,14 +231,27 @@ class PoseEngine(
                         "camera" to if (cfg.frontCamera) "front" else "back",
                     )
                 )
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.e(TAG, "Không mở được camera", e)
-                onFailed("camera", "Không mở được camera: ${e.message}")
+                onFailed("camera", "Không mở được camera: ${e.javaClass.simpleName}: ${e.message}")
             }
         }, ContextCompat.getMainExecutor(context))
     }
 
     private fun analyze(image: ImageProxy) {
+        try {
+            analyzeFrame(image)
+        } catch (e: Throwable) {
+            Log.e(TAG, "Lỗi xử lý khung hình", e)
+            try {
+                image.close()
+            } catch (_: Throwable) {
+            }
+            main.post { listener.onError("frame", "Lỗi xử lý khung hình: ${e.javaClass.simpleName}: ${e.message}") }
+        }
+    }
+
+    private fun analyzeFrame(image: ImageProxy) {
         val lm = landmarker
         if (lm == null || stopped) {
             image.close()
@@ -239,7 +260,7 @@ class PoseEngine(
         val rotation = image.imageInfo.rotationDegrees
         val raw: Bitmap? = try {
             image.toBitmap()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.w(TAG, "toBitmap lỗi", e)
             null
         } finally {
@@ -266,7 +287,7 @@ class PoseEngine(
 
         try {
             lm.detectAsync(BitmapImageBuilder(upright).build(), ts)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             pending.remove(ts)
             Log.w(TAG, "detectAsync lỗi", e)
         }

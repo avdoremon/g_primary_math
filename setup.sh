@@ -104,6 +104,64 @@ EOF2
   echo ">> Da them proguard-rules.pro vao $GROOVY"
 fi
 
+# 3c. Ky ban release bang khoa co dinh neu co android/key.properties (de cai de ban cap nhat len ban cu)
+if [ -f "$KTS" ] && ! grep -q "tvdKeyProps" "$KTS"; then
+  cat >> "$KTS" <<'EOF2'
+
+// --- Toan Van Dong: ky ban release bang khoa co dinh (android/key.properties), thieu thi dung khoa debug ---
+val tvdKeyProps = java.util.Properties().apply {
+    val f = rootProject.file("key.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+android {
+    signingConfigs {
+        if (tvdKeyProps.getProperty("storeFile") != null) {
+            create("tvdRelease") {
+                storeFile = file(tvdKeyProps.getProperty("storeFile"))
+                storePassword = tvdKeyProps.getProperty("storePassword")
+                keyAlias = tvdKeyProps.getProperty("keyAlias")
+                keyPassword = tvdKeyProps.getProperty("keyPassword")
+            }
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            if (tvdKeyProps.getProperty("storeFile") != null) {
+                signingConfig = signingConfigs.getByName("tvdRelease")
+            }
+        }
+    }
+}
+EOF2
+  echo ">> Da them cau hinh khoa ky vao $KTS"
+elif [ -f "$GROOVY" ] && ! grep -q "tvdKeyProps" "$GROOVY"; then
+  cat >> "$GROOVY" <<'EOF2'
+
+// --- Toan Van Dong: ky ban release bang khoa co dinh (android/key.properties), thieu thi dung khoa debug ---
+def tvdKeyProps = new Properties()
+def tvdKeyFile = rootProject.file('key.properties')
+if (tvdKeyFile.exists()) { tvdKeyFile.withInputStream { tvdKeyProps.load(it) } }
+android {
+    signingConfigs {
+        if (tvdKeyProps['storeFile'] != null) {
+            tvdRelease {
+                storeFile file(tvdKeyProps['storeFile'])
+                storePassword tvdKeyProps['storePassword']
+                keyAlias tvdKeyProps['keyAlias']
+                keyPassword tvdKeyProps['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (tvdKeyProps['storeFile'] != null) { signingConfig signingConfigs.tvdRelease }
+        }
+    }
+}
+EOF2
+  echo ">> Da them cau hinh khoa ky vao $GROOVY"
+fi
+
 # 4. Tai mo hinh MediaPipe Pose
 ASSETS=android/app/src/main/assets
 mkdir -p "$ASSETS"
