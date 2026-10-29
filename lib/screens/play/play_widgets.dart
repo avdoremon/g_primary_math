@@ -6,8 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../content/question.dart';
 import '../../ui/theme/theme.dart';
 
-/// Màn chơi TẠM (hạng mục F11): dùng chung cho mọi mini game cho tới khi có giao diện riêng
-/// theo design (G1–G6). Mọi kích thước tính theo khung 1920×1080.
+/// Thành phần màn chơi dùng chung. Mọi kích thước tính theo khung 1920×1080.
 
 enum CardMark { none, aimed, correct, wrongPick, dimmed }
 
@@ -168,77 +167,6 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) => old.progress != progress || old.color != color;
 }
 
-/// Thanh trên: câu số mấy, thời gian, điểm, chuỗi.
-class PlayTopBar extends StatelessWidget {
-  const PlayTopBar({
-    super.key,
-    required this.index,
-    required this.total,
-    required this.score,
-    required this.streak,
-    this.remaining,
-  });
-
-  final int index;
-  final int total;
-  final int score;
-  final int streak;
-
-  /// 0..1, null = không đếm giờ.
-  final double? remaining;
-
-  @override
-  Widget build(BuildContext context) {
-    final low = remaining != null && remaining! < 0.3;
-    return Row(
-      children: [
-        _Pill(text: 'Câu ${index + 1}/$total'),
-        const SizedBox(width: TvdSpace.s6),
-        Expanded(
-          child: remaining == null
-              ? const SizedBox.shrink()
-              : ClipRRect(
-                  borderRadius: BorderRadius.circular(TvdRadius.pill),
-                  child: LinearProgressIndicator(
-                    value: remaining,
-                    minHeight: 28,
-                    backgroundColor: TvdColors.white,
-                    color: low ? TvdColors.encourage : TvdColors.correct,
-                  ),
-                ),
-        ),
-        const SizedBox(width: TvdSpace.s6),
-        if (streak >= 2) ...[
-          _Pill(text: 'Chuỗi $streak', color: TvdColors.encourage, textColor: TvdColors.white),
-          const SizedBox(width: TvdSpace.s4),
-        ],
-        _Pill(text: '$score điểm', color: TvdColors.star),
-      ],
-    );
-  }
-}
-
-class _Pill extends StatelessWidget {
-  const _Pill({required this.text, this.color = TvdColors.white, this.textColor = TvdColors.ink});
-
-  final String text;
-  final Color color;
-  final Color textColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(TvdRadius.pill),
-        boxShadow: TvdShadow.tv(TvdColors.cardShadow),
-      ),
-      child: Text(text, style: TvText.label.copyWith(color: textColor)),
-    );
-  }
-}
-
 /// Hình minh hoạ đơn giản cho đề (hiện chỉ có đếm đồ vật); các dạng khác chờ design G1–G6.
 class QuestionVisual extends StatelessWidget {
   const QuestionVisual({super.key, required this.question});
@@ -255,7 +183,7 @@ class QuestionVisual extends StatelessWidget {
     if (!hasVisual(question)) return const SizedBox.shrink();
     final n = question.data['count']! as int;
     final asset = 'assets/svg/g7/${question.data['object']}.svg';
-    final size = n <= 10 ? 96.0 : (n <= 20 ? 72.0 : 40.0);
+    final size = n <= 10 ? 96.0 : (n <= 20 ? 60.0 : 30.0);
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: n > 20 ? 6 : 16,
@@ -291,46 +219,6 @@ class StarRow extends StatelessWidget {
             color: i < stars ? TvdColors.star : TvdColors.cardShadow,
           ),
       ],
-    );
-  }
-}
-
-/// Bảng phản hồi sau mỗi câu.
-class FeedbackPanel extends StatelessWidget {
-  const FeedbackPanel({super.key, required this.correct, required this.title, required this.body, this.points = 0});
-
-  final bool correct;
-  final String title;
-  final String body;
-  final int points;
-
-  @override
-  Widget build(BuildContext context) {
-    final bg = correct ? TvdColors.correct : TvdColors.encourageSoft;
-    final fg = correct ? TvdColors.white : TvdColors.encourageDark;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 56, vertical: 28),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(TvdRadius.tv),
-        boxShadow: TvdShadow.tv(correct ? TvdColors.correctDark : TvdColors.encourage),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(correct && points > 0 ? '$title  +$points' : title, style: TvText.question.copyWith(color: fg)),
-                if (body.isNotEmpty)
-                  Text(body, style: TvText.prompt.copyWith(color: TvdColors.ink), maxLines: 2, overflow: TextOverflow.ellipsis),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

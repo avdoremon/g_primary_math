@@ -7,7 +7,6 @@ import 'package:flutter/scheduler.dart';
 import '../../app/services.dart';
 import '../../audio/audio_service.dart';
 import '../../content/curriculum.dart';
-import '../../dev/hand_cursor_painter.dart';
 import '../../dev/pose_screen_mixin.dart';
 import '../../dev/skeleton_painter.dart';
 import '../../game/feedback.dart';
@@ -22,11 +21,14 @@ import '../../progress/progress_rules.dart';
 import '../../ui/theme/theme.dart';
 import '../../ui/widgets/tin_tin.dart';
 import '../../ui/widgets/tv_stage.dart';
+import 'hud.dart';
+import 'mini_game_view.dart';
 import 'play_widgets.dart';
 
 enum _Stage { intro, playing, result, rest, limit }
 
-/// Màn chơi TẠM trên TV (F11), dùng chung cho mọi mini game cho tới khi có màn riêng theo design.
+/// Màn chơi trên TV, dùng chung cho mọi mini game (G1): HUD, vòng câu hỏi, cơ chế trả lời, tạm dừng,
+/// tổng kết. Cảnh và vùng chạm của từng mini game do [MiniGameView] khai báo.
 ///
 /// Luồng: giới thiệu (giơ hai tay 1 giây để hiệu chỉnh và bắt đầu) → 10 câu → tổng kết
 /// (chơi lại / level sau / về menu, chọn bằng tay hoặc chạm màn hình) → nhắc nghỉ hoặc hết giờ chơi nếu cần.
@@ -57,6 +59,8 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
 
   late int _levelIndex;
   Level get _level => widget.topic.levels[_levelIndex];
+  MiniGameView get _view => MiniGameView.of(_level);
+  double _time = 0;
 
   _Stage _phase = _Stage.intro;
   GameSession? _session;
@@ -110,6 +114,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   void _tick(Duration elapsed) {
     final dtSec = math.min(0.1, math.max(0.0, (elapsed - _lastTick).inMicroseconds / 1e6));
     _lastTick = elapsed;
+    _time += dtSec;
     final dt = Duration(microseconds: (dtSec * 1e6).round());
 
     switch (_phase) {
@@ -128,7 +133,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
             body: _motion?.body,
             calibration: _engine.calibration,
             hands: _hands.both,
-            targets: _normalized(_answerRects()),
+            targets: _normalized(_view.targets(_frame()!)),
           ));
           switch (signal) {
             case ChooseOption(:final option):
@@ -272,34 +277,21 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
 
   // ------------------------------------------------------------------ bố cục (pixel khung 1920×1080)
 
-  bool get _withVisual {
-    final q = _session?.question;
-    return q != null && QuestionVisual.hasVisual(q);
-  }
-
-  /// Mini game có ô đáp án để hiển thị.
-  bool get _showsCards {
-    final q = _session?.question ?? _session?.last?.question;
-    if (q == null) return false;
-    final k = _mech?.kind;
-    return q.options.length > 1 && k != MechanicKind.count && k != MechanicKind.clock && k != MechanicKind.compound;
-  }
-
-  List<Rect> _cardRects(int n, {required bool withVisual}) {
-    const zone = 1600.0;
-    const gap = 64.0;
-    final top = withVisual ? 560.0 : 440.0;
-    const bottom = 900.0;
-    final w = math.min(520.0, (zone - gap * (n - 1)) / n);
-    final total = w * n + gap * (n - 1);
-    final left = (TvLayout.width - total) / 2;
-    return [for (var i = 0; i < n; i++) Rect.fromLTWH(left + i * (w + gap), top, w, bottom - top)];
-  }
-
-  List<Rect> _answerRects() {
-    final q = _session?.question;
-    if (q == null || !_showsCards || !(_mech?.usesTouch ?? false)) return const [];
-    return _cardRects(q.options.length, withVisual: _withVisual);
+  /// Trạng thái hiện tại cho mini game vẽ; null khi không có câu hỏi.
+  PlayFrame? _frame() {
+    final s = _session;
+    final q = s?.question ?? s?.last?.question;
+    if (s == null || q == null) return null;
+    return PlayFrame(
+      level: _level,
+      question: q,
+      mechanic: _mech,
+      feedback: s.phase == SessionPhase.feedback ? s.last : null,
+      body: _motion?.body,
+      pose: _motion?.smoothed ?? lastFrame,
+      camera: _camera,
+      time: _time,
+    );
   }
 
   List<Rect> _menuRects() {
@@ -322,15 +314,23 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
         _startSession();
       case _Stage.playing:
         final s = _session!;
+        if (GameHud.cardRect.contains(stagePoint) && s.question != null) {
+          // Chạm thẻ đề: đọc lại đề.
+          unawaited(_app.audio.say(s.question!.speech));
+          return;
+        }
         if (s.phase == SessionPhase.feedback) {
           s.skipFeedback();
           return;
         }
-        final q = s.question;
-        if (q == null || !_showsCards) return;
-        final rects = _cardRects(q.options.length, withVisual: _withVisual);
+        final f = _frame();
+        if (f == null || s.phase != SessionPhase.asking) return;
+        final rects = _view.tapTargets(f);
         for (var i = 0; i < rects.length; i++) {
-          if (rects[i].contains(stagePoint)) s.answer(i);
+          if (rects[i].contains(stagePoint)) {
+            s.answer(i);
+            return;
+          }
         }
       case _Stage.result:
       case _Stage.limit:
@@ -358,37 +358,21 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
             child: TvStage(
               child: Stack(
                 children: [
-                  ..._content(),
-                  Positioned(
-                    right: TvLayout.safeX,
-                    bottom: 20,
-                    width: 150,
-                    height: 150,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: TvdColors.ink.withAlpha(140),
-                        borderRadius: BorderRadius.circular(TvdRadius.md),
-                      ),
-                      child: CustomPaint(painter: SkeletonPainter(lastFrame)),
-                    ),
-                  ),
+                  ..._content(context),
                   if (_handsVisible)
                     Positioned.fill(
                       child: IgnorePointer(
                         child: CustomPaint(
-                          painter: HandCursorPainter(
-                            hands: _hands.both,
-                            activePoint: _activePoint,
-                            progress: _activeProgress,
-                          ),
+                          painter: HandCursors(hands: _hands.both, active: _activePoint, progress: _activeProgress),
                         ),
                       ),
                     ),
                   Positioned(
-                    left: 24,
-                    top: 24,
+                    left: 16,
+                    bottom: 16,
                     child: IconButton.filledTonal(
-                      iconSize: 40,
+                      iconSize: 36,
+                      tooltip: 'Thoát',
                       onPressed: _exit,
                       icon: const Icon(Icons.close),
                     ),
@@ -412,205 +396,109 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   Offset? get _activePoint => _phase == _Stage.playing ? _mech?.activePoint : _menuTouch.activePoint;
   double get _activeProgress => _phase == _Stage.playing ? (_mech?.progress ?? 0) : _menuTouch.progress;
 
-  List<Widget> _content() => switch (_phase) {
-        _Stage.intro => [_intro()],
-        _Stage.playing => _playing(),
+  List<Widget> _content(BuildContext context) => switch (_phase) {
+        _Stage.intro => _intro(context),
+        _Stage.playing => _playing(context),
         _Stage.result || _Stage.limit => _resultView(),
         _Stage.rest => [_rest()],
       };
 
   Widget _centered(Widget child) => Positioned.fill(child: Center(child: child));
 
-  Widget _intro() {
+  String get _startText {
+    if (!_camera) return poseError != null ? 'Chạm màn hình để bắt đầu' : 'Đang mở camera…';
+    return _motion?.body != null ? 'Giơ hai tay lên để bắt đầu' : 'Con đứng vào giữa khung hình nhé!';
+  }
+
+  List<Widget> _intro(BuildContext context) {
     final progress = _motion?.calibrationProgress ?? 0;
-    final seen = _motion?.body != null;
-    return _centered(Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text('${widget.topic.title} · Level ${_level.level}', style: TvText.prompt, textAlign: TextAlign.center),
-        const SizedBox(height: TvdSpace.s6),
-        const TinTin(state: TinTinState.raiseBoth, size: 320),
-        const SizedBox(height: TvdSpace.s6),
-        Text(
-          !_camera
-              ? (poseError != null ? 'Chạm màn hình để bắt đầu' : 'Đang mở camera…')
-              : (seen ? 'Giơ hai tay lên để bắt đầu!' : 'Con đứng vào giữa khung hình nhé!'),
-          style: TvText.question,
+    final custom = _view.intro(context, _level, _time);
+    if (custom != null) {
+      return [
+        ...custom,
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 40,
+          child: Center(
+            child: Container(
+              height: 110,
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              decoration: BoxDecoration(
+                color: TvdColors.answerA,
+                borderRadius: BorderRadius.circular(TvdRadius.pill),
+                boxShadow: TvdShadow.tv(TvdColors.answerADark),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(_startText, style: TvText.button.copyWith(color: TvdColors.white, fontSize: 60, height: 1)),
+                  if (_camera && progress > 0) ...[
+                    const SizedBox(width: 32),
+                    SizedBox(
+                      width: 70,
+                      height: 70,
+                      child: CircularProgressIndicator(value: progress, strokeWidth: 12, color: TvdColors.white),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
         ),
-        if (_camera && progress > 0) ...[
+      ];
+    }
+    return [
+      _centered(Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('${widget.topic.title} · Level ${_level.level}', style: TvText.prompt, textAlign: TextAlign.center),
+          Text(MiniGames.title(_level.miniGame), style: TvText.label.copyWith(color: TvdColors.inkSoft)),
           const SizedBox(height: TvdSpace.s5),
-          SizedBox(
-            width: 600,
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 24,
-              color: TvdColors.correct,
-              backgroundColor: TvdColors.white,
-            ),
-          ),
-        ],
-      ],
-    ));
-  }
-
-  List<Widget> _playing() {
-    final s = _session!;
-    final q = s.question ?? s.last?.question;
-    if (q == null) return const [];
-    final feedback = s.phase == SessionPhase.feedback ? s.last : null;
-    final mech = _mech;
-    final widgets = <Widget>[
-      Positioned(
-        left: 140,
-        right: TvLayout.safeX,
-        top: 40,
-        child: PlayTopBar(
-          index: s.index,
-          total: s.total,
-          score: s.score,
-          streak: s.streak,
-          remaining: s.remainingFraction,
-        ),
-      ),
-    ];
-
-    // Đề bài, hoặc bảng phản hồi khi vừa trả lời.
-    if (feedback != null) {
-      final msg = SessionFeedback.forRecord(feedback);
-      widgets.add(Positioned(
-        left: TvLayout.safeX,
-        right: TvLayout.safeX,
-        top: 130,
-        height: 300,
-        child: Center(
-          child: FeedbackPanel(
-            correct: feedback.correct,
-            title: msg.title,
-            body: msg.body,
-            points: feedback.points,
-          ),
-        ),
-      ));
-    } else {
-      widgets.add(Positioned(
-        left: TvLayout.safeX,
-        right: TvLayout.safeX,
-        top: 150,
-        child: Text(
-          q.prompt,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          style: TvText.question,
-        ),
-      ));
-      if (_withVisual) {
-        widgets.add(Positioned(
-          left: 200,
-          right: 200,
-          top: 300,
-          height: 240,
-          child: Center(child: QuestionVisual(question: q)),
-        ));
-      }
-    }
-
-    if (_showsCards) {
-      final rects = _cardRects(q.options.length, withVisual: _withVisual && feedback == null);
-      final stepHints = mech?.kind == MechanicKind.step && _level.hints == HintLevel.easy && q.options.length == 2;
-      for (var i = 0; i < q.options.length; i++) {
-        var mark = CardMark.none;
-        if (feedback != null) {
-          mark = i == q.answer ? CardMark.correct : (i == feedback.chosen ? CardMark.wrongPick : CardMark.dimmed);
-        } else if (mech?.aimed == i) {
-          mark = CardMark.aimed;
-        }
-        widgets.add(Positioned.fromRect(
-          rect: rects[i],
-          child: AnswerCard(
-            slot: i,
-            label: q.options[i],
-            mark: mark,
-            progress: feedback == null && mech?.aimed == i ? mech!.progress : 0,
-            caption: stepHints ? (i == 0 ? '◀ TRÁI' : 'PHẢI ▶') : null,
-          ),
-        ));
-      }
-    } else if (feedback == null && mech != null) {
-      widgets.add(_motionPanel(mech));
-    }
-
-    final hint = feedback == null ? mech?.hint ?? _coverageHint(mech) : null;
-    if (hint != null) {
-      widgets.add(Positioned(
-        left: 0,
-        right: 0,
-        bottom: 190,
-        child: Text(hint, textAlign: TextAlign.center, style: TvText.prompt.copyWith(color: TvdColors.encourageDark)),
-      ));
-    }
-    if (!_camera && feedback == null && !_showsCards) widgets.add(_devButtons());
-    return widgets;
-  }
-
-  String? _coverageHint(AnswerMechanic? mech) {
-    final m = _motion;
-    if (!_camera || m == null || m.body == null || mech == null || !mech.needsCalibration) return null;
-    return m.coverage.feet ? null : 'Con lùi lại một chút để thấy cả chân nhé!';
-  }
-
-  /// Mini game không có ô đáp án: hiện tiến độ động tác.
-  Widget _motionPanel(AnswerMechanic mech) {
-    final Widget body = switch (mech) {
-      CountMechanic(:final count, :final target) => Text('$count / $target', style: TvText.bigCounter),
-      ClockMechanic(:final reading) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const TinTin(state: TinTinState.raiseBoth, size: 220),
-            Text(
-              reading == null
-                  ? 'Tay trái là kim giờ, tay phải là kim phút'
-                  : 'Con đang chỉ ${reading.minute == 0 ? '${reading.hour} giờ' : '${reading.hour} giờ ${reading.minute} phút'}',
-              style: TvText.prompt,
-            ),
-          ],
-        ),
-      _ => TinTin(state: _demoPose(), size: 280),
-    };
-    return Positioned(
-      left: 0,
-      right: 0,
-      top: 380,
-      height: 480,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            body,
+          const TinTin(state: TinTinState.raiseBoth, size: 300),
+          const SizedBox(height: TvdSpace.s5),
+          Text(_startText, style: TvText.question),
+          if (_camera && progress > 0) ...[
             const SizedBox(height: TvdSpace.s5),
             SizedBox(
-              width: 700,
+              width: 600,
               child: LinearProgressIndicator(
-                value: mech.progress,
+                value: progress,
                 minHeight: 24,
                 color: TvdColors.correct,
                 backgroundColor: TvdColors.white,
               ),
             ),
           ],
-        ),
-      ),
-    );
+        ],
+      )),
+    ];
   }
 
-  /// Tin Tin làm mẫu (chỉ ở mức gợi ý dễ).
-  TinTinState _demoPose() {
-    final q = _session?.question;
-    if (q == null || _level.hints == HintLevel.hard) return TinTinState.hello;
-    final left = q.data['left'] == 'up', right = q.data['right'] == 'up';
-    if (left && right) return TinTinState.raiseBoth;
-    if (left) return TinTinState.raiseLeft;
-    if (right) return TinTinState.raiseRight;
-    return TinTinState.hello;
+  List<Widget> _playing(BuildContext context) {
+    final s = _session!;
+    final f = _frame();
+    if (f == null) return const [];
+    final cam = _view.camTile(f);
+    return [
+      ..._view.scene(context, f),
+      if (cam != null) cam,
+      Positioned.fill(
+        child: IgnorePointer(
+          child: GameHud(
+            index: s.index,
+            total: s.total,
+            score: s.score,
+            streak: s.streak,
+            prompt: f.question.prompt,
+            keyword: _view.keyword(f),
+            remaining: s.remainingFraction,
+            easy: _level.miniGame == MiniGames.simonSays ? f.easy : null,
+          ),
+        ),
+      ),
+      if (!_camera && f.answering && _view.tapTargets(f).isEmpty) _devButtons(),
+    ];
   }
 
   /// Máy không có camera: nút thay động tác để thử luồng.

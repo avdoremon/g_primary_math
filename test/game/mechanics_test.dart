@@ -141,10 +141,28 @@ void main() {
 
   test('T – giơ tay phải giữ 0,6 giây chọn "Tay phải", hai tay chọn "Hai tay"', () {
     final e = calibrated();
-    expect(drive(ArmChoiceMechanic(), e, (_) => SimPose(rightArm: 10), 1).first, const ChooseOption(1));
-    expect(drive(ArmChoiceMechanic(), e, (_) => SimPose(leftArm: 350), 1).first, const ChooseOption(0));
-    expect(drive(ArmChoiceMechanic(), e, (_) => SimPose(leftArm: 0, rightArm: 0), 1).first, const ChooseOption(2));
-    expect(drive(ArmChoiceMechanic(), e, (_) => SimPose(), 1), isEmpty, reason: 'buông tay thì không chọn');
+    expect(drive(ArmChoiceMechanic(expected: 1), e, (_) => SimPose(rightArm: 10), 1).first, const ChooseOption(1));
+    expect(drive(ArmChoiceMechanic(expected: 0), e, (_) => SimPose(leftArm: 350), 1).first, const ChooseOption(0));
+    expect(
+      drive(ArmChoiceMechanic(expected: 2), e, (_) => SimPose(leftArm: 0, rightArm: 0), 1).first,
+      const ChooseOption(2),
+    );
+    expect(drive(ArmChoiceMechanic(expected: 1), e, (_) => SimPose(), 1), isEmpty, reason: 'buông tay thì không chọn');
+  });
+
+  test('T – giơ thừa tay: nhắc "Hạ tay này xuống", cho 3 giây sửa', () {
+    final e = calibrated();
+    final m = ArmChoiceMechanic(expected: 1);
+    // Giơ cả hai tay khi đề là tay phải: chưa tính sai trong 2 giây.
+    expect(drive(m, e, (_) => SimPose(leftArm: 0, rightArm: 0), 2), isEmpty);
+    expect(m.hint, 'Hạ tay này xuống');
+    expect(m.fixArm, isFalse, reason: 'tay trái là tay thừa');
+    // Hạ tay trái xuống kịp: tính đúng.
+    expect(drive(m, e, (_) => SimPose(rightArm: 0), 1.2), [const ChooseOption(1)]);
+
+    // Không sửa: sau 3 giây mới tính là chọn "Hai tay".
+    final slow = ArmChoiceMechanic(expected: 1);
+    expect(drive(slow, e, (_) => SimPose(leftArm: 0, rightArm: 0), 3.5), [const ChooseOption(2)]);
   });
 
   test('T – Đồng hồ người: chỉ đúng 3 giờ thì đúng, chỉ 6 giờ thì chưa', () {

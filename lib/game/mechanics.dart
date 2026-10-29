@@ -123,7 +123,7 @@ abstract class AnswerMechanic {
         side: q.data['side'] == 'left' ? StepSide.left : StepSide.right,
       );
     }
-    if (type == 'pose' && q.options.length == 3) return ArmChoiceMechanic();
+    if (type == 'pose' && q.options.length == 3) return ArmChoiceMechanic(expected: q.answer);
     if (type == 'step' && q.options.length == 2) return StepMechanic();
     if (level.miniGame == MiniGames.jumpCount && jumps is int) return CountMechanic(target: jumps);
     if (level.miniGame == MiniGames.humanClock && hour is int && minute is int) {
@@ -271,19 +271,44 @@ class CountMechanic extends AnswerMechanic {
 
 // ------------------------------------------------------------------ T
 
-/// Giơ tay trái → đáp án 0, tay phải → 1, hai tay → 2 (thứ tự ô của dạng bài "position/pose").
+/// Lệnh tạo dáng của "Con nói, con làm": giơ tay trái → đáp án 0, tay phải → 1, hai tay → 2.
+///
+/// Theo design G7-2b: làm đúng tư thế và giữ [holdSeconds] giây thì tính đúng. Làm sai thì KHÔNG tính sai ngay:
+/// tay thừa/thiếu được nhắc ("Hạ tay này xuống" / "Giơ tay này lên"), cho [graceSeconds] giây để sửa;
+/// hết thời gian sửa mà vẫn sai mới tính là chọn tư thế đó.
 class ArmChoiceMechanic extends AnswerMechanic {
-  ArmChoiceMechanic({this.holdSeconds = 0.6});
+  ArmChoiceMechanic({required this.expected, this.holdSeconds = 0.6, this.graceSeconds = 3});
 
+  final int expected;
   final double holdSeconds;
+  final double graceSeconds;
+
   int? _pose;
   double _held = 0;
+  double _wrongHeld = 0;
+  bool _done = false;
+
+  /// Tay bé đang giơ (theo tay thật, đã lật gương nên trái = bên trái màn hình).
+  bool leftUp = false;
+  bool rightUp = false;
+
+  /// Tay cần sửa: true = tay phải, false = tay trái, null = không có.
+  bool? fixArm;
+
+  /// Tay cần sửa đang giơ thừa (phải hạ xuống) hay đang thiếu (phải giơ lên).
+  bool fixLower = true;
+
+  bool get wantLeft => expected == 0 || expected == 2;
+  bool get wantRight => expected == 1 || expected == 2;
 
   @override
   MechanicKind get kind => MechanicKind.armChoice;
 
   @override
-  double get progress => _pose == null ? 0 : (_held / holdSeconds).clamp(0.0, 1.0).toDouble();
+  double get progress => _pose == expected ? (_held / holdSeconds).clamp(0.0, 1.0).toDouble() : 0;
+
+  @override
+  String? get hint => fixArm == null ? null : (fixLower ? 'Hạ tay này xuống' : 'Giơ tay này lên');
 
   /// Tư thế đang thấy: 0 tay trái, 1 tay phải, 2 hai tay, null không rõ / chưa giơ.
   static int? poseOf(BodySnapshot body) {
@@ -297,21 +322,53 @@ class ArmChoiceMechanic extends AnswerMechanic {
 
   @override
   MechanicSignal? update(MechanicInput input) {
+    if (_done) return null;
     final body = input.body;
+    leftUp = body?.armRaised(right: false) ?? false;
+    rightUp = body?.armRaised(right: true) ?? false;
     final pose = body == null ? null : poseOf(body);
+
+    // Nhắc tay cần sửa khi bé đã giơ ít nhất một tay.
+    fixArm = null;
+    if (leftUp || rightUp) {
+      if (leftUp && !wantLeft) {
+        fixArm = false;
+        fixLower = true;
+      } else if (rightUp && !wantRight) {
+        fixArm = true;
+        fixLower = true;
+      } else if (!leftUp && wantLeft) {
+        fixArm = false;
+        fixLower = false;
+      } else if (!rightUp && wantRight) {
+        fixArm = true;
+        fixLower = false;
+      }
+    }
+
     if (pose != _pose) {
       _pose = pose;
       _held = 0;
+    }
+    if (pose == null) {
+      _wrongHeld = 0;
       return null;
     }
-    if (pose == null) return null;
-    _held += input.dt;
-    if (_held >= holdSeconds) {
-      _held = 0;
-      _pose = null;
-      return ChooseOption(pose);
+    if (pose == expected) {
+      _wrongHeld = 0;
+      _held += input.dt;
+      if (_held >= holdSeconds) return _finish(pose);
+      return null;
     }
+    _wrongHeld += input.dt;
+    if (_wrongHeld >= graceSeconds) return _finish(pose);
     return null;
+  }
+
+  MechanicSignal _finish(int pose) {
+    _done = true;
+    fixArm = null;
+    return ChooseOption(pose);
   }
 }
 
