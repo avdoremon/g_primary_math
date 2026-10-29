@@ -233,7 +233,7 @@
     },
     {
       "id": "g2-cong-tru-100",
-      "title": "Phép cộng, phép trừ (có nhớ) trong phạm vi 100",
+      "title": "Phép cộng, phép trừ có nhớ trong phạm vi 100",
       "sgkOrder": 4,
       "icon": "add_sub",
       "levels": [
@@ -480,6 +480,93 @@
               "read",
               "month_days",
               "weekday"
+            ],
+            "minutes": [
+              0,
+              15,
+              30
+            ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-on-tap-hk1",
+      "title": "Ôn tập học kì I",
+      "sgkOrder": 7,
+      "icon": "review",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "add_sub",
+          "params": {
+            "max": 20,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 100,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "quadrilateral",
+              "triangle",
+              "circle",
+              "polyline",
+              "segment"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "unit_choose",
+          "params": {
+            "ask": "unit"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "time",
+          "params": {
+            "ask": [
+              "read",
+              "month_days"
             ],
             "minutes": [
               0,
@@ -984,6 +1071,85 @@
             "rows": 4
           },
           "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g2-on-tap-cuoi-nam",
+      "title": "Ôn tập cuối năm",
+      "sgkOrder": 14,
+      "icon": "review",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "compare",
+          "params": {
+            "max": 1000,
+            "format": "sign"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 1000,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "allowed"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "mul_div",
+          "params": {
+            "tables": [
+              2,
+              5
+            ],
+            "ops": [
+              "×",
+              ":"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "pictograph",
+          "params": {
+            "ask": [
+              "count",
+              "most",
+              "least"
+            ],
+            "rows": 3
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "likelihood",
+          "params": {},
+          "answers": 3,
           "miniGame": "balloon"
         }
       ]

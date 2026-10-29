@@ -248,7 +248,7 @@
     },
     {
       "id": "g1-hinh-khoi-vi-tri",
-      "title": "Hình khối. Vị trí, định hướng trong không gian",
+      "title": "Làm quen với một số hình khối",
       "sgkOrder": 4,
       "icon": "position",
       "levels": [
@@ -332,6 +332,86 @@
           },
           "answers": 3,
           "miniGame": "simon_says"
+        }
+      ]
+    },
+    {
+      "id": "g1-on-tap-hk1",
+      "title": "Ôn tập học kì I",
+      "sgkOrder": 5,
+      "icon": "review",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "count_objects",
+          "params": {
+            "max": 10
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 10,
+            "ops": [
+              "+",
+              "-"
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "compare",
+          "params": {
+            "max": 10,
+            "format": "sign"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "shape_identify",
+          "params": {
+            "shapes": [
+              "square",
+              "circle",
+              "triangle",
+              "rectangle",
+              "cube",
+              "cuboid"
+            ]
+          },
+          "answers": 4,
+          "miniGame": "shape_hunt"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "word_problem",
+          "params": {
+            "max": 10,
+            "kinds": [
+              "add",
+              "sub"
+            ],
+            "ask": "mixed"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
         }
       ]
     },
@@ -555,7 +635,7 @@
     },
     {
       "id": "g1-thoi-gian",
-      "title": "Thời gian. Giờ và lịch",
+      "title": "Thời gian, giờ và lịch",
       "sgkOrder": 9,
       "icon": "time",
       "levels": [
@@ -633,6 +713,91 @@
             "minutes": [
               0
             ]
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        }
+      ]
+    },
+    {
+      "id": "g1-on-tap-cuoi-nam",
+      "title": "Ôn tập cuối năm",
+      "sgkOrder": 10,
+      "icon": "review",
+      "levels": [
+        {
+          "level": 1,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "add_sub",
+          "params": {
+            "max": 10,
+            "ops": [
+              "+",
+              "-"
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 2,
+          "questions": 10,
+          "secondsPerQuestion": 12,
+          "generator": "add_sub",
+          "params": {
+            "max": 100,
+            "ops": [
+              "+",
+              "-"
+            ],
+            "carry": "none"
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 3,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "order_numbers",
+          "params": {
+            "max": 100,
+            "count": 4,
+            "ask": "mixed"
+          },
+          "answers": 4,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 4,
+          "questions": 10,
+          "secondsPerQuestion": 10,
+          "generator": "time",
+          "params": {
+            "ask": [
+              "read",
+              "weekday"
+            ],
+            "minutes": [
+              0
+            ]
+          },
+          "answers": 3,
+          "miniGame": "balloon"
+        },
+        {
+          "level": 5,
+          "questions": 10,
+          "secondsPerQuestion": 15,
+          "generator": "word_problem",
+          "params": {
+            "max": 100,
+            "kinds": [
+              "add",
+              "sub"
+            ],
+            "ask": "mixed"
           },
           "answers": 4,
           "miniGame": "balloon"

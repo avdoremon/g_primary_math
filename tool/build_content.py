@@ -1,7 +1,10 @@
 """Sinh assets/content/grade1.json và grade2.json.
 
 Sửa chương trình ở đây rồi chạy:  python3 tool/build_content.py
-Thứ tự chủ đề theo SGK Toán Kết nối tri thức với cuộc sống (cần đối chiếu mục lục bản 2026–2027).
+Thứ tự và tên chủ đề theo SGK Toán Kết nối tri thức với cuộc sống (sgkOrder = số thứ tự chủ đề trong sách):
+- Toán 1: 10 chủ đề (5 = Ôn tập học kì I, 10 = Ôn tập cuối năm)
+- Toán 2: 14 chủ đề (7 = Ôn tập học kì I, 14 = Ôn tập cuối năm)
+Đã đối chiếu với kế hoạch dạy học Toán 1, Toán 2 bộ Kết nối tri thức (hoatieu.vn) ngày 29/10/2026.
 """
 import json, os
 
@@ -44,12 +47,19 @@ grade1 = {"grade": 1, "title": "Lớp 1", "topics": [
         ("word_problem", "balloon", 3, {"max": 10, "kinds": ["add", "sub"], "ask": "mixed"}, 20),
         ("add_sub", "balloon", 4, {"max": 10, "ops": ["+", "-"], "terms": 3}),
     ]),
-    topic("g1-hinh-khoi-vi-tri", "Hình khối. Vị trí, định hướng trong không gian", 4, "position", [
+    topic("g1-hinh-khoi-vi-tri", "Làm quen với một số hình khối", 4, "position", [
         ("shape_identify", "shape_hunt", 2, {"shapes": ["cube", "cuboid"]}, 15),
         ("position", "simon_says", 3, {"types": ["pose"]}, 12),
         ("position", "simon_says", 2, {"types": ["step"]}, 12),
         ("position", "simon_says", 3, {"types": ["touch"], "scenes": ["shelf", "table", "tree", "box"]}, 12),
         ("position", "simon_says", 3, {"types": ["pose", "step", "touch", "compound"], "scenes": ["shelf", "table", "tree", "box"]}, 12),
+    ]),
+    topic("g1-on-tap-hk1", "Ôn tập học kì I", 5, "review", [
+        ("count_objects", "balloon", 3, {"max": 10}),
+        ("add_sub", "balloon", 3, {"max": 10, "ops": ["+", "-"]}),
+        ("compare", "balloon", 3, {"max": 10, "format": "sign"}),
+        ("shape_identify", "shape_hunt", 4, {"shapes": ["square", "circle", "triangle", "rectangle", "cube", "cuboid"]}, 10),
+        ("word_problem", "balloon", 3, {"max": 10, "kinds": ["add", "sub"], "ask": "mixed"}, 15),
     ]),
     topic("g1-so-den-100", "Các số đến 100", 6, "numbers", [
         ("count_objects", "balloon", 3, {"max": 20}),
@@ -72,12 +82,19 @@ grade1 = {"grade": 1, "title": "Lớp 1", "topics": [
         ("add_sub", "sides", 2, {"max": 100, "ops": ["+", "-"], "carry": "none", "format": "true_false"}),
         ("word_problem", "balloon", 4, {"max": 100, "kinds": ["add", "sub"], "ask": "mixed"}, 15),
     ]),
-    topic("g1-thoi-gian", "Thời gian. Giờ và lịch", 9, "time", [
+    topic("g1-thoi-gian", "Thời gian, giờ và lịch", 9, "time", [
         ("time", "balloon", 2, {"ask": ["read"], "minutes": [0]}),
         ("time", "balloon", 3, {"ask": ["read"], "minutes": [0]}),
         ("time", "balloon", 3, {"ask": ["weekday"]}, 12),
         ("time", "human_clock", 1, {"ask": ["pose"], "minutes": [0]}, 20),
         ("time", "balloon", 4, {"ask": ["read", "weekday"], "minutes": [0]}, 8),
+    ]),
+    topic("g1-on-tap-cuoi-nam", "Ôn tập cuối năm", 10, "review", [
+        ("add_sub", "balloon", 3, {"max": 10, "ops": ["+", "-"]}),
+        ("add_sub", "balloon", 3, {"max": 100, "ops": ["+", "-"], "carry": "none"}),
+        ("order_numbers", "balloon", 4, {"max": 100, "count": 4, "ask": "mixed"}, 10),
+        ("time", "balloon", 3, {"ask": ["read", "weekday"], "minutes": [0]}, 10),
+        ("word_problem", "balloon", 4, {"max": 100, "kinds": ["add", "sub"], "ask": "mixed"}, 15),
     ]),
 ]}
 
@@ -103,7 +120,7 @@ grade2 = {"grade": 2, "title": "Lớp 2", "topics": [
         ("length_compare", "sides", 2, {"measure": "weight"}),
         ("unit_choose", "balloon", 4, {"ask": "mixed"}, 10),
     ]),
-    topic("g2-cong-tru-100", "Phép cộng, phép trừ (có nhớ) trong phạm vi 100", 4, "add_sub", [
+    topic("g2-cong-tru-100", "Phép cộng, phép trừ có nhớ trong phạm vi 100", 4, "add_sub", [
         ("add_sub", "balloon", 2, {"max": 100, "ops": ["+", "-"], "round": "tens"}),
         ("add_sub", "balloon", 3, {"max": 100, "ops": ["+"], "carry": "required"}),
         ("add_sub", "balloon", 3, {"max": 100, "ops": ["-"], "carry": "required"}),
@@ -123,6 +140,13 @@ grade2 = {"grade": 2, "title": "Lớp 2", "topics": [
         ("time", "human_clock", 1, {"ask": ["pose"], "minutes": [0, 15, 30]}, 20),
         ("time", "balloon", 3, {"ask": ["month_days"]}, 10),
         ("time", "balloon", 4, {"ask": ["read", "month_days", "weekday"], "minutes": [0, 15, 30]}, 8),
+    ]),
+    topic("g2-on-tap-hk1", "Ôn tập học kì I", 7, "review", [
+        ("add_sub", "balloon", 3, {"max": 20, "ops": ["+", "-"], "carry": "allowed"}),
+        ("add_sub", "balloon", 3, {"max": 100, "ops": ["+", "-"], "carry": "allowed"}, 12),
+        ("shape_identify", "shape_hunt", 4, {"shapes": ["quadrilateral", "triangle", "circle", "polyline", "segment"]}, 10),
+        ("unit_choose", "balloon", 3, {"ask": "unit"}, 12),
+        ("time", "balloon", 4, {"ask": ["read", "month_days"], "minutes": [0, 15, 30]}, 10),
     ]),
     topic("g2-nhan-chia", "Phép nhân, phép chia", 8, "mul_div", [
         ("skip_count", "jump_count", 1, {"steps": [2, 5], "format": "jump", "minJumps": 3, "maxJumps": 6}, 30),
@@ -165,6 +189,13 @@ grade2 = {"grade": 2, "title": "Lớp 2", "topics": [
         ("pictograph", "balloon", 4, {"ask": ["difference"], "rows": 4}, 15),
         ("likelihood", "balloon", 3, {}, 15),
         ("pictograph", "balloon", 4, {"ask": ["count", "most", "least", "difference"], "rows": 4}, 10),
+    ]),
+    topic("g2-on-tap-cuoi-nam", "Ôn tập cuối năm", 14, "review", [
+        ("compare", "balloon", 3, {"max": 1000, "format": "sign"}),
+        ("add_sub", "balloon", 4, {"max": 1000, "ops": ["+", "-"], "carry": "allowed"}, 12),
+        ("mul_div", "balloon", 4, {"tables": [2, 5], "ops": ["×", ":"]}, 10),
+        ("pictograph", "balloon", 3, {"ask": ["count", "most", "least"], "rows": 3}, 12),
+        ("likelihood", "balloon", 3, {}, 12),
     ]),
 ]}
 

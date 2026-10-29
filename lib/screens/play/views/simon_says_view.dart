@@ -125,8 +125,16 @@ class SimonSaysView extends MiniGameView {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: TvText.button.copyWith(fontSize: 64, height: 1.05)),
-                      Text(sub, style: TvText.label.copyWith(fontSize: 40, color: TvdColors.inkSoft)),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(title, maxLines: 1, style: TvText.button.copyWith(fontSize: 64, height: 1.05)),
+                      ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(sub, maxLines: 1, style: TvText.label.copyWith(fontSize: 40, color: TvdColors.inkSoft)),
+                      ),
                     ],
                   ),
                 ),
