@@ -96,6 +96,43 @@ dependencies {
     throw "Khong tim thay android/app/build.gradle(.kts)"
 }
 
+# 3b. Giu lop MediaPipe khi build release (R8), them mot lan
+if (Test-Path $kts) {
+    $c = Get-Content $kts -Raw
+    if ($c -notmatch "proguard-rules\.pro") {
+        $c += @"
+
+// --- Toan Van Dong: giu lop MediaPipe khi build release ---
+android {
+    buildTypes {
+        getByName("release") {
+            proguardFiles("proguard-rules.pro")
+        }
+    }
+}
+"@
+        Write-Utf8NoBom $kts $c
+        Write-Host ">> Da them proguard-rules.pro vao $kts"
+    }
+} elseif (Test-Path $groovy) {
+    $c = Get-Content $groovy -Raw
+    if ($c -notmatch "proguard-rules\.pro") {
+        $c += @"
+
+// --- Toan Van Dong: giu lop MediaPipe khi build release ---
+android {
+    buildTypes {
+        release {
+            proguardFiles 'proguard-rules.pro'
+        }
+    }
+}
+"@
+        Write-Utf8NoBom $groovy $c
+        Write-Host ">> Da them proguard-rules.pro vao $groovy"
+    }
+}
+
 # 4. Tai mo hinh MediaPipe Pose (lite + full)
 $assets = "android/app/src/main/assets"
 New-Item -ItemType Directory -Force -Path $assets | Out-Null
