@@ -11,6 +11,7 @@ import 'hud.dart';
 import 'views/cards_view.dart';
 import 'views/line_angle_views.dart';
 import 'views/motion_views.dart';
+import 'views/new_game_views.dart';
 import 'views/simon_says_view.dart';
 
 /// Trạng thái màn chơi ở một khung hình, đưa cho mini game vẽ cảnh.
@@ -62,6 +63,14 @@ abstract class MiniGameView {
         MiniGames.simonSays => const SimonSaysView(),
         MiniGames.armAngle => const ArmAngleView(),
         MiniGames.numberLine => const NumberLineView(),
+        MiniGames.hopTiles => const NumberLineView(variant: LaneVariant.hop),
+        MiniGames.starCatch => const NumberLineView(variant: LaneVariant.star),
+        MiniGames.touchOrder => const OrderTouchView(),
+        MiniGames.tintinSays => const CardsView(captions: ['TAY TRÁI', 'TAY PHẢI', 'HAI TAY']),
+        MiniGames.balance => const BalanceView(),
+        MiniGames.runRace => const RunRaceView(),
+        MiniGames.clapCount => const JumpCountView(clap: true),
+        MiniGames.squatGate => const GateView(),
         _ => const CardsView(),
       };
 

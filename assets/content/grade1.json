@@ -46,7 +46,7 @@
             "ask": "mixed"
           },
           "answers": 2,
-          "miniGame": "sides"
+          "miniGame": "balance"
         },
         {
           "level": 4,
@@ -195,7 +195,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 3,
@@ -211,7 +211,7 @@
             "format": "true_false"
           },
           "answers": 2,
-          "miniGame": "sides"
+          "miniGame": "squat_gate"
         },
         {
           "level": 4,
@@ -351,7 +351,7 @@
             "max": 10
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 2,
@@ -366,7 +366,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 3,
@@ -443,7 +443,7 @@
             "max": 100
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 3,
@@ -467,7 +467,7 @@
             "ask": "mixed"
           },
           "answers": 2,
-          "miniGame": "sides"
+          "miniGame": "balance"
         },
         {
           "level": 5,
@@ -477,10 +477,10 @@
           "params": {
             "max": 100,
             "count": 4,
-            "ask": "mixed"
+            "ask": "order"
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "touch_order"
         }
       ]
     },
@@ -499,7 +499,7 @@
             "measure": "length"
           },
           "answers": 2,
-          "miniGame": "sides"
+          "miniGame": "balance"
         },
         {
           "level": 2,
@@ -510,7 +510,7 @@
             "measure": "length"
           },
           "answers": 2,
-          "miniGame": "sides"
+          "miniGame": "run_race"
         },
         {
           "level": 3,
@@ -521,7 +521,7 @@
             "measure": "length"
           },
           "answers": 2,
-          "miniGame": "sides"
+          "miniGame": "balance"
         },
         {
           "level": 4,
@@ -532,7 +532,7 @@
             "measure": "length"
           },
           "answers": 2,
-          "miniGame": "sides"
+          "miniGame": "run_race"
         },
         {
           "level": 5,
@@ -582,7 +582,7 @@
             "carry": "none"
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 3,

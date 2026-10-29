@@ -40,6 +40,9 @@ class BodySnapshot {
   /// Bề rộng vai (pixel). Đơn vị chuẩn để so khoảng cách ngang.
   double get shoulderWidth => (point(PoseIdx.leftShoulder) - point(PoseIdx.rightShoulder)).distance;
 
+  /// Độ nghiêng người: tâm vai lệch khỏi tâm hông theo bề rộng vai (âm = nghiêng sang trái màn hình).
+  double get leanOffset => shoulderWidth == 0 ? 0 : (shoulderCenter.dx - hipCenter.dx) / shoulderWidth;
+
   /// Chiều dài thân: tâm vai → tâm hông (pixel). Đơn vị chuẩn để so khoảng cách dọc.
   double get torsoLength => (shoulderCenter - hipCenter).distance;
 

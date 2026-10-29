@@ -12,7 +12,10 @@ import '../visuals.dart';
 /// Mini game mặc định: hình minh hoạ (nếu có) và ô đáp án lớn hàng ngang (2–4 ô).
 /// Phản hồi hiện ở thẻ đề của HUD.
 class CardsView extends MiniGameView {
-  const CardsView({this.bob = false});
+  const CardsView({this.bob = false, this.captions});
+
+  /// Nhãn dưới từng ô (vd. Tin Tin nói: TAY TRÁI / TAY PHẢI / HAI TAY).
+  final List<String>? captions;
 
   /// Hình trong ô trôi lên xuống nhẹ (Săn hình).
   final bool bob;
@@ -101,7 +104,9 @@ class CardsView extends MiniGameView {
                 : null,
             mark: markFor(f, i),
             progress: f.answering && mech?.aimed == i ? mech!.progress : 0,
-            caption: stepHints ? (i == 0 ? '◀ TRÁI' : 'PHẢI ▶') : null,
+            caption: captions != null && i < captions!.length
+                ? captions![i]
+                : (stepHints ? (i == 0 ? '◀ TRÁI' : 'PHẢI ▶') : null),
           ),
         ));
       }

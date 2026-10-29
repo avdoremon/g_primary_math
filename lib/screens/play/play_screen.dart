@@ -225,14 +225,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
               unawaited(_app.audio.say(VietnameseNumber.read(n)));
             }
           }
-          switch (signal) {
-            case ChooseOption(:final option):
-              s.answer(option);
-            case ReportResult(:final correct):
-              s.answerResult(correct);
-            case null:
-              break;
-          }
+          _apply(signal);
         }
       case _Stage.result:
       case _Stage.limit:
@@ -418,6 +411,18 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
 
   // ------------------------------------------------------------------ chạm màn hình
 
+  void _apply(MechanicSignal? signal) {
+    final s = _session!;
+    switch (signal) {
+      case ChooseOption(:final option):
+        s.answer(option);
+      case ReportResult(:final correct):
+        s.answerResult(correct);
+      case null:
+        break;
+    }
+  }
+
   void _onTap(Offset stagePoint) {
     switch (_phase) {
       case _Stage.intro:
@@ -442,7 +447,12 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
         final rects = _view.tapTargets(f);
         for (var i = 0; i < rects.length; i++) {
           if (rects[i].contains(stagePoint)) {
-            s.answer(i);
+            final m = _mech;
+            if (m is OrderTouchMechanic) {
+              _apply(m.pick(i));
+            } else {
+              s.answer(i);
+            }
             return;
           }
         }

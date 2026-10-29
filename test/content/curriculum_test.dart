@@ -7,6 +7,7 @@ import 'package:g_primary_math/content/generators/generator.dart';
 import 'package:g_primary_math/content/generators/registry.dart';
 import 'package:g_primary_math/content/question.dart';
 import 'package:g_primary_math/content/scoring.dart';
+import 'package:g_primary_math/game/mechanics.dart';
 
 Grade loadGrade(int n) => Grade.parse(File('assets/content/grade$n.json').readAsStringSync());
 
@@ -14,7 +15,7 @@ final _numeric = RegExp(r'^\d[\d ]*$');
 int? asInt(String s) => _numeric.hasMatch(s) ? int.parse(s.replaceAll(' ', '')) : null;
 
 /// Mini game không cần chọn đáp án (bé làm động tác), chỉ có một "đáp án".
-const _singleAnswerGames = {MiniGames.jumpCount, MiniGames.humanClock, MiniGames.armAngle};
+const _singleAnswerGames = {MiniGames.jumpCount, MiniGames.humanClock, MiniGames.armAngle, MiniGames.clapCount};
 
 void checkQuestion(Question q, Level level, String where) {
   expect(q.prompt.trim(), isNotEmpty, reason: '$where: đề trống');
@@ -65,6 +66,38 @@ void main() {
       });
     });
   }
+
+  group('Game vận động mới', () {
+    const expected = {
+      MiniGames.starCatch: MechanicKind.zone,
+      MiniGames.hopTiles: MechanicKind.zone,
+      MiniGames.touchOrder: MechanicKind.orderTouch,
+      MiniGames.tintinSays: MechanicKind.armChoice,
+      MiniGames.balance: MechanicKind.step,
+      MiniGames.runRace: MechanicKind.run,
+      MiniGames.squatGate: MechanicKind.gate,
+      MiniGames.clapCount: MechanicKind.count,
+    };
+
+    test('mọi level dùng game mới đều sinh câu hỏi khớp cơ chế của game', () {
+      final r = math.Random(11);
+      final used = <String>{};
+      for (final n in [1, 2, 3, 4, 5]) {
+        for (final t in loadGrade(n).topics) {
+          for (final l in t.levels) {
+            final kind = expected[l.miniGame];
+            if (kind == null) continue;
+            used.add(l.miniGame);
+            for (var i = 0; i < 100; i++) {
+              final q = l.generate(r);
+              expect(AnswerMechanic.forQuestion(l, q).kind, kind, reason: '${t.id} level ${l.level}: ${q.prompt}');
+            }
+          }
+        }
+      }
+      expect(used, expected.keys.toSet(), reason: 'mỗi game mới phải có ít nhất một level');
+    });
+  });
 
   group('Dạng bài cộng trừ', () {
     final g = Generators.find('add_sub')!;
