@@ -351,23 +351,30 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Nền trắng vẽ bằng Material (không phải DecoratedBox) để ListTile/công tắc bên trong
+    // hiện được hiệu ứng chạm; DecoratedBox ngoài chỉ vẽ bóng.
     return Container(
       margin: const EdgeInsets.only(bottom: TvdSpace.s3),
-      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: TvdColors.white,
         borderRadius: BorderRadius.circular(TvdRadius.md),
         boxShadow: TvdShadow.phone(TvdColors.cardShadow),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (title != null) ...[
-            Text(title!, style: PhoneText.title.copyWith(fontSize: 20, height: 26 / 20)),
-            const SizedBox(height: TvdSpace.s2),
-          ],
-          child,
-        ],
+      child: Material(
+        color: TvdColors.white,
+        borderRadius: BorderRadius.circular(TvdRadius.md),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (title != null) ...[
+                Text(title!, style: PhoneText.title.copyWith(fontSize: 20, height: 26 / 20)),
+                const SizedBox(height: TvdSpace.s2),
+              ],
+              child,
+            ],
+          ),
+        ),
       ),
     );
   }
