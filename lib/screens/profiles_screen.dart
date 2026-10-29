@@ -84,8 +84,10 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
             : ListView(
                 padding: const EdgeInsets.all(TvdSpace.s5),
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: TvdSpace.s2,
+                    runSpacing: TvdSpace.s2,
                     children: [
                       _TopButton(
                         key: const ValueKey('open-connect-tv'),
@@ -93,7 +95,6 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
                         label: 'Kết nối TV',
                         onTap: _connectTv,
                       ),
-                      const SizedBox(width: TvdSpace.s2),
                       _TopButton(
                         key: const ValueKey('open-parent'),
                         icon: Icons.lock_person_rounded,

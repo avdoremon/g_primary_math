@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:g_primary_math/app/app.dart';
 import 'package:g_primary_math/app/services.dart';
 import 'package:g_primary_math/audio/audio_service.dart';
-import 'package:g_primary_math/content/curriculum.dart';
 import 'package:g_primary_math/content/question.dart';
 import 'package:g_primary_math/game/session.dart';
 import 'package:g_primary_math/progress/models.dart';
