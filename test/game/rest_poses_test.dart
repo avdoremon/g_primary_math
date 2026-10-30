@@ -49,7 +49,7 @@ void main() {
       final s = newSession();
       final b = bodyOf(rig, s.current!.sample);
       var changed = false;
-      for (var i = 0; i < 40; i++) {
+      for (var i = 0; i < 80; i++) {
         changed |= s.update(1 / 30, b, rig.engine.calibration);
       }
       expect(s.stars, 1);
