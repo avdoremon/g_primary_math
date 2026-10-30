@@ -39,7 +39,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 20,
           "generator": "find_unknown",
           "params": {
             "ops": [
@@ -49,7 +49,7 @@
             "max": 100
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 4,
@@ -74,7 +74,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 17,
           "generator": "find_unknown",
           "params": {
             "ops": [
@@ -89,7 +89,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         }
       ]
     },
@@ -138,7 +138,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 14,
+          "secondsPerQuestion": 10,
           "generator": "mul_div",
           "params": {
             "tables": [
@@ -151,7 +151,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 4,
@@ -179,7 +179,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 17,
           "generator": "find_unknown",
           "params": {
             "ops": [
@@ -194,7 +194,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         }
       ]
     },
@@ -207,7 +207,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 24,
+          "secondsPerQuestion": 20,
           "generator": "geo",
           "params": {
             "kinds": [
@@ -215,7 +215,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 2,
@@ -233,7 +233,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 15,
           "generator": "geo",
           "params": {
             "kinds": [
@@ -241,7 +241,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 4,
@@ -287,7 +287,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 20,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 2,
@@ -317,7 +317,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 20,
           "generator": "mul_div_big",
           "params": {
             "format": "exact_or_not",
@@ -329,7 +329,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 20,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 2,
@@ -340,12 +340,12 @@
             "remainder": true
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 29,
+          "secondsPerQuestion": 34,
           "generator": "story",
           "params": {
             "kinds": [
@@ -366,7 +366,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 15,
           "generator": "unit_choose",
           "params": {
             "ask": "unit",
@@ -381,12 +381,12 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 24,
           "generator": "unit_convert",
           "params": {
             "quantities": [
@@ -405,7 +405,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 20,
           "generator": "unit_convert",
           "params": {
             "quantities": [
@@ -420,7 +420,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 4,
@@ -438,7 +438,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 14,
+          "secondsPerQuestion": 10,
           "generator": "temperature",
           "params": {
             "kinds": [
@@ -447,7 +447,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         }
       ]
     },
@@ -460,7 +460,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 24,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 3,
@@ -476,7 +476,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 20,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 3,
@@ -486,12 +486,12 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 24,
           "generator": "expression",
           "params": {
             "kinds": [
@@ -504,7 +504,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 20,
           "generator": "expression",
           "params": {
             "kinds": [
@@ -512,7 +512,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 5,
@@ -562,7 +562,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 20,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 2,
@@ -574,7 +574,7 @@
             "max": 1000
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 3,
@@ -593,7 +593,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 21,
           "generator": "unit_convert",
           "params": {
             "quantities": [
@@ -618,7 +618,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 17,
           "generator": "expression",
           "params": {
             "kinds": [
@@ -627,7 +627,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         }
       ]
     },
@@ -657,7 +657,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 15,
           "generator": "digits",
           "params": {
             "digits": [
@@ -669,7 +669,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 3,
@@ -727,7 +727,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 24,
+          "secondsPerQuestion": 25,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -736,12 +736,12 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 24,
+          "secondsPerQuestion": 29,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -755,7 +755,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 24,
+          "secondsPerQuestion": 25,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -765,12 +765,12 @@
             "maxSide": 9
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 24,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -786,7 +786,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 17,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -798,7 +798,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         }
       ]
     },
@@ -827,7 +827,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 15,
           "generator": "add_sub",
           "params": {
             "max": 10000,
@@ -838,12 +838,12 @@
             "carry": "any"
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 24,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 4,
@@ -859,7 +859,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 20,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 4,
@@ -869,7 +869,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 5,
@@ -917,7 +917,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 15,
           "generator": "digits",
           "params": {
             "digits": [
@@ -929,7 +929,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 3,
@@ -984,7 +984,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 15,
           "generator": "add_sub",
           "params": {
             "max": 100000,
@@ -995,7 +995,7 @@
             "carry": "any"
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 2,
@@ -1034,7 +1034,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 24,
+          "secondsPerQuestion": 25,
           "generator": "word_problem",
           "params": {
             "max": 100000,
@@ -1046,12 +1046,12 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 24,
           "generator": "add_sub",
           "params": {
             "max": 100000,
@@ -1118,7 +1118,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 24,
+          "secondsPerQuestion": 25,
           "generator": "time_calc",
           "params": {
             "kinds": [
@@ -1126,12 +1126,12 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 15,
           "generator": "money_sum",
           "params": {
             "kinds": [
@@ -1147,7 +1147,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 5,
@@ -1174,7 +1174,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 24,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 4,
@@ -1190,7 +1190,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 20,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 5,
@@ -1200,12 +1200,12 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 24,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 4,
@@ -1221,7 +1221,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 20,
           "generator": "expression",
           "params": {
             "kinds": [
@@ -1230,12 +1230,12 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "star_catch"
         },
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 29,
+          "secondsPerQuestion": 34,
           "generator": "story",
           "params": {
             "kinds": [
@@ -1256,7 +1256,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 19,
+          "secondsPerQuestion": 15,
           "generator": "data",
           "params": {
             "kinds": [
@@ -1264,7 +1264,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 2,
@@ -1278,7 +1278,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 12,
           "generator": "data",
           "params": {
             "kinds": [
@@ -1286,7 +1286,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "tintin_says"
         },
         {
           "level": 4,
@@ -1304,11 +1304,11 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 14,
+          "secondsPerQuestion": 10,
           "generator": "likelihood",
           "params": {},
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         }
       ]
     },
@@ -1321,7 +1321,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 12,
           "generator": "digits",
           "params": {
             "digits": [
@@ -1336,7 +1336,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 2,
@@ -1358,7 +1358,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 17,
           "generator": "mul_div_big",
           "params": {
             "aDigits": 4,
@@ -1370,12 +1370,12 @@
             "max": 100000
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         },
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 21,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -1391,7 +1391,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 16,
+          "secondsPerQuestion": 12,
           "generator": "money_sum",
           "params": {
             "kinds": [
@@ -1400,7 +1400,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "hop_tiles"
         }
       ]
     }

@@ -52,7 +52,9 @@ class NumberLineView extends MiniGameView {
     final out = <Widget>[];
     final art = QuestionArt.of(q);
     // Hình minh hoạ (nếu có) thu nhỏ ở góc trái để tia số còn chỗ.
-    if (art != null) out.add(Positioned(left: 120, top: 360, width: 420, height: 180, child: FittedBox(child: art)));
+    if (art != null) {
+      out.add(Positioned(left: 120, right: 120, top: 350, height: 200, child: Center(child: FittedBox(fit: BoxFit.scaleDown, child: art))));
+    }
 
     // Vùng sàn của từng ô.
     for (var i = 0; i < n; i++) {

@@ -538,6 +538,49 @@ FEW_VARIANTS = {
 for _w, _q in FEW_VARIANTS.items():
     _tid, _n = _w.rsplit(":", 1)
     _levels[(_tid, int(_n))]["questions"] = _q
+# Giảm game chạm bóng: cứ hai level bóng bay (dạng bài chỉ có chữ, không cần hình) thì đổi một level sang game vận động.
+TEXT_ONLY = {"add_sub", "word_problem", "story", "expression", "mul_div", "mul_div_big", "times", "skip_count", "compare",
+             "neighbors", "order_numbers", "place_value", "digits", "rounding", "even_odd", "find_unknown", "unit_choose",
+             "unit_convert", "time_calc", "percent", "decimal", "motion", "length_compare", "roman"}
+MOVE_POOLS = {2: ["squat_gate", "run_race"], 3: ["star_catch", "hop_tiles", "tintin_says"], 4: ["star_catch", "hop_tiles"]}
+_turn = {2: 0, 3: 0, 4: 0}
+_seen_balloon = 0
+for _g in (grade1, grade2, grade3, grade4, grade5):
+    for _t in _g["topics"]:
+        for _l in _t["levels"]:
+            if _l["miniGame"] != "balloon" or _l["generator"] not in TEXT_ONLY or _l["answers"] not in MOVE_POOLS:
+                continue
+            _seen_balloon += 1
+            if _seen_balloon % 2:
+                continue
+            _pool = MOVE_POOLS[_l["answers"]]
+            _l["miniGame"] = _pool[_turn[_l["answers"]] % len(_pool)]
+            _turn[_l["answers"]] += 1
+
+# Dạng bài có hình minh hoạ: chỉ đổi sang Nhảy ô / Tin Tin nói (hai game này có chỗ vẽ hình), cũng cứ hai level đổi một.
+ART_OK = {"count_objects", "split_number", "time", "pictograph", "likelihood", "polyline_length", "geo", "data",
+          "perimeter_area", "fraction", "temperature", "money_sum"}
+ART_POOLS = {3: ["hop_tiles", "tintin_says"], 4: ["hop_tiles"]}
+_art_turn = {3: 0, 4: 0}
+_seen_art = 0
+for _g in (grade1, grade2, grade3, grade4, grade5):
+    for _t in _g["topics"]:
+        for _l in _t["levels"]:
+            if _l["miniGame"] != "balloon" or _l["generator"] not in ART_OK or _l["answers"] not in ART_POOLS:
+                continue
+            _seen_art += 1
+            if _seen_art % 2:
+                continue
+            _pool = ART_POOLS[_l["answers"]]
+            _l["miniGame"] = _pool[_art_turn[_l["answers"]] % len(_pool)]
+            _art_turn[_l["answers"]] += 1
+
+# Bài tính nhiều bước cần thêm thời gian suy nghĩ.
+MULTI_STEP = {"expression", "word_problem", "story", "find_unknown", "mul_div_big", "time_calc", "motion", "percent",
+              "perimeter_area", "decimal", "fraction", "unit_convert"}
+for _l in _levels.values():
+    if _l["generator"] in MULTI_STEP or (_l["generator"] == "add_sub" and _l["params"].get("terms", 2) >= 3):
+        _l["secondsPerQuestion"] += 5
 for _l in _levels.values():
     _l["secondsPerQuestion"] += HOLD_BONUS.get(_l["miniGame"], 0)
 
