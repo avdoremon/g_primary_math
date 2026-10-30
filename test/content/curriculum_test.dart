@@ -63,7 +63,7 @@ void main() {
             for (var i = 0; i < 400; i++) {
               final q = l.generate(r);
               final o = [...q.options]..sort();
-              keys.add('${q.prompt}|${o.join('|')}|${q.options[q.answer]}|${q.data}');
+              keys.add('${q.prompt}|${o.join('|')}|${q.options[q.answer]}');
             }
             if (keys.length * 2 < l.questions) few.add('${t.id} L${l.level} (${l.generator}/${l.miniGame}) chỉ có ${keys.length} biến thể cho ${l.questions} câu');
           }

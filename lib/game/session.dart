@@ -363,10 +363,10 @@ class GameSession extends ChangeNotifier {
     _lastKey = key;
   }
 
-  /// Hai câu là một khi cùng đề, cùng bộ đáp án (không tính thứ tự xếp) và cùng số liệu.
+  /// Hai câu là một khi cùng đề, cùng bộ đáp án (không tính thứ tự xếp) và cùng đáp án đúng.
   static String _key(Question q) {
     final options = [...q.options]..sort();
-    return '${q.prompt}|${options.join('|')}|${q.options[q.answer]}|${q.data}';
+    return '${q.prompt}|${options.join('|')}|${q.options[q.answer]}';
   }
 
   AnswerRecord _resolve(int? chosen, AnswerOutcome outcome) {
