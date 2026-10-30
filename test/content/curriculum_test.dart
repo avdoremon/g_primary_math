@@ -54,7 +54,7 @@ void main() {
         }
       });
 
-      test('mỗi level có đủ biến thể để 10 câu không lặp liên tục', () {
+      test('mỗi câu của level lặp tối đa 2 lần trong một lượt', () {
         final r = math.Random(99);
         final few = <String>[];
         for (final t in grade.topics) {
@@ -65,7 +65,7 @@ void main() {
               final o = [...q.options]..sort();
               keys.add('${q.prompt}|${o.join('|')}|${q.options[q.answer]}|${q.data}');
             }
-            if (keys.length < 12) few.add('${t.id} L${l.level} (${l.generator}/${l.miniGame}) chỉ có ${keys.length}');
+            if (keys.length * 2 < l.questions) few.add('${t.id} L${l.level} (${l.generator}/${l.miniGame}) chỉ có ${keys.length} biến thể cho ${l.questions} câu');
           }
         }
         expect(few, isEmpty, reason: few.join('\n'));

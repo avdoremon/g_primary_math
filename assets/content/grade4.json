@@ -85,7 +85,7 @@
       "levels": [
         {
           "level": 1,
-          "questions": 10,
+          "questions": 4,
           "secondsPerQuestion": 20,
           "generator": "geo",
           "params": {
@@ -133,7 +133,7 @@
         },
         {
           "level": 4,
-          "questions": 10,
+          "questions": 8,
           "secondsPerQuestion": 20,
           "generator": "geo",
           "params": {
@@ -448,7 +448,7 @@
       "levels": [
         {
           "level": 1,
-          "questions": 10,
+          "questions": 8,
           "secondsPerQuestion": 19,
           "generator": "shape_identify",
           "params": {
@@ -477,7 +477,7 @@
         },
         {
           "level": 3,
-          "questions": 10,
+          "questions": 4,
           "secondsPerQuestion": 20,
           "generator": "geo",
           "params": {
@@ -485,7 +485,8 @@
               "arm_angle"
             ],
             "angles": [
-              "right"
+              "right",
+              "straight"
             ]
           },
           "answers": 1,

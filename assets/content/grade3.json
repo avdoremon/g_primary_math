@@ -219,7 +219,7 @@
         },
         {
           "level": 2,
-          "questions": 10,
+          "questions": 6,
           "secondsPerQuestion": 19,
           "generator": "geo",
           "params": {

@@ -362,7 +362,7 @@ grade4 = {"grade": 4, "title": "Lớp 4", "topics": [
     topic("g4-vuong-goc-song-song", "Đường thẳng vuông góc, đường thẳng song song", 6, "shapes", [
         ("shape_identify", "shape_hunt", 2, {"shapes": ["lines_perpendicular", "lines_parallel"]}, 15),
         ("shape_identify", "shape_hunt", 3, {"shapes": ["lines_perpendicular", "lines_parallel", "lines_intersect"]}, 12),
-        ("geo", "arm_angle", 1, {"kinds": ["arm_angle"], "angles": ["right"]}, 20),
+        ("geo", "arm_angle", 1, {"kinds": ["arm_angle"], "angles": ["right", "straight"]}, 20),
         ("shape_identify", "shape_hunt", 3, {"shapes": ["parallelogram", "rhombus", "rectangle", "square"]}, 12),
         ("shape_identify", "shape_hunt", 4, {"shapes": ["parallelogram", "rhombus", "rectangle", "square", "quadrilateral"]}, 10),
     ]),
@@ -528,6 +528,15 @@ for _game, _where in NEW_GAMES.items():
         _l["miniGame"] = _game
         if _game == "touch_order":
             _l["params"] = {**_l["params"], "ask": "order"}
+# Dạng bài ít biến thể thì hỏi ít câu hơn (≤ 2 lần mỗi biến thể) để bé không gặp một câu lặp đi lặp lại.
+FEW_VARIANTS = {
+    "g1-so-den-10:2": 8, "g1-hinh-khoi-vi-tri:1": 8, "g1-hinh-khoi-vi-tri:2": 6, "g1-hinh-khoi-vi-tri:3": 4,
+    "g2-hinh-khoi:1": 8, "g2-do-dai-tien:1": 8, "g3-hinh-phang-khoi:2": 6,
+    "g4-goc:1": 4, "g4-goc:4": 8, "g4-vuong-goc-song-song:1": 8, "g4-vuong-goc-song-song:3": 4,
+}
+for _w, _q in FEW_VARIANTS.items():
+    _tid, _n = _w.rsplit(":", 1)
+    _levels[(_tid, int(_n))]["questions"] = _q
 for _l in _levels.values():
     _l["secondsPerQuestion"] += HOLD_BONUS.get(_l["miniGame"], 0)
 

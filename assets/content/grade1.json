@@ -21,7 +21,7 @@
         },
         {
           "level": 2,
-          "questions": 10,
+          "questions": 8,
           "secondsPerQuestion": 30,
           "generator": "skip_count",
           "params": {
@@ -255,7 +255,7 @@
       "levels": [
         {
           "level": 1,
-          "questions": 10,
+          "questions": 8,
           "secondsPerQuestion": 19,
           "generator": "shape_identify",
           "params": {
@@ -269,7 +269,7 @@
         },
         {
           "level": 2,
-          "questions": 10,
+          "questions": 6,
           "secondsPerQuestion": 12,
           "generator": "position",
           "params": {
@@ -282,7 +282,7 @@
         },
         {
           "level": 3,
-          "questions": 10,
+          "questions": 4,
           "secondsPerQuestion": 12,
           "generator": "position",
           "params": {

@@ -36,6 +36,36 @@ void run(GameSession s, Duration d) {
 int wrongOption(GameSession s) => (s.question!.answer + 1) % s.question!.options.length;
 
 void main() {
+  test('dạng bài chỉ có 2 biến thể: không bao giờ hỏi lại ngay câu vừa rồi', () {
+    final level = Level(
+      level: 1,
+      questions: 10,
+      secondsPerQuestion: 0,
+      generator: 'shape_identify',
+      params: const {'shapes': ['cube', 'cuboid']},
+      answers: 2,
+      miniGame: MiniGames.shapeHunt,
+    );
+    for (var seed = 0; seed < 20; seed++) {
+      final s = GameSession(
+        grade: 1,
+        topicId: 't',
+        level: level,
+        random: math.Random(seed),
+        startedAt: DateTime(2026, 10, 30),
+      )..start();
+      String? previous;
+      for (var i = 0; i < 10; i++) {
+        final q = s.question!;
+        final key = '${q.prompt}|${q.options[q.answer]}';
+        expect(key, isNot(previous), reason: 'seed $seed câu ${i + 1} lặp câu trước');
+        previous = key;
+        s.answer(q.answer);
+        s.skipFeedback();
+      }
+    }
+  });
+
   test('trả lời đúng ngay: 100 + thưởng tốc độ gần tối đa, chuỗi tăng dần', () {
     final s = newSession()..start();
     expect(s.phase, SessionPhase.asking);

@@ -679,7 +679,7 @@
       "levels": [
         {
           "level": 1,
-          "questions": 10,
+          "questions": 8,
           "secondsPerQuestion": 19,
           "generator": "shape_identify",
           "params": {
@@ -842,7 +842,7 @@
       "levels": [
         {
           "level": 1,
-          "questions": 10,
+          "questions": 8,
           "secondsPerQuestion": 19,
           "generator": "unit_choose",
           "params": {
