@@ -63,6 +63,11 @@ class MotionEngine {
   Calibration? calibration;
   TrackingState tracking = TrackingState.searching;
   Duration? _lastSeen;
+  BodySnapshot? _lastBody;
+  Duration _lastBodyAt = Duration.zero;
+
+  /// Thời gian tối đa giữ lại số đo cũ khi vài khung liền không thấy đủ vai và hông.
+  static const bodyHold = Duration(milliseconds: 150);
 
   /// Khi true, bước hiệu chỉnh chạy lại ở khung tiếp theo bé giơ hai tay.
   bool wantsCalibration = true;
@@ -73,6 +78,7 @@ class MotionEngine {
     calibration = null;
     tracking = TrackingState.searching;
     _lastSeen = null;
+    _lastBody = null;
     wantsCalibration = true;
   }
 
@@ -83,7 +89,14 @@ class MotionEngine {
 
   MotionFrame process(PoseFrame frame) {
     final smoothed = smoother.smooth(frame);
-    final body = BodySnapshot.of(smoothed);
+    var body = BodySnapshot.of(smoothed);
+    // Mất thân người chợt 1–3 khung thì dùng lại số đo cũ, tránh các cơ chế bị reset giữa chừng.
+    if (body != null) {
+      _lastBody = body;
+      _lastBodyAt = frame.arrival;
+    } else if (_lastBody != null && frame.landmarks != null && frame.arrival - _lastBodyAt <= bodyHold) {
+      body = _lastBody;
+    }
 
     if (body != null) {
       _lastSeen = frame.arrival;

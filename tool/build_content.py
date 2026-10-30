@@ -13,6 +13,9 @@ import json, os
 
 TIMES = [15, 12, 10, 8, 6]
 
+# Bài chạm đáp án phải giữ tay 3 giây rồi mới chấm, nên cộng thêm thời gian cho mỗi câu.
+HOLD_BONUS = {"balloon": 4, "shape_hunt": 4}
+
 def lv(i, gen, game, answers, params=None, seconds=None, questions=10):
     return {
         "level": i + 1,
@@ -525,6 +528,8 @@ for _game, _where in NEW_GAMES.items():
         _l["miniGame"] = _game
         if _game == "touch_order":
             _l["params"] = {**_l["params"], "ask": "order"}
+for _l in _levels.values():
+    _l["secondsPerQuestion"] += HOLD_BONUS.get(_l["miniGame"], 0)
 
 root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "content")
 for name, g in (("grade1.json", grade1), ("grade2.json", grade2), ("grade3.json", grade3), ("grade4.json", grade4), ("grade5.json", grade5)):

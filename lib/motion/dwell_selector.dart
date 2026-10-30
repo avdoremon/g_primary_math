@@ -22,11 +22,16 @@ class DwellSelector {
 
   int? _lockedOn;
 
+  /// Tay rời ô chừng ngắn hơn mức này (nhiễu nhận diện) thì tiến độ giữ nguyên, không tụt.
+  double grace = 0.25;
+  double _away = 0;
+
   void reset() {
     candidate = null;
     progress = 0;
     activePoint = null;
     _lockedOn = null;
+    _away = 0;
   }
 
   /// Trả về chỉ số vùng vừa được chọn, hoặc null.
@@ -55,6 +60,8 @@ class DwellSelector {
       _lockedOn = null;
     }
 
+    if (hit != null) _away = 0;
+    if (hit == null && progress > 0 && (_away += dt) <= grace) return null;
     if (hit == null) {
       progress = math.max(0.0, progress - dt / dwellSeconds * 2);
       if (progress == 0) {

@@ -100,14 +100,31 @@ void main() {
     });
   });
 
-  test('C – giữ tay 0,4 giây trên ô thứ hai thì chọn ô đó', () {
+  test('C – giữ tay đủ 3 giây trên ô thứ hai mới chọn ô đó', () {
     final m = TouchMechanic();
     final targets = [const Rect.fromLTWH(0, 0.4, 0.3, 0.4), const Rect.fromLTWH(0.6, 0.4, 0.3, 0.4)];
+    MechanicSignal? step() => m.update(MechanicInput(dt: 1 / 30, hands: const [null, Offset(0.7, 0.6)], targets: targets));
+    for (var i = 0; i < 85; i++) {
+      expect(step(), isNull, reason: 'khung $i (chưa đủ 3 giây)');
+    }
     MechanicSignal? got;
-    for (var i = 0; i < 20 && got == null; i++) {
-      got = m.update(MechanicInput(dt: 1 / 30, hands: const [null, Offset(0.7, 0.6)], targets: targets));
+    for (var i = 0; i < 15 && got == null; i++) {
+      got = step();
     }
     expect(got, const ChooseOption(1));
+  });
+
+  test('C – tay mất nhận diện chốc lát (dưới 0,25 giây) không làm mất tiến độ giữ', () {
+    final m = TouchMechanic();
+    final targets = [const Rect.fromLTWH(0, 0.4, 0.3, 0.4)];
+    for (var i = 0; i < 30; i++) {
+      m.update(MechanicInput(dt: 1 / 30, hands: const [Offset(0.1, 0.6)], targets: targets));
+    }
+    final before = m.progress;
+    for (var i = 0; i < 5; i++) {
+      m.update(MechanicInput(dt: 1 / 30, hands: const [null], targets: targets));
+    }
+    expect(m.progress, before);
   });
 
   test('B – bước sang trái chọn đáp án 0, sang phải chọn đáp án 1', () {

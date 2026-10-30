@@ -54,6 +54,23 @@ void main() {
         }
       });
 
+      test('mỗi level có đủ biến thể để 10 câu không lặp liên tục', () {
+        final r = math.Random(99);
+        final few = <String>[];
+        for (final t in grade.topics) {
+          for (final l in t.levels) {
+            final keys = <String>{};
+            for (var i = 0; i < 400; i++) {
+              final q = l.generate(r);
+              final o = [...q.options]..sort();
+              keys.add('${q.prompt}|${o.join('|')}|${q.options[q.answer]}|${q.data}');
+            }
+            if (keys.length < 12) few.add('${t.id} L${l.level} (${l.generator}/${l.miniGame}) chỉ có ${keys.length}');
+          }
+        }
+        expect(few, isEmpty, reason: few.join('\n'));
+      });
+
       test('mọi level sinh được 300 câu hỏi hợp lệ', () {
         final r = math.Random(2026);
         for (final t in grade.topics) {

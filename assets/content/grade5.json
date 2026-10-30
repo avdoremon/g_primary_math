@@ -11,7 +11,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 12,
+          "secondsPerQuestion": 16,
           "generator": "fraction",
           "params": {
             "kinds": [
@@ -37,7 +37,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "fraction",
           "params": {
             "kinds": [
@@ -51,7 +51,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "fraction",
           "params": {
             "kinds": [
@@ -64,7 +64,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "fraction",
           "params": {
             "kinds": [
@@ -89,7 +89,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -116,7 +116,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -130,7 +130,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -164,7 +164,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "unit_convert",
           "params": {
             "quantities": [
@@ -183,7 +183,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "unit_convert",
           "params": {
             "quantities": [
@@ -202,7 +202,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "unit_convert",
           "params": {
             "quantities": [
@@ -242,7 +242,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 12,
+          "secondsPerQuestion": 16,
           "generator": "unit_convert",
           "params": {
             "quantities": [
@@ -265,7 +265,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -279,7 +279,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -292,7 +292,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -305,7 +305,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 12,
+          "secondsPerQuestion": 16,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -318,7 +318,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 12,
+          "secondsPerQuestion": 16,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -343,7 +343,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -356,7 +356,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -369,7 +369,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -382,7 +382,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -395,7 +395,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -419,7 +419,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 12,
+          "secondsPerQuestion": 16,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -433,7 +433,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -448,7 +448,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 12,
+          "secondsPerQuestion": 16,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -461,7 +461,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -475,7 +475,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 12,
+          "secondsPerQuestion": 16,
           "generator": "fraction",
           "params": {
             "kinds": [
@@ -511,7 +511,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "percent",
           "params": {
             "kinds": [
@@ -525,7 +525,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "percent",
           "params": {
             "kinds": [
@@ -538,7 +538,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 25,
+          "secondsPerQuestion": 29,
           "generator": "story",
           "params": {
             "kinds": [
@@ -573,7 +573,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -587,7 +587,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -601,7 +601,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "unit_convert",
           "params": {
             "quantities": [
@@ -614,7 +614,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "unit_convert",
           "params": {
             "quantities": [
@@ -628,7 +628,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -655,7 +655,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -669,7 +669,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 25,
+          "secondsPerQuestion": 29,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -683,7 +683,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -698,7 +698,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 10,
+          "secondsPerQuestion": 14,
           "generator": "shape_identify",
           "params": {
             "shapes": [
@@ -714,7 +714,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -741,7 +741,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "time_calc",
           "params": {
             "kinds": [
@@ -755,7 +755,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "time_calc",
           "params": {
             "kinds": [
@@ -769,7 +769,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "motion",
           "params": {
             "kinds": [
@@ -782,7 +782,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "motion",
           "params": {
             "kinds": [
@@ -796,7 +796,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "motion",
           "params": {
             "kinds": [
@@ -819,7 +819,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "data",
           "params": {
             "kinds": [
@@ -832,7 +832,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 20,
+          "secondsPerQuestion": 24,
           "generator": "data",
           "params": {
             "kinds": [
@@ -845,7 +845,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "data",
           "params": {
             "kinds": [
@@ -858,7 +858,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "data",
           "params": {
             "kinds": [
@@ -871,7 +871,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "data",
           "params": {
             "kinds": [
@@ -894,7 +894,7 @@
         {
           "level": 1,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "decimal",
           "params": {
             "kinds": [
@@ -910,7 +910,7 @@
         {
           "level": 2,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "percent",
           "params": {
             "kinds": [
@@ -924,7 +924,7 @@
         {
           "level": 3,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "perimeter_area",
           "params": {
             "kinds": [
@@ -940,7 +940,7 @@
         {
           "level": 4,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "motion",
           "params": {
             "kinds": [
@@ -955,7 +955,7 @@
         {
           "level": 5,
           "questions": 10,
-          "secondsPerQuestion": 15,
+          "secondsPerQuestion": 19,
           "generator": "fraction",
           "params": {
             "kinds": [
