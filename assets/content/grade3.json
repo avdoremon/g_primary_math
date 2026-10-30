@@ -245,7 +245,7 @@
         },
         {
           "level": 4,
-          "questions": 10,
+          "questions": 6,
           "secondsPerQuestion": 16,
           "generator": "shape_identify",
           "params": {

@@ -530,9 +530,10 @@ for _game, _where in NEW_GAMES.items():
             _l["params"] = {**_l["params"], "ask": "order"}
 # Dạng bài ít biến thể thì hỏi ít câu hơn (≤ 2 lần mỗi biến thể) để bé không gặp một câu lặp đi lặp lại.
 FEW_VARIANTS = {
-    "g1-so-den-10:2": 8, "g1-hinh-khoi-vi-tri:1": 8, "g1-hinh-khoi-vi-tri:2": 6, "g1-hinh-khoi-vi-tri:3": 4,
-    "g2-hinh-khoi:1": 8, "g2-do-dai-tien:1": 8, "g3-hinh-phang-khoi:2": 6,
-    "g4-goc:1": 4, "g4-goc:4": 8, "g4-vuong-goc-song-song:1": 8, "g4-vuong-goc-song-song:3": 4,
+    "g1-so-den-10:2": 8, "g1-hinh-khoi-vi-tri:1": 4, "g1-hinh-phang:4": 8, "g1-hinh-phang:5": 8, "g1-hinh-khoi-vi-tri:2": 6, "g1-hinh-khoi-vi-tri:3": 4,
+    "g2-hinh-khoi:1": 4, "g2-hinh-khoi:4": 8, "g2-hinh-khoi:5": 8, "g2-hinh-phang:1": 6, "g2-do-dai-tien:1": 8,
+    "g2-do-dai-tien:3": 6, "g3-hinh-phang-khoi:2": 6, "g3-hinh-phang-khoi:4": 6, "g4-goc:2": 6, "g4-goc:5": 8, "g4-vuong-goc-song-song:2": 6,
+    "g4-goc:1": 4, "g4-goc:4": 8, "g4-vuong-goc-song-song:1": 4, "g4-vuong-goc-song-song:3": 4,
 }
 for _w, _q in FEW_VARIANTS.items():
     _tid, _n = _w.rsplit(":", 1)
