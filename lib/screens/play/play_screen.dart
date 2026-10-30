@@ -15,6 +15,9 @@ import '../../game/feedback.dart';
 import '../../game/mechanics.dart';
 import '../../game/play_guard.dart';
 import '../../game/practice.dart';
+import '../../game/rest_poses.dart';
+import '../../motion/body_metrics.dart';
+import '../../motion/sim/pose_simulator.dart';
 import '../../game/session.dart';
 import '../../motion/hand_tracker.dart';
 import '../../motion/motion_engine.dart';
@@ -26,6 +29,7 @@ import '../../ui/theme/theme.dart';
 import '../../ui/widgets/tin_tin.dart';
 import '../../ui/widgets/tv_stage.dart';
 import 'hud.dart';
+import 'kid_figure.dart';
 import 'mini_game_view.dart';
 import 'play_widgets.dart';
 
@@ -92,6 +96,10 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   bool _nextUnlocked = false;
   TouchMechanic _menuTouch = TouchMechanic.menu();
   VoidCallback? _afterRest;
+
+  /// Bài thể dục nhẹ lúc giải lao (null khi không có camera hoặc chưa hiệu chỉnh).
+  RestPoseSession? _restPoses;
+  bool _restPraised = false;
   double _restLeft = 0;
   Duration _lastTick = Duration.zero;
 
@@ -233,6 +241,20 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
         if (hit is ChooseOption) _menuAction(hit.option);
       case _Stage.rest:
         _restLeft -= dtSec;
+        final rp = _restPoses;
+        if (rp != null) {
+          final before = rp.stars;
+          final next = rp.update(dtSec, _motion?.body, _engine.calibration);
+          if (rp.stars > before) {
+            _app.audio.play(Sfx.correct);
+            unawaited(_app.audio.say('Giỏi quá!'));
+          } else if (next) {
+            unawaited(_app.audio.say(rp.current!.speech));
+          } else if (rp.finished && rp.lastMatched == null && !_restPraised) {
+            _restPraised = true;
+            unawaited(_app.audio.say(rp.stars >= 3 ? 'Tuyệt vời! Con được ${rp.stars} ngôi sao thể dục. Giờ con nghỉ ngơi nhé.' : 'Cảm ơn con đã tập cùng Tin Tin. Giờ con nghỉ ngơi nhé.'));
+          }
+        }
         if (_restLeft <= 0) _endRest();
     }
     if (mounted) setState(() {});
@@ -352,15 +374,20 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
       case GuardVerdict.ok:
         setState(go);
       case GuardVerdict.takeBreak:
+        final withPoses = _camera && _engine.calibration != null;
         setState(() {
           _phase = _Stage.rest;
           _restLeft = PlayGuard.breakLength.inSeconds.toDouble();
+          _restPraised = false;
+          _restPoses = withPoses ? RestPoseSession(RestPose.pick(math.Random())) : null;
           _afterRest = () {
             guard.breakTaken();
             go();
           };
         });
-        unawaited(_app.audio.say('Nghỉ một chút nhé! Con uống nước, nhìn ra xa cho mắt nghỉ ngơi.'));
+        unawaited(_app.audio.say(withPoses
+            ? 'Nghỉ một chút nhé! Mình cùng tập thể dục nhẹ với Tin Tin. ${_restPoses!.current!.speech}'
+            : 'Nghỉ một chút nhé! Con uống nước, nhìn ra xa cho mắt nghỉ ngơi.'));
       case GuardVerdict.dailyLimitReached:
         setState(() {
           _phase = _Stage.limit;
@@ -371,6 +398,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   }
 
   void _endRest() {
+    _restPoses = null;
     final f = _afterRest;
     _afterRest = null;
     if (f != null) f();
@@ -808,7 +836,70 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   Widget _centeredTop(Widget child) =>
       Positioned(left: TvLayout.safeX, right: TvLayout.safeX, top: 60, height: 680, child: Center(child: child));
 
+  static final Map<String, BodySnapshot?> _samples = {};
+
+  /// Bóng người làm mẫu của một tư thế, dựng từ bộ giả lập khung xương.
+  static BodySnapshot? _sampleBody(RestPose p) => _samples.putIfAbsent(
+        p.id,
+        () => BodySnapshot.of(PoseSimulator().frame(p.sample, Duration.zero)),
+      );
+
+  Widget _restPoseView(RestPoseSession rp) {
+    final left = _restLeft.ceil();
+    final pose = rp.current;
+    final matched = rp.lastMatched == true;
+    final glow = matched || rp.holdProgress > 0 ? const ArmGlow(TvdColors.correct) : null;
+    Widget stars() => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < rp.poses.length; i++)
+              Icon(Icons.star_rounded, size: 72, color: i < rp.stars ? TvdColors.encourage : TvdColors.line),
+          ],
+        );
+    return Positioned.fill(
+      child: Stack(children: [
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 60,
+          child: Column(children: [
+            Text('Tập thể dục nhẹ cùng Tin Tin', style: TvText.question),
+            const SizedBox(height: TvdSpace.s3),
+            if (pose != null) Text(pose.name, style: TvText.prompt.copyWith(color: TvdColors.answerADark)),
+            if (pose == null)
+              Text('Giỏi lắm! Giờ con nghỉ ngơi, uống nước nhé.', style: TvText.prompt.copyWith(color: TvdColors.answerADark)),
+          ]),
+        ),
+        if (pose != null) ...[
+          Positioned(left: 260, top: 300, width: 400, height: 600, child: KidFigure(body: _sampleBody(pose), left: const ArmGlow(TvdColors.answerA), right: const ArmGlow(TvdColors.answerA))),
+          Positioned(left: 260, top: 900, width: 400, child: Text('Tin Tin làm mẫu', textAlign: TextAlign.center, style: TvText.label)),
+          Positioned(left: 1260, top: 300, width: 400, height: 600, child: KidFigure(body: _motion?.body, left: glow, right: glow, dim: _motion?.body == null)),
+          Positioned(left: 1260, top: 900, width: 400, child: Text('Con nè', textAlign: TextAlign.center, style: TvText.label)),
+          Positioned(
+            left: 760,
+            right: 760,
+            top: 480,
+            child: Column(children: [
+              if (matched) const TinTin(state: TinTinState.praise, size: 260) else const TinTin(state: TinTinState.raiseBoth, size: 260),
+              const SizedBox(height: TvdSpace.s4),
+              LinearProgressIndicator(value: matched ? 1 : rp.holdProgress, minHeight: 24, color: TvdColors.correct, backgroundColor: TvdColors.white),
+            ]),
+          ),
+        ] else
+          Positioned(left: 0, right: 0, top: 360, child: Center(child: TinTin(state: rp.stars >= 3 ? TinTinState.happy : TinTinState.wait, size: 360))),
+        Positioned(left: 0, right: 0, bottom: 90, child: Center(child: stars())),
+        Positioned(
+          right: 60,
+          bottom: 40,
+          child: Text('Nghỉ còn ${left ~/ 60}:${(left % 60).toString().padLeft(2, '0')}', style: TvText.label),
+        ),
+      ]),
+    );
+  }
+
   Widget _rest() {
+    final rp = _restPoses;
+    if (rp != null) return _restPoseView(rp);
     final left = _restLeft.ceil();
     return _centered(Column(
       mainAxisSize: MainAxisSize.min,
