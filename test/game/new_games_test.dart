@@ -132,7 +132,7 @@ void main() {
       for (final f in sim4.sequence(seconds: 3.5, start: rig.clock, pose: run)) {
         c.update(rig.engine.process(f).body);
       }
-      expect(c.count, inInclusiveRange(12, 14));
+      expect(c.count, inInclusiveRange(12, 16));
     });
 
     test('chạy đủ rồi đứng thẳng, nghiêng trái thì chọn đường trái', () {

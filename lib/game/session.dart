@@ -193,7 +193,10 @@ class GameSession extends ChangeNotifier {
   Duration _playTime = Duration.zero;
   Duration _feedbackLeft = Duration.zero;
   int _holds = 0;
-  final Set<String> _seen = {};
+  /// Câu đã hỏi trong lượt → thứ tự hỏi.
+  final Map<String, int> _seen = {};
+  int _asked = 0;
+  String? _lastKey;
 
   Stream<SessionEvent> get events => _events.stream;
 
@@ -329,17 +332,42 @@ class GameSession extends ChangeNotifier {
     _events.add(QuestionShown(index, question!));
   }
 
-  /// Sinh câu mới, tránh lặp lại câu đã hỏi trong lượt (thử tối đa 8 lần).
+  /// Sinh câu mới: không bao giờ trùng câu vừa hỏi, ưu tiên câu chưa hỏi trong lượt;
+  /// nếu dạng bài ít biến thể nên đã hỏi hết thì lấy câu hỏi cách đây lâu nhất.
   Question _freshQuestion() {
-    var q = _current.generate(_random);
-    for (var i = 0; i < 8 && _seen.contains(_key(q)); i++) {
-      q = _current.generate(_random);
+    final lastKey = _lastKey;
+    Question? oldest;
+    var oldestAt = 1 << 30;
+    for (var i = 0; i < 60; i++) {
+      final q = _current.generate(_random);
+      final key = _key(q);
+      if (key == lastKey) continue;
+      final at = _seen[key];
+      if (at == null) {
+        _remember(q);
+        return q;
+      }
+      if (at < oldestAt) {
+        oldestAt = at;
+        oldest = q;
+      }
     }
-    _seen.add(_key(q));
+    final q = oldest ?? _current.generate(_random);
+    _remember(q);
     return q;
   }
 
-  static String _key(Question q) => '${q.prompt}|${q.options.join('|')}|${q.data}';
+  void _remember(Question q) {
+    final key = _key(q);
+    _seen[key] = _asked++;
+    _lastKey = key;
+  }
+
+  /// Hai câu là một khi cùng đề, cùng bộ đáp án (không tính thứ tự xếp) và cùng đáp án đúng.
+  static String _key(Question q) {
+    final options = [...q.options]..sort();
+    return '${q.prompt}|${options.join('|')}|${q.options[q.answer]}';
+  }
 
   AnswerRecord _resolve(int? chosen, AnswerOutcome outcome) {
     final ok = outcome == AnswerOutcome.correct;

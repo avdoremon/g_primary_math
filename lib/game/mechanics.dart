@@ -186,7 +186,12 @@ abstract class AnswerMechanic {
 // ------------------------------------------------------------------ C
 
 class TouchMechanic extends AnswerMechanic {
-  TouchMechanic({double dwellSeconds = 0.4}) : dwell = DwellSelector(dwellSeconds: dwellSeconds);
+  /// Chạm đáp án: giữ tay [answerHoldSeconds] giây rồi mới chấm đúng / sai (menu dùng [TouchMechanic.menu], giữ ngắn).
+  TouchMechanic({double dwellSeconds = answerHoldSeconds}) : dwell = DwellSelector(dwellSeconds: dwellSeconds);
+
+  TouchMechanic.menu() : this(dwellSeconds: 0.5);
+
+  static const answerHoldSeconds = 3.0;
 
   final DwellSelector dwell;
 
@@ -204,6 +209,9 @@ class TouchMechanic extends AnswerMechanic {
 
   @override
   Offset? get activePoint => dwell.activePoint;
+
+  @override
+  String? get hint => dwell.candidate == null ? 'Giữ tay yên trên đáp án 3 giây nhé!' : 'Giữ yên nào…';
 
   @override
   MechanicSignal? update(MechanicInput input) {
@@ -705,7 +713,7 @@ class ZoneMechanic extends AnswerMechanic {
 /// Chạm đúng ô kế tiếp thì ô đó được đánh dấu; chạm nhầm ô chưa tới lượt thì tính chưa đúng;
 /// chạm đủ cả dãy thì đúng. Ô đã chạm rồi bị bỏ qua.
 class OrderTouchMechanic extends AnswerMechanic {
-  OrderTouchMechanic({required this.sequence, double dwellSeconds = 0.4}) : dwell = DwellSelector(dwellSeconds: dwellSeconds);
+  OrderTouchMechanic({required this.sequence, double dwellSeconds = 1.5}) : dwell = DwellSelector(dwellSeconds: dwellSeconds);
 
   final List<int> sequence;
   final DwellSelector dwell;

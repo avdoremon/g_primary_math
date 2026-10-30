@@ -90,7 +90,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   SessionResult? _result;
   bool _saved = false;
   bool _nextUnlocked = false;
-  TouchMechanic _menuTouch = TouchMechanic();
+  TouchMechanic _menuTouch = TouchMechanic.menu();
   VoidCallback? _afterRest;
   double _restLeft = 0;
   Duration _lastTick = Duration.zero;
@@ -282,7 +282,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   Future<void> _onFinished(SessionResult r) async {
     _result = r;
     _phase = _Stage.result;
-    _menuTouch = TouchMechanic();
+    _menuTouch = TouchMechanic.menu();
     _app.audio.play(r.stars > 0 ? Sfx.star : Sfx.levelDone);
     await _save(r);
     final records = await _app.store.levelRecords(widget.profile.id, widget.grade.grade);
@@ -364,7 +364,7 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
       case GuardVerdict.dailyLimitReached:
         setState(() {
           _phase = _Stage.limit;
-          _menuTouch = TouchMechanic();
+          _menuTouch = TouchMechanic.menu();
         });
         unawaited(_app.audio.say('Hôm nay con chơi đủ rồi. Mai mình chơi tiếp nhé!'));
     }

@@ -11,6 +11,7 @@ import '../../../ui/widgets/tin_tin.dart';
 import '../hud.dart';
 import '../kid_figure.dart';
 import '../mini_game_view.dart';
+import 'motion_views.dart' show stepShift;
 import '../scene_art.dart';
 
 /// G7 "Con nói, con làm" (lớp 1 – vị trí, định hướng) theo 10 màn trong artifact design G7.
@@ -514,7 +515,7 @@ class SimonSaysView extends MiniGameView {
       CompoundMechanic(:final step) => step.offset,
       _ => 0.0,
     };
-    return (offset * 108).clamp(-300.0, 300.0).toDouble();
+    return stepShift(offset);
   }
 
   List<Widget> _stepScene(PlayFrame f) {

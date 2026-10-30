@@ -34,7 +34,12 @@ class HandTracker {
   double? _cy;
   double? _boxW;
   final List<OneEuroFilter> _filters =
-      List.generate(4, (_) => OneEuroFilter(minCutoff: 1.2, beta: 0.8));
+      List.generate(4, (_) => OneEuroFilter(minCutoff: 1.5, beta: 3.0));
+  final List<Offset?> _lastHand = [null, null];
+  final List<Duration> _lastHandAt = [Duration.zero, Duration.zero];
+
+  /// Bàn tay chợt mất vài khung thì giữ vị trí cũ chừng này thời gian (giữ tay 3 giây không bị đứt).
+  static const handHold = Duration(milliseconds: 250);
 
   HandState state = HandState.none;
 
@@ -45,6 +50,7 @@ class HandTracker {
     for (final f in _filters) {
       f.reset();
     }
+    _lastHand[0] = _lastHand[1] = null;
     state = HandState.none;
   }
 
@@ -85,19 +91,26 @@ class HandTracker {
     Offset? mapHand(int wrist, int index, int fx, int fy) {
       final a = lm[wrist];
       final b = lm[index];
+      final slot = fx ~/ 2;
       if (!a.visible) {
+        final held = _lastHand[slot];
+        if (held != null && frame.arrival - _lastHandAt[slot] <= handHold) return held;
         _filters[fx].reset();
         _filters[fy].reset();
+        _lastHand[slot] = null;
         return null;
       }
       final hx = (b.visible ? (a.x + b.x) / 2 : a.x) * w;
       final hy = (b.visible ? (a.y + b.y) / 2 : a.y) * h;
       final u = ((hx - cx) / boxW + 0.5).clamp(-0.1, 1.1).toDouble();
       final v = ((hy - cy) / boxH + 0.5).clamp(-0.1, 1.1).toDouble();
-      return Offset(
+      final out = Offset(
         _filters[fx].filter(u, frame.arrival),
         _filters[fy].filter(v, frame.arrival),
       );
+      _lastHand[slot] = out;
+      _lastHandAt[slot] = frame.arrival;
+      return out;
     }
 
     final a = mapHand(PoseIdx.leftWrist, PoseIdx.leftIndex, 0, 1);

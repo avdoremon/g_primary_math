@@ -307,7 +307,7 @@ class SidesView extends MiniGameView {
       top: 560,
       width: 300,
       height: 450,
-      child: KidFigure(body: f.body, shift: (offset * 108).clamp(-300.0, 300.0).toDouble(), dim: f.body == null),
+      child: KidFigure(body: f.body, shift: stepShift(offset), dim: f.body == null),
     ));
     final hint = f.answering ? f.mechanic?.hint : null;
     if (hint != null) {
@@ -329,6 +329,10 @@ class SidesView extends MiniGameView {
     return out;
   }
 }
+
+/// Độ dời của bóng bé (đơn vị thiết kế của KidFigure) khi bé bước [offset] bề rộng vai.
+/// Bước đủ ngưỡng (1 bề rộng vai) thì bóng đã tới giữa ô trái / phải, nên bé thấy rõ mình đang bước đi đâu.
+double stepShift(double offset) => (offset * 800).clamp(-1000.0, 1000.0).toDouble();
 
 // ====================================================================== G4 Nhảy đếm (Đ)
 
