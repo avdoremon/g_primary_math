@@ -3,6 +3,7 @@ import 'package:g_primary_math/motion/body_metrics.dart';
 import 'package:g_primary_math/motion/motion_engine.dart';
 import 'package:g_primary_math/motion/sim/pose_simulator.dart';
 import 'package:g_primary_math/pose/landmarks.dart';
+import 'package:g_primary_math/pose/pose_frame.dart';
 
 const _lowerBody = {
   PoseIdx.leftHip,
