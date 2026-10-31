@@ -300,7 +300,7 @@ class PoseAnswerView extends MiniGameView {
     for (var i = 0; i < q.options.length && i < mech.actions.length; i++) {
       final action = mech.actions[i];
       final wiggle = action == AnswerAction.wave ? 6 * math.sin(f.time * 8) : 0.0;
-      final bounce = action == AnswerAction.jump ? 40 * math.max(0.0, math.sin(f.time * 4)) : 0.0;
+      final bounce = action == AnswerAction.jump ? 40 * math.max(0.0, math.sin(f.time * 4)).toDouble() : 0.0;
       out.add(Positioned.fromRect(
         key: ValueKey('answer-$i'),
         rect: rs[i],
