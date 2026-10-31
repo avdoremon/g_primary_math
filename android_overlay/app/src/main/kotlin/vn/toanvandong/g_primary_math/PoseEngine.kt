@@ -116,7 +116,17 @@ class PoseEngine(
     // ---------------------------------------------------------------- MediaPipe
 
     private fun createLandmarker(cfg: Config): PoseLandmarker {
-        val asset = if (cfg.model == "full") "pose_landmarker_full.task" else "pose_landmarker_lite.task"
+        if (cfg.model == "full") {
+            try {
+                return createLandmarker(cfg, "pose_landmarker_full.task")
+            } catch (e: Throwable) {
+                Log.w(TAG, "Không tạo được mô hình full, dùng lite", e)
+            }
+        }
+        return createLandmarker(cfg, "pose_landmarker_lite.task")
+    }
+
+    private fun createLandmarker(cfg: Config, asset: String): PoseLandmarker {
         if (cfg.useGpu) {
             try {
                 val lm = buildLandmarker(asset, Delegate.GPU)
@@ -139,9 +149,9 @@ class PoseEngine(
             .setBaseOptions(base)
             .setRunningMode(RunningMode.LIVE_STREAM)
             .setNumPoses(1)
-            .setMinPoseDetectionConfidence(0.5f)
-            .setMinPosePresenceConfidence(0.5f)
-            .setMinTrackingConfidence(0.5f)
+            .setMinPoseDetectionConfidence(0.3f) // trẻ nhỏ, đứng xa, phòng tối: ngưỡng 0,5 hay bỏ sót
+            .setMinPosePresenceConfidence(0.3f)
+            .setMinTrackingConfidence(0.3f)
             .setResultListener { result, input ->
                 try {
                     onResult(result, input)

@@ -12,7 +12,8 @@ class PoseLandmark {
   final double z;
   final double visibility;
 
-  bool get visible => visibility >= 0.5;
+  /// Ngưỡng 0,4: cổ tay đang vung nhanh thường chỉ được 0,4–0,6 nên ngưỡng 0,5 hay làm mất tay.
+  bool get visible => visibility >= 0.4;
 }
 
 /// Một khung kết quả nhận diện gửi từ lớp native.

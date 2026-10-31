@@ -4,7 +4,7 @@ import 'one_euro.dart';
 /// Làm mượt toàn bộ khung xương bằng One Euro filter (mỗi toạ độ một bộ lọc):
 /// mượt khi đứng yên, vẫn bám kịp khi chuyển động nhanh.
 class LandmarkSmoother {
-  LandmarkSmoother({this.minCutoff = 1.8, this.beta = 3.0, this.holdFor = const Duration(milliseconds: 150)});
+  LandmarkSmoother({this.minCutoff = 1.8, this.beta = 3.0, this.holdFor = const Duration(milliseconds: 150), this.frameHoldFor = const Duration(milliseconds: 350)});
 
   final double minCutoff;
   final double beta;
@@ -12,12 +12,19 @@ class LandmarkSmoother {
   /// Khớp chợt bị mất 1–2 khung (che tay, nhiễu) thì giữ vị trí cũ chừng này thời gian thay vì giật về 0.
   final Duration holdFor;
 
+  /// Cả khung không thấy người (mô hình chợt bỏ sót) thì giữ khung xương cũ chừng này thời gian.
+  final Duration frameHoldFor;
+
+  List<PoseLandmark>? _lastFrame;
+  Duration _lastFrameAt = Duration.zero;
+
   final List<OneEuroFilter> _fx = [];
   final List<OneEuroFilter> _fy = [];
   final List<PoseLandmark?> _last = [];
   final List<Duration> _lastAt = [];
 
   void reset() {
+    _lastFrame = null;
     _last.clear();
     _lastAt.clear();
     for (final f in _fx) {
@@ -31,6 +38,8 @@ class LandmarkSmoother {
   PoseFrame smooth(PoseFrame frame) {
     final lm = frame.landmarks;
     if (lm == null) {
+      final held = _lastFrame;
+      if (held != null && frame.arrival - _lastFrameAt <= frameHoldFor) return frame.withLandmarks(held);
       reset();
       return frame;
     }
@@ -65,6 +74,9 @@ class LandmarkSmoother {
       _lastAt[i] = frame.arrival;
       out.add(smoothed);
     }
-    return frame.withLandmarks(List.unmodifiable(out));
+    final result = List<PoseLandmark>.unmodifiable(out);
+    _lastFrame = result;
+    _lastFrameAt = frame.arrival;
+    return frame.withLandmarks(result);
   }
 }

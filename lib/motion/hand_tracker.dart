@@ -41,6 +41,10 @@ class HandTracker {
   /// Bàn tay chợt mất vài khung thì giữ vị trí cũ chừng này thời gian (giữ tay 3 giây không bị đứt).
   static const handHold = Duration(milliseconds: 250);
 
+  /// Cả khung không thấy người thì giữ tay cũ chừng này.
+  static const frameHold = Duration(milliseconds: 350);
+  Duration _lastFrameAt = Duration.zero;
+
   HandState state = HandState.none;
 
   void reset() {
@@ -57,11 +61,15 @@ class HandTracker {
   HandState update(PoseFrame frame) {
     final lm = frame.landmarks;
     if (lm == null) {
+      // Mô hình chợt bỏ sót cả người: giữ vị trí tay cũ một lúc để bé đang giữ tay trên đáp án không bị đứt.
+      if (state != HandState.none && frame.arrival - _lastFrameAt <= frameHold) return state;
       for (final f in _filters) {
         f.reset();
       }
+      _lastHand[0] = _lastHand[1] = null;
       return state = HandState.none;
     }
+    _lastFrameAt = frame.arrival;
 
     final w = frame.imageWidth.toDouble();
     final h = frame.imageHeight.toDouble();

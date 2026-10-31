@@ -7,11 +7,13 @@ import 'pose_frame.dart';
 /// Cài đặt nhận diện, chỉnh ở màn hình chính.
 class PoseSettings {
   bool frontCamera = false;
-  bool fullModel = false;
+  /// Mô hình "full" nhận người ở xa (2–3 m) và trẻ nhỏ tốt hơn hẳn "lite"; máy yếu tự lùi về "lite".
+  bool fullModel = true;
   /// GPU tắt mặc định: lỗi khởi tạo GPU nằm trong thư viện C++ nên không bắt được và làm app văng
   /// trên một số máy. CPU đủ nhanh cho mô hình lite. Bật lại ở công cụ phát triển.
   bool gpu = false;
-  bool wideAngle = true;
+  /// Ống góc rộng làm người trong ảnh nhỏ đi, khó nhận hơn: tắt mặc định.
+  bool wideAngle = false;
 
   Map<String, Object> toMap() => {
         'front': frontCamera,

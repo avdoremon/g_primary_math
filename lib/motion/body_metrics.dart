@@ -20,8 +20,8 @@ class BodySnapshot {
   /// bước / nghiêng người vẫn chơi được khi camera chỉ thấy nửa người trên.
   final bool hipsEstimated;
 
-  static const _minVisibility = 0.5;
-  static const _minHipVisibility = 0.4;
+  static const _minVisibility = 0.4;
+  static const _minHipVisibility = 0.3;
   static const _torsoPerShoulder = 1.25;
 
   /// null nếu không thấy người hoặc không thấy hai vai. Không thấy hông thì ước lượng từ vai.
