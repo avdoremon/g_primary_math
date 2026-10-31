@@ -3,6 +3,7 @@ import 'package:g_primary_math/content/curriculum.dart';
 import 'package:g_primary_math/game/mechanics.dart';
 import 'package:g_primary_math/game/pose_answer.dart';
 import 'package:g_primary_math/motion/sim/pose_simulator.dart';
+import 'package:g_primary_math/pose/landmarks.dart';
 
 import 'mechanics_test.dart' show Rig, drive, level, question;
 
@@ -82,5 +83,69 @@ void main() {
     final rig = Rig();
     final out = drive(m, rig, (t) => SimPose(squat: (t % 1.2) < 0.6 && t < 3.6 ? 1.0 : 0), 5.5);
     expect(out, [const ReportResult(true)]);
+  });
+
+  group('làm gần đúng vẫn được', () {
+    const upSet = [AnswerAction.jump, AnswerAction.handsUp, AnswerAction.wings];
+
+    test('giơ hai tay chéo chữ V vẫn tính là giơ hai tay', () {
+      final rig = Rig();
+      final m = PoseAnswerMechanic(actions: upSet);
+      expect(drive(m, rig, after((_) => SimPose(leftArm: 320, rightArm: 40)), 1.8), [const ChooseOption(1)]);
+    });
+
+    test('dang tay hơi chúc xuống vẫn tính là dang tay', () {
+      final rig = Rig();
+      final m = PoseAnswerMechanic(actions: upSet);
+      expect(drive(m, rig, after((_) => SimPose(leftArm: 245, rightArm: 115)), 1.8), [const ChooseOption(2)]);
+    });
+
+    test('vẫy nhỏ không nhận ra thì giơ cao một tay giữ một lúc cũng tính là vẫy tay', () {
+      final rig = Rig();
+      final m = PoseAnswerMechanic(actions: const [AnswerAction.jump, AnswerAction.wave]);
+      expect(drive(m, rig, after((_) => SimPose(rightArm: 15)), 2.2), [const ChooseOption(1)]);
+    });
+
+    test('vỗ tay mà cổ tay bị che vẫn nhận nhờ ngón tay', () {
+      final rig = Rig();
+      final m = PoseAnswerMechanic(actions: all);
+      final out = drive(
+        m,
+        rig,
+        after((t) => t < 0.3
+            ? SimPose(leftArm: 200, rightArm: 160)
+            : SimPose(leftArm: 140, rightArm: 220, hidden: {PoseIdx.leftWrist, PoseIdx.rightWrist})),
+        1.6,
+      );
+      expect(out, [const ChooseOption(2)]);
+    });
+
+    test('vỗ tay ngay từ tư thế buông tay (không cần dang tay trước)', () {
+      final rig = Rig();
+      final m = PoseAnswerMechanic(actions: all);
+      expect(drive(m, rig, after((_) => SimPose(leftArm: 140, rightArm: 220)), 1.4), [const ChooseOption(2)]);
+    });
+
+    test('bé đã đứng gần camera hơn lúc hiệu chỉnh: nhảy và ngồi vẫn nhận đúng', () {
+      final rig = Rig();
+      final near = PoseAnswerMechanic(actions: all);
+      expect(
+        drive(near, rig, (t) => SimPose(scale: 1.3, centerX: 0.4, jump: t >= 0.6 && t < 1.0 ? 0.3 : 0), 1.8),
+        [const ChooseOption(0)],
+      );
+      final sit = PoseAnswerMechanic(actions: all);
+      expect(drive(sit, rig, (t) => SimPose(scale: 1.3, centerX: 0.4, squat: t < 0.6 ? 0 : 0.8), 1.8), [const ChooseOption(1)]);
+    });
+
+    test('đứng chắp tay trước bụng lúc vào câu không bị tính là vỗ tay', () {
+      final rig = Rig();
+      final m = PoseAnswerMechanic(actions: all);
+      expect(drive(m, rig, (_) => SimPose(leftArm: 140, rightArm: 220), 2), isEmpty);
+    });
+
+    test('đứng yên buông tay ở chỗ mới thì không tự chọn gì', () {
+      final rig = Rig();
+      expect(drive(PoseAnswerMechanic(actions: all), rig, (_) => SimPose(scale: 1.3, centerX: 0.4), 3), isEmpty);
+    });
   });
 }

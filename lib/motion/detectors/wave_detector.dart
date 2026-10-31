@@ -1,7 +1,7 @@
 import '../../pose/landmarks.dart';
 import '../body_metrics.dart';
 
-/// Nhận ra động tác vẫy tay: một tay giơ cao hơn vai và đưa qua đưa lại.
+/// Nhận ra động tác vẫy tay: một tay giơ lên (cao hơn vai, hoặc ngang tầm mặt) và đưa qua đưa lại.
 ///
 /// Đổi chiều ít nhất [reversals] lần, mỗi lần đi được ít nhất [swing] bề rộng vai,
 /// trong vòng [windowSeconds] giây thì tính là một lần vẫy.
@@ -35,7 +35,7 @@ class WaveDetector {
       final wi = right ? PoseIdx.rightWrist : PoseIdx.leftWrist;
       final si = right ? PoseIdx.rightShoulder : PoseIdx.leftShoulder;
       final otherRaised = body.armRaised(right: !right);
-      if (!body.sees(wi) || body.point(wi).dy > body.point(si).dy || otherRaised) {
+      if (!body.sees(wi) || body.point(wi).dy > body.point(si).dy + 0.2 * body.torsoLength || otherRaised) {
         h.clear();
         continue;
       }
