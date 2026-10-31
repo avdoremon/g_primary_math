@@ -25,8 +25,11 @@ class LandmarkSmoother {
 
   void reset() {
     _lastFrame = null;
-    _last.clear();
-    _lastAt.clear();
+    // Không xoá danh sách: _fx/_fy vẫn giữ độ dài nên vòng thêm phần tử bên dưới sẽ không chạy lại
+    // (xoá đi từng làm khung kế tiếp lỗi RangeError, bé quay lại khung hình mà game vẫn báo không thấy).
+    for (var i = 0; i < _last.length; i++) {
+      _last[i] = null;
+    }
     for (final f in _fx) {
       f.reset();
     }

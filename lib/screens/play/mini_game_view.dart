@@ -71,6 +71,8 @@ abstract class MiniGameView {
         MiniGames.runRace => const RunRaceView(),
         MiniGames.clapCount => const JumpCountView(clap: true),
         MiniGames.squatGate => const GateView(),
+        MiniGames.poseAnswer => const PoseAnswerView(),
+        MiniGames.squatCount => const JumpCountView(squat: true),
         _ => const CardsView(),
       };
 

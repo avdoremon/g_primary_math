@@ -3,9 +3,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../game/mechanics.dart';
+import '../../../game/pose_answer.dart';
+import '../../../motion/body_metrics.dart';
+import '../../../motion/sim/pose_simulator.dart';
 import '../../../ui/theme/theme.dart';
 import '../../../ui/widgets/tin_tin.dart';
 import '../kid_figure.dart';
+import '../math_art.dart';
 import '../mini_game_view.dart';
 import '../play_widgets.dart';
 import 'cards_view.dart';
@@ -264,5 +268,75 @@ class GateView extends MiniGameView {
         ),
       if (f.answering) _hintText(mech.hint ?? ''),
     ];
+  }
+}
+
+// ====================================================================== Tạo dáng trả lời (Đ + T)
+
+/// Mỗi ô đáp án có hình một động tác (nhảy, ngồi, vỗ tay, vẫy tay, giơ tay, dang tay);
+/// bé làm động tác dưới ô mình chọn.
+class PoseAnswerView extends MiniGameView {
+  const PoseAnswerView();
+
+  static final Map<AnswerAction, BodySnapshot?> _samples = {};
+
+  static BodySnapshot? sampleBody(AnswerAction a) =>
+      _samples.putIfAbsent(a, () => BodySnapshot.of(PoseSimulator().frame(a.sample, Duration.zero)));
+
+  static List<Rect> rects(PlayFrame f) => CardsView.cardRects(f, top: math.max(400.0, CardsView.cardsTop(f)));
+
+  @override
+  List<Rect> tapTargets(PlayFrame f) => f.question.options.length >= 2 ? rects(f) : const [];
+
+  @override
+  List<Widget> scene(BuildContext context, PlayFrame f) {
+    final mech = f.mechanic;
+    if (mech is! PoseAnswerMechanic) return const CardsView().scene(context, f);
+    final q = f.question;
+    final rs = rects(f);
+    final out = <Widget>[];
+    final art = CardsView.art(f);
+    if (art != null) out.add(art);
+    for (var i = 0; i < q.options.length && i < mech.actions.length; i++) {
+      final action = mech.actions[i];
+      final wiggle = action == AnswerAction.wave ? 6 * math.sin(f.time * 8) : 0.0;
+      final bounce = action == AnswerAction.jump ? 40 * math.max(0.0, math.sin(f.time * 4)).toDouble() : 0.0;
+      out.add(Positioned.fromRect(
+        key: ValueKey('answer-$i'),
+        rect: rs[i],
+        child: AnswerCard(
+          slot: i,
+          label: q.options[i],
+          mark: CardsView.markFor(f, i),
+          progress: f.answering && mech.aimed == i ? mech.progress : 0,
+          caption: action.caption,
+          content: SizedBox(
+            width: 320,
+            height: 440,
+            child: Column(
+              children: [
+                SizedBox(
+                  width: 200,
+                  height: 280,
+                  child: Transform.rotate(
+                    angle: wiggle * math.pi / 180,
+                    child: KidFigure(body: sampleBody(action), lift: bounce),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 320,
+                  height: 140,
+                  child: FittedBox(child: MathText(q.options[i], style: TvText.answerNumber.copyWith(fontSize: 110, height: 1))),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ));
+    }
+    final hint = f.answering ? mech.hint : null;
+    if (hint != null) out.add(_hintText(hint));
+    return out;
   }
 }

@@ -28,6 +28,9 @@ void main() {
     lv(MiniGames.balance, 'compare', 2, {'max': 10, 'format': 'side', 'ask': 'mixed'}),
     lv(MiniGames.runRace, 'compare', 2, {'max': 10, 'format': 'side', 'ask': 'mixed'}),
     lv(MiniGames.squatGate, 'add_sub', 2, {'max': 10, 'ops': ['+', '-'], 'format': 'true_false'}),
+    lv(MiniGames.poseAnswer, 'add_sub', 4, {'max': 20, 'ops': ['+', '-']}),
+    lv(MiniGames.poseAnswer, 'count_objects', 3, {'max': 10}),
+    lv(MiniGames.squatCount, 'skip_count', 1, {'steps': [2], 'format': 'jump', 'minJumps': 3, 'maxJumps': 5}),
     lv(MiniGames.clapCount, 'skip_count', 1, {'steps': [1], 'format': 'jump', 'minJumps': 3, 'maxJumps': 5}),
   ];
 
@@ -62,7 +65,7 @@ void main() {
           await tester.pump();
           expect(tester.takeException(), isNull, reason: '${level.miniGame} ${q.prompt}');
           // Vùng chạm màn hình khớp số đáp án (trừ Nhảy đếm / Vỗ tay không có ô).
-          if (level.miniGame != MiniGames.clapCount) {
+          if (level.miniGame != MiniGames.clapCount && level.miniGame != MiniGames.squatCount) {
             expect(view.tapTargets(f).length, q.options.length, reason: level.miniGame);
           }
         }

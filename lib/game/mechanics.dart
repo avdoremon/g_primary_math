@@ -8,7 +8,9 @@ import '../motion/detectors/arm_pose.dart';
 import '../motion/detectors/knee_lift.dart';
 import '../motion/detectors/rep_counter.dart';
 import '../motion/detectors/step_detector.dart';
+import '../motion/detectors/wave_detector.dart';
 import '../motion/dwell_selector.dart';
+import 'pose_answer.dart';
 
 /// Cách bé trả lời một câu hỏi (khớp các cơ chế trong design system).
 enum MechanicKind {
@@ -44,6 +46,9 @@ enum MechanicKind {
 
   /// Đ – ngồi xuống hoặc nhảy lên để chọn cổng thấp / cao (Cổng nhảy ngồi).
   gate,
+
+  /// Đ + T – mỗi đáp án một động tác (nhảy, ngồi, vỗ tay, vẫy tay, giơ tay, dang tay) (Tạo dáng trả lời).
+  poseAnswer,
 }
 
 /// Dữ liệu đầu vào mỗi khung hình.
@@ -168,6 +173,10 @@ abstract class AnswerMechanic {
         return CountMechanic(target: jumps, kind: RepKind.clap);
       case MiniGames.squatGate when n == 2:
         return GateMechanic();
+      case MiniGames.poseAnswer when n >= 2 && n <= 4:
+        return PoseAnswerMechanic(actions: AnswerAction.forQuestion(q));
+      case MiniGames.squatCount when jumps is int:
+        return CountMechanic(target: jumps, kind: RepKind.squat, settleSeconds: 1.2);
     }
     return TouchMechanic();
   }
@@ -881,5 +890,117 @@ class GateMechanic extends AnswerMechanic {
   MechanicSignal _finish(int option) {
     _done = true;
     return ChooseOption(option);
+  }
+}
+
+// ------------------------------------------------------------------ Đ + T (mỗi đáp án một động tác)
+
+/// Tạo dáng trả lời: ô đáp án thứ i ứng với động tác [actions] thứ i; bé làm động tác của ô mình chọn.
+///
+/// Mỗi câu bé phải đứng thẳng, buông tay một chút trước (tránh lấy luôn động tác của câu trước).
+/// Động tác giữ dáng (giơ tay, dang tay, ngồi) phải giữ [holdSeconds] giây; nhảy, vỗ tay, vẫy tay tính ngay.
+class PoseAnswerMechanic extends AnswerMechanic {
+  PoseAnswerMechanic({required this.actions, this.holdSeconds = 0.6, this.squatSeconds = 0.3});
+
+  final List<AnswerAction> actions;
+  final double holdSeconds;
+  final double squatSeconds;
+  final WaveDetector wave = WaveDetector();
+
+  bool armed = false;
+  double _neutral = 0;
+  bool _handsOpen = false;
+  double _held = 0;
+  AnswerAction? _holding;
+  bool _done = false;
+
+  /// Độ cao hông so với lúc hiệu chỉnh, theo chiều dài thân.
+  double rise = 0;
+
+  @override
+  MechanicKind get kind => MechanicKind.poseAnswer;
+
+  @override
+  bool get needsCalibration => true;
+
+  @override
+  int? get aimed {
+    final h = _holding;
+    return h == null ? null : actions.indexOf(h);
+  }
+
+  @override
+  double get progress {
+    final h = _holding;
+    if (h == null) return 0;
+    final need = h == AnswerAction.squat ? squatSeconds : holdSeconds;
+    return (_held / need).clamp(0.0, 1.0).toDouble();
+  }
+
+  @override
+  String? get hint {
+    if (_done) return null;
+    return armed ? 'Làm động tác dưới đáp án con chọn!' : 'Đứng thẳng, buông tay xuống nào!';
+  }
+
+  static bool _arm(BodySnapshot b, {required bool right, required double angle, double tolerance = 35}) {
+    final a = b.armAngle(right: right);
+    return a != null && BodySnapshot.angleDiff(a, angle) <= tolerance;
+  }
+
+  /// Dáng giữ yên đang khớp (giơ hai tay, dang tay, ngồi), null nếu không.
+  AnswerAction? _pose(BodySnapshot b) {
+    if (rise <= -0.3) return AnswerAction.squat;
+    if (_arm(b, right: false, angle: 0) && _arm(b, right: true, angle: 0)) return AnswerAction.handsUp;
+    if (_arm(b, right: false, angle: 270) && _arm(b, right: true, angle: 90)) return AnswerAction.wings;
+    return null;
+  }
+
+  @override
+  MechanicSignal? update(MechanicInput input) {
+    final cal = input.calibration;
+    final body = input.body;
+    if (_done || cal == null || body == null || cal.torsoLength <= 0) return null;
+    rise = (cal.hipCenter.dy - body.hipCenter.dy) / cal.torsoLength;
+    final gap = body.wristGap;
+    final pose = _pose(body);
+    final waved = wave.update(body);
+
+    if (!armed) {
+      final calm = pose == null && rise.abs() < 0.1 && !body.armRaised(right: false) && !body.armRaised(right: true);
+      _neutral = calm ? _neutral + input.dt : 0;
+      if (_neutral >= 0.4) {
+        armed = true;
+        wave.reset();
+        _handsOpen = gap != null && gap > 0.9;
+      }
+      return null;
+    }
+
+    if (actions.contains(AnswerAction.jump) && rise >= 0.18) return _choose(AnswerAction.jump);
+    if (actions.contains(AnswerAction.wave) && waved) return _choose(AnswerAction.wave);
+    if (gap != null) {
+      if (gap > 0.9) _handsOpen = true;
+      if (_handsOpen && gap < 0.6 && actions.contains(AnswerAction.clap)) return _choose(AnswerAction.clap);
+    }
+    if (pose != null && actions.contains(pose)) {
+      if (pose != _holding) {
+        _holding = pose;
+        _held = 0;
+      }
+      _held += input.dt;
+      final need = pose == AnswerAction.squat ? squatSeconds : holdSeconds;
+      if (_held >= need) return _choose(pose);
+    } else {
+      _holding = null;
+      _held = 0;
+    }
+    return null;
+  }
+
+  MechanicSignal _choose(AnswerAction a) {
+    _done = true;
+    _holding = a;
+    return ChooseOption(actions.indexOf(a));
   }
 }

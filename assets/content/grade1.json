@@ -58,7 +58,7 @@
             "format": "sign"
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 5,
@@ -227,7 +227,7 @@
             "ask": "mixed"
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 5,
@@ -454,7 +454,7 @@
             "max": 100
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 4,
@@ -654,7 +654,7 @@
             ]
           },
           "answers": 2,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 2,
@@ -716,7 +716,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         }
       ]
     },
@@ -768,7 +768,7 @@
             "ask": "mixed"
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 4,

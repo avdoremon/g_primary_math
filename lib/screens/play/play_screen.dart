@@ -186,8 +186,18 @@ class _PlayScreenState extends State<PlayScreen> with SingleTickerProviderStateM
   @override
   void onPoseFrame(PoseFrame frame) {
     _tracker.screenAspect = TvLayout.width / TvLayout.height;
-    _hands = _tracker.update(frame);
-    final m = _engine.process(frame);
+    final MotionFrame m;
+    try {
+      _hands = _tracker.update(frame);
+      m = _engine.process(frame);
+    } catch (e, st) {
+      // Một lỗi trong lớp xử lý không được làm game kẹt ở màn "đứng vào khung hình":
+      // làm mới bộ lọc (giữ số đo hiệu chỉnh) rồi xử lý tiếp từ khung sau.
+      debugPrint('Lỗi xử lý khung hình: $e\n$st');
+      _tracker.reset();
+      _engine.smoother.reset();
+      return;
+    }
     _motion = m;
     if (_phase == _Stage.intro && m.justCalibrated != null) _startSession();
     if (_recalibrating && m.justCalibrated != null) setState(() => _recalibrating = false);

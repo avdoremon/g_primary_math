@@ -54,4 +54,38 @@ void main() {
     expect(engine.calibration, isNotNull);
     expect(engine.tracking, TrackingState.tracking);
   });
+
+  test('bé ra khỏi khung hình rồi quay lại: game thấy lại ngay và hết báo mất hình', () {
+    final engine = MotionEngine();
+    var t = Duration.zero;
+    MotionFrame step(SimPose p) {
+      t += const Duration(milliseconds: 33);
+      return engine.process(sim.frame(p, t));
+    }
+
+    for (var i = 0; i < 50; i++) {
+      step(SimPose(leftArm: 0, rightArm: 0));
+    }
+    expect(engine.calibration, isNotNull);
+    for (var i = 0; i < 100; i++) {
+      step(SimPose(visible: false));
+    }
+    expect(engine.tracking, TrackingState.lost);
+    late MotionFrame back;
+    for (var i = 0; i < 3; i++) {
+      back = step(SimPose());
+    }
+    expect(back.body, isNotNull);
+    expect(engine.tracking, TrackingState.tracking);
+  });
+
+  test('vài khớp mất lâu rồi thấy lại cũng không lỗi', () {
+    final engine = MotionEngine();
+    var t = Duration.zero;
+    for (var i = 0; i < 60; i++) {
+      t += const Duration(milliseconds: 33);
+      final hidden = i >= 10 && i < 40 ? {PoseIdx.leftWrist, PoseIdx.rightWrist} : <int>{};
+      expect(() => engine.process(sim.frame(SimPose(hidden: hidden), t)), returnsNormally);
+    }
+  });
 }
