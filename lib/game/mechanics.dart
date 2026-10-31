@@ -10,6 +10,7 @@ import '../motion/detectors/rep_counter.dart';
 import '../motion/detectors/step_detector.dart';
 import '../motion/detectors/wave_detector.dart';
 import '../motion/dwell_selector.dart';
+import '../pose/landmarks.dart';
 import 'pose_answer.dart';
 
 /// Cách bé trả lời một câu hỏi (khớp các cơ chế trong design system).
@@ -897,24 +898,39 @@ class GateMechanic extends AnswerMechanic {
 
 /// Tạo dáng trả lời: ô đáp án thứ i ứng với động tác [actions] thứ i; bé làm động tác của ô mình chọn.
 ///
-/// Mỗi câu bé phải đứng thẳng, buông tay một chút trước (tránh lấy luôn động tác của câu trước).
-/// Động tác giữ dáng (giơ tay, dang tay, ngồi) phải giữ [holdSeconds] giây; nhảy, vỗ tay, vẫy tay tính ngay.
+/// Đầu mỗi câu bé đứng yên, buông tay một chút để cơ chế lấy mốc đứng (độ cao hông, chiều dài thân)
+/// ngay lúc đó — không dùng mốc lúc hiệu chỉnh, vì bé thường đã đứng xa / gần hơn so với lúc đầu.
+/// Nhận dáng theo vị trí bàn tay so với đầu, vai, hông (không đòi góc tay chuẩn) để trẻ làm gần đúng vẫn được:
+/// - Giơ 2 tay: hai bàn tay cao hơn mũi (thẳng hay chéo chữ V đều được), giữ [holdSeconds].
+/// - Dang tay: hai bàn tay ngang tầm vai và chìa ra ngoài vai, giữ [holdSeconds].
+/// - Ngồi: hông thấp hơn mốc đứng ≥ 0,25 thân, giữ [squatSeconds].
+/// - Nhảy: hông cao hơn mốc đứng ≥ 0,15 thân.
+/// - Vỗ tay: hai bàn tay chụm lại trước ngực (cao hơn hông).
+/// - Vẫy tay: một tay đưa qua đưa lại trên cao; hoặc giơ cao một tay giữ [waveHoldSeconds].
+/// Không thấy cổ tay (che khuất khi vỗ tay) thì dùng ngón trỏ hoặc ngón út thay.
 class PoseAnswerMechanic extends AnswerMechanic {
-  PoseAnswerMechanic({required this.actions, this.holdSeconds = 0.6, this.squatSeconds = 0.3});
+  PoseAnswerMechanic({
+    required this.actions,
+    this.holdSeconds = 0.5,
+    this.squatSeconds = 0.3,
+    this.waveHoldSeconds = 1.0,
+  });
 
   final List<AnswerAction> actions;
   final double holdSeconds;
   final double squatSeconds;
-  final WaveDetector wave = WaveDetector();
+  final double waveHoldSeconds;
+  final WaveDetector wave = WaveDetector(swing: 0.15, reversals: 2, windowSeconds: 2.0);
 
   bool armed = false;
   double _neutral = 0;
-  bool _handsOpen = false;
+  double? _baseHipY;
+  double? _baseTorso;
   double _held = 0;
   AnswerAction? _holding;
   bool _done = false;
 
-  /// Độ cao hông so với lúc hiệu chỉnh, theo chiều dài thân.
+  /// Độ cao hông so với mốc đứng, theo chiều dài thân (dương = cao hơn).
   double rise = 0;
 
   @override
@@ -929,68 +945,122 @@ class PoseAnswerMechanic extends AnswerMechanic {
     return h == null ? null : actions.indexOf(h);
   }
 
+  double _need(AnswerAction a) => switch (a) {
+        AnswerAction.squat => squatSeconds,
+        AnswerAction.wave => waveHoldSeconds,
+        _ => holdSeconds,
+      };
+
   @override
   double get progress {
     final h = _holding;
     if (h == null) return 0;
-    final need = h == AnswerAction.squat ? squatSeconds : holdSeconds;
-    return (_held / need).clamp(0.0, 1.0).toDouble();
+    return (_held / _need(h)).clamp(0.0, 1.0).toDouble();
   }
 
   @override
   String? get hint {
     if (_done) return null;
-    return armed ? 'Làm động tác dưới đáp án con chọn!' : 'Đứng thẳng, buông tay xuống nào!';
+    return armed ? 'Làm động tác dưới đáp án con chọn!' : 'Đứng yên, buông tay xuống một chút nào!';
   }
 
-  static bool _arm(BodySnapshot b, {required bool right, required double angle, double tolerance = 35}) {
-    final a = b.armAngle(right: right);
-    return a != null && BodySnapshot.angleDiff(a, angle) <= tolerance;
-  }
-
-  /// Dáng giữ yên đang khớp (giơ hai tay, dang tay, ngồi), null nếu không.
-  AnswerAction? _pose(BodySnapshot b) {
-    if (rise <= -0.3) return AnswerAction.squat;
-    if (_arm(b, right: false, angle: 0) && _arm(b, right: true, angle: 0)) return AnswerAction.handsUp;
-    if (_arm(b, right: false, angle: 270) && _arm(b, right: true, angle: 90)) return AnswerAction.wings;
+  /// Bàn tay: cổ tay, không thấy thì ngón trỏ, rồi ngón út.
+  static Offset? hand(BodySnapshot b, {required bool right}) {
+    for (final i in right
+        ? const [PoseIdx.rightWrist, PoseIdx.rightIndex, PoseIdx.rightPinky]
+        : const [PoseIdx.leftWrist, PoseIdx.leftIndex, PoseIdx.leftPinky]) {
+      if (b.sees(i)) return b.point(i);
+    }
     return null;
+  }
+
+  /// Mức "đầu": mũi nếu thấy, không thì trên vai 0,45 thân.
+  static double _headY(BodySnapshot b) =>
+      b.sees(PoseIdx.nose) ? b.point(PoseIdx.nose).dy : b.shoulderCenter.dy - 0.45 * b.torsoLength;
+
+  static bool _handHigh(BodySnapshot b, Offset? h) => h != null && h.dy < _headY(b);
+
+  static bool _handBelowShoulder(BodySnapshot b, Offset? h) => h == null || h.dy > b.shoulderCenter.dy;
+
+  /// Dáng giữ yên đang khớp, null nếu không.
+  AnswerAction? _pose(BodySnapshot b) {
+    if (rise <= -0.25) return AnswerAction.squat;
+    final l = hand(b, right: false);
+    final r = hand(b, right: true);
+    if (_handHigh(b, l) && _handHigh(b, r)) return AnswerAction.handsUp;
+    if (l != null && r != null) {
+      final t = b.torsoLength;
+      final ls = b.point(PoseIdx.leftShoulder);
+      final rs = b.point(PoseIdx.rightShoulder);
+      final level = (l.dy - ls.dy).abs() < 0.5 * t && (r.dy - rs.dy).abs() < 0.5 * t;
+      final out = ls.dx - l.dx > 0.5 * t && r.dx - rs.dx > 0.5 * t;
+      if (level && out) return AnswerAction.wings;
+    }
+    // Giơ cao đúng một tay (tay kia ở dưới vai): cách vẫy tay dự phòng khi bé vẫy nhỏ.
+    if ((_handHigh(b, l) && _handBelowShoulder(b, r)) || (_handHigh(b, r) && _handBelowShoulder(b, l))) {
+      return AnswerAction.wave;
+    }
+    return null;
+  }
+
+  bool _clapReady = false;
+
+  bool _handsApart(BodySnapshot b) {
+    final l = hand(b, right: false);
+    final r = hand(b, right: true);
+    if (l == null || r == null || b.shoulderWidth <= 0) return false;
+    final chest = b.hipCenter.dy - 0.15 * b.torsoLength;
+    return (l - r).distance / b.shoulderWidth > 0.9 || l.dy > chest || r.dy > chest;
+  }
+
+  bool _clap(BodySnapshot b) {
+    final l = hand(b, right: false);
+    final r = hand(b, right: true);
+    if (l == null || r == null || b.shoulderWidth <= 0) return false;
+    final chest = b.hipCenter.dy - 0.15 * b.torsoLength;
+    return l.dy < chest && r.dy < chest && (l - r).distance / b.shoulderWidth < 0.7;
   }
 
   @override
   MechanicSignal? update(MechanicInput input) {
-    final cal = input.calibration;
     final body = input.body;
-    if (_done || cal == null || body == null || cal.torsoLength <= 0) return null;
-    rise = (cal.hipCenter.dy - body.hipCenter.dy) / cal.torsoLength;
-    final gap = body.wristGap;
-    final pose = _pose(body);
+    if (_done || body == null || body.torsoLength <= 0) return null;
     final waved = wave.update(body);
 
     if (!armed) {
-      final calm = pose == null && rise.abs() < 0.1 && !body.armRaised(right: false) && !body.armRaised(right: true);
+      final y = body.hipCenter.dy;
+      final t = body.torsoLength;
+      final base = _baseHipY;
+      final still = base == null || (y - base).abs() < 0.08 * t;
+      _baseHipY = base == null ? y : base + (y - base) * 0.25;
+      _baseTorso = _baseTorso == null ? t : _baseTorso! + (t - _baseTorso!) * 0.25;
+      rise = 0;
+      final l = hand(body, right: false);
+      final r = hand(body, right: true);
+      final calm = still && _handBelowShoulder(body, l) && _handBelowShoulder(body, r);
       _neutral = calm ? _neutral + input.dt : 0;
-      if (_neutral >= 0.4) {
+      if (_neutral >= 0.3) {
         armed = true;
         wave.reset();
-        _handsOpen = gap != null && gap > 0.9;
+        _clapReady = false;
       }
       return null;
     }
 
-    if (actions.contains(AnswerAction.jump) && rise >= 0.18) return _choose(AnswerAction.jump);
+    rise = (_baseHipY! - body.hipCenter.dy) / _baseTorso!;
+    if (actions.contains(AnswerAction.jump) && rise >= 0.15) return _choose(AnswerAction.jump);
     if (actions.contains(AnswerAction.wave) && waved) return _choose(AnswerAction.wave);
-    if (gap != null) {
-      if (gap > 0.9) _handsOpen = true;
-      if (_handsOpen && gap < 0.6 && actions.contains(AnswerAction.clap)) return _choose(AnswerAction.clap);
-    }
+    // Vỗ tay phải là hai tay đang tách rồi mới chụm (bé đứng khoanh tay trước bụng không bị tính là vỗ).
+    if (!_clapReady) _clapReady = _handsApart(body);
+    if (actions.contains(AnswerAction.clap) && _clapReady && _clap(body)) return _choose(AnswerAction.clap);
+    final pose = _pose(body);
     if (pose != null && actions.contains(pose)) {
       if (pose != _holding) {
         _holding = pose;
         _held = 0;
       }
       _held += input.dt;
-      final need = pose == AnswerAction.squat ? squatSeconds : holdSeconds;
-      if (_held >= need) return _choose(pose);
+      if (_held >= _need(pose)) return _choose(pose);
     } else {
       _holding = null;
       _held = 0;
