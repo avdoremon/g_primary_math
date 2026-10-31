@@ -23,8 +23,10 @@ abstract class MiniGames {
   static const runRace = 'run_race'; // Chạy đua tại chỗ (Đ + B)
   static const clapCount = 'clap_count'; // Vỗ tay theo nhịp (Đ)
   static const squatGate = 'squat_gate'; // Cổng nhảy ngồi (Đ)
+  static const poseAnswer = 'pose_answer'; // Tạo dáng trả lời (Đ + T)
+  static const squatCount = 'squat_count'; // Đứng lên ngồi xuống (Đ)
 
-  static const all = {balloon, sides, jumpCount, humanClock, shapeHunt, simonSays, armAngle, numberLine, starCatch, hopTiles, touchOrder, tintinSays, balance, runRace, clapCount, squatGate};
+  static const all = {balloon, sides, jumpCount, humanClock, shapeHunt, simonSays, armAngle, numberLine, starCatch, hopTiles, touchOrder, tintinSays, balance, runRace, clapCount, squatGate, poseAnswer, squatCount};
 
   static const titles = {
     balloon: 'Bóng bay phép tính',
@@ -43,6 +45,8 @@ abstract class MiniGames {
     runRace: 'Chạy đua tại chỗ',
     clapCount: 'Vỗ tay theo nhịp',
     squatGate: 'Cổng nhảy ngồi',
+    poseAnswer: 'Tạo dáng trả lời',
+    squatCount: 'Đứng lên ngồi xuống',
   };
 
   static String title(String id) => titles[id] ?? id;

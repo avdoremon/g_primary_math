@@ -338,10 +338,13 @@ double stepShift(double offset) => (offset * 800).clamp(-1000.0, 1000.0).toDoubl
 
 /// Bộ đếm lớn, dãy số đếm thêm (2, 4, 6… hoặc 5, 10, 15…) sáng dần theo mỗi lần nhảy, Tin Tin nhảy cùng.
 class JumpCountView extends MiniGameView {
-  const JumpCountView({this.clap = false});
+  const JumpCountView({this.clap = false, this.squat = false});
 
   /// Vỗ tay thay vì nhảy.
   final bool clap;
+
+  /// Đứng lên ngồi xuống thay vì nhảy.
+  final bool squat;
 
   @override
   Widget? camTile(PlayFrame f) => null;
@@ -365,7 +368,7 @@ class JumpCountView extends MiniGameView {
         top: 380,
         width: 360,
         height: 540,
-        child: KidFigure(body: f.body, lift: clap ? 0 : rise * 252, dim: f.body == null),
+        child: KidFigure(body: f.body, lift: clap || squat ? 0 : rise * 252, dim: f.body == null),
       ),
       Positioned(
         left: 560,
@@ -415,7 +418,7 @@ class JumpCountView extends MiniGameView {
           left: 0,
           right: 0,
           bottom: 30,
-          child: Text(clap ? 'Vỗ tay nào!' : 'Nhảy lên nào!', textAlign: TextAlign.center, style: TvText.prompt.copyWith(color: TvdColors.answerADark)),
+          child: Text(clap ? 'Vỗ tay nào!' : (squat ? 'Ngồi xuống, đứng lên nào!' : 'Nhảy lên nào!'), textAlign: TextAlign.center, style: TvText.prompt.copyWith(color: TvdColors.answerADark)),
         ),
     ];
   }

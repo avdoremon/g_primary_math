@@ -14,7 +14,7 @@ import json, os
 TIMES = [15, 12, 10, 8, 6]
 
 # Bài chạm đáp án phải giữ tay 3 giây rồi mới chấm, nên cộng thêm thời gian cho mỗi câu.
-HOLD_BONUS = {"balloon": 4, "shape_hunt": 4}
+HOLD_BONUS = {"balloon": 4, "shape_hunt": 4, "pose_answer": 4}
 
 def lv(i, gen, game, answers, params=None, seconds=None, questions=10):
     return {
@@ -518,7 +518,8 @@ NEW_GAMES = {
     "balance": ["g1-so-den-10:3", "g1-do-dai:1", "g1-do-dai:3", "g1-so-den-100:4", "g3-so-den-10000:3"],
     "run_race": ["g1-do-dai:2", "g1-do-dai:4", "g2-khoi-luong-dung-tich:1", "g3-nhan-chia-100:3", "g3-cong-tru-100000:3"],
     "squat_gate": ["g1-cong-tru-10:3", "g2-cong-tru-20:3", "g2-cong-tru-100:4", "g4-on-tap:2", "g4-cong-tru:5"],
-    "clap_count": ["g2-nhan-chia:1", "g3-bang-nhan-chia:1"],
+    "clap_count": ["g2-nhan-chia:1"],
+    "squat_count": ["g3-bang-nhan-chia:1"],
 }
 _levels = {(t["id"], l["level"]): l for g in (grade1, grade2, grade3, grade4, grade5) for t in g["topics"] for l in t["levels"]}
 for _game, _where in NEW_GAMES.items():
@@ -574,6 +575,18 @@ for _g in (grade1, grade2, grade3, grade4, grade5):
             _pool = ART_POOLS[_l["answers"]]
             _l["miniGame"] = _pool[_art_turn[_l["answers"]] % len(_pool)]
             _art_turn[_l["answers"]] += 1
+
+# Tạo dáng trả lời: mỗi đáp án một động tác (nhảy, ngồi, vỗ tay, vẫy tay, giơ tay, dang tay).
+# Cứ hai level bóng bay còn lại thì đổi một.
+_seen_pose = 0
+for _g in (grade1, grade2, grade3, grade4, grade5):
+    for _t in _g["topics"]:
+        for _l in _t["levels"]:
+            if _l["miniGame"] != "balloon" or not 2 <= _l["answers"] <= 4:
+                continue
+            _seen_pose += 1
+            if _seen_pose % 2 == 0:
+                _l["miniGame"] = "pose_answer"
 
 # Bài tính nhiều bước cần thêm thời gian suy nghĩ.
 MULTI_STEP = {"expression", "word_problem", "story", "find_unknown", "mul_div_big", "time_calc", "motion", "percent",

@@ -76,7 +76,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         }
       ]
     },
@@ -178,7 +178,7 @@
             "maxRatio": 10000
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 2,
@@ -274,7 +274,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 2,
@@ -330,7 +330,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         }
       ]
     },
@@ -390,7 +390,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 5,
@@ -470,7 +470,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 5,
@@ -547,7 +547,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 5,
@@ -623,7 +623,7 @@
             "compound": true
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 5,
@@ -678,7 +678,7 @@
             "maxSide": 9
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 3,
@@ -764,7 +764,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 3,
@@ -840,7 +840,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 3,
@@ -905,7 +905,7 @@
             ]
           },
           "answers": 3,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 2,
@@ -950,7 +950,7 @@
             ]
           },
           "answers": 4,
-          "miniGame": "balloon"
+          "miniGame": "pose_answer"
         },
         {
           "level": 5,
