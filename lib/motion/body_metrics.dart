@@ -10,23 +10,43 @@ import '../pose/pose_frame.dart';
 /// "Trái/phải" trong các tên dưới đây là trái/phải THẬT của cơ thể bé;
 /// vì đã lật gương nên tay phải của bé luôn nằm bên phải màn hình.
 class BodySnapshot {
-  BodySnapshot._(this.frame, this._px);
+  BodySnapshot._(this.frame, this._px, {this.hipsEstimated = false});
 
   final PoseFrame frame;
   final List<Offset> _px;
 
-  static const _minVisibility = 0.5;
+  /// Hông không nằm trong khung hình (bé đứng gần, máy đặt thấp) nên vị trí hông được ước lượng
+  /// từ hai vai: ngay dưới vai, cách [_torsoPerShoulder] lần bề rộng vai. Nhờ vậy game chạm tay và
+  /// bước / nghiêng người vẫn chơi được khi camera chỉ thấy nửa người trên.
+  final bool hipsEstimated;
 
-  /// null nếu không thấy người hoặc không thấy đủ hai vai và hai hông.
+  static const _minVisibility = 0.5;
+  static const _minHipVisibility = 0.4;
+  static const _torsoPerShoulder = 1.25;
+
+  /// null nếu không thấy người hoặc không thấy hai vai. Không thấy hông thì ước lượng từ vai.
   static BodySnapshot? of(PoseFrame frame) {
     final lm = frame.landmarks;
     if (lm == null || frame.imageWidth <= 0 || frame.imageHeight <= 0) return null;
-    for (final i in const [PoseIdx.leftShoulder, PoseIdx.rightShoulder, PoseIdx.leftHip, PoseIdx.rightHip]) {
+    for (final i in const [PoseIdx.leftShoulder, PoseIdx.rightShoulder]) {
       if (lm[i].visibility < _minVisibility) return null;
     }
     final w = frame.imageWidth.toDouble();
     final h = frame.imageHeight.toDouble();
-    return BodySnapshot._(frame, [for (final l in lm) Offset(l.x * w, l.y * h)]);
+    final px = [for (final l in lm) Offset(l.x * w, l.y * h)];
+    final ls = px[PoseIdx.leftShoulder];
+    final rs = px[PoseIdx.rightShoulder];
+    final width = (ls - rs).distance;
+    final hipY = (px[PoseIdx.leftHip].dy + px[PoseIdx.rightHip].dy) / 2;
+    final hipsSeen = lm[PoseIdx.leftHip].visibility >= _minHipVisibility &&
+        lm[PoseIdx.rightHip].visibility >= _minHipVisibility &&
+        // Hông phải nằm dưới vai một đoạn hợp lý; nằm ngang vai hoặc cao hơn là điểm đoán bậy ngoài khung.
+        hipY - (ls.dy + rs.dy) / 2 >= width * 0.6;
+    if (hipsSeen) return BodySnapshot._(frame, px);
+    final down = Offset(0, width * _torsoPerShoulder);
+    px[PoseIdx.leftHip] = ls + down + Offset(width * 0.2, 0);
+    px[PoseIdx.rightHip] = rs + down - Offset(width * 0.2, 0);
+    return BodySnapshot._(frame, px, hipsEstimated: true);
   }
 
   Duration get time => frame.arrival;
